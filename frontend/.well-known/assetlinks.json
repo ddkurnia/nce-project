@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.nce.app",
+    "sha256_cert_fingerprints": [
+      "21A5A85308852CB5D13DF0B8EBBB6A2A815E5C6ADF634650144464F64ED55B21"
+    ]
+  }
+}]

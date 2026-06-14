@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.NCE" parent="@android:style/Theme.NoTitleBar">
-        <item name="android:windowBackground">@color/colorPrimary</item>
-        <item name="android:statusBarColor">@color/colorPrimary</item>
-        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
+    <style name="Theme.NCE" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
-    <style name="Theme.NCE.LauncherActivity" parent="Theme.NCE">
-        <item name="android:windowBackground">@color/colorPrimary</item>
+    <style name="Theme.NCE.LauncherActivity" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/colorPrimary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash</item>
+        <item name="postSplashScreenTheme">@style/Theme.NCE</item>
     </style>
 </resources>
