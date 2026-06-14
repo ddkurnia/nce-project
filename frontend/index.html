@@ -2,1578 +2,1278 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <meta name="theme-color" content="#0a0e27">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="Nusantara Commodity Exchange - Platform perdagangan komoditas Nusantara">
+  <meta name="apple-mobile-web-app-title" content="NCE">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-TileColor" content="#0a0e27">
+  <meta name="msapplication-navbutton-color" content="#0a0e27">
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./assets/images/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./assets/images/icons/favicon-16x16.png">
+  <link rel="shortcut icon" href="./assets/images/icons/favicon-32x32.png">
   <title>NCE - Nusantara Commodity Exchange</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            navy: '#0a0e27',
-            surface: '#111827',
-            surface2: '#1a2234',
-            emerald: '#10b981',
-            cyan: '#06b6d4',
-            border: '#1e293b',
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* === BASE RESET === */
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    /* ===== CORE RESET ===== */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     html, body {
-      height: 100%;
-      overflow: hidden;
-      background: #0a0e27;
-      color: #e2e8f0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      overscroll-behavior: none;
-      -webkit-overflow-scrolling: touch;
-      user-select: none;
-      -webkit-user-select: none;
+      height:100%; width:100%; overflow:hidden;
+      background:#0a0e27; color:#e2e8f0;
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+      overscroll-behavior:none; -webkit-overflow-scrolling:touch;
+      user-select:none; -webkit-user-select:none;
+      touch-action:manipulation;
+    }
+    ::-webkit-scrollbar{width:0;height:0}
+    *{scrollbar-width:none}
+    img{-webkit-user-drag:none;user-select:none}
+    a{text-decoration:none;color:inherit}
+    button{border:none;outline:none;background:none;cursor:pointer;font-family:inherit;color:inherit}
+    input,select,textarea{outline:none;border:none;font-family:inherit;color:inherit}
+
+    /* ===== APP SHELL ===== */
+    #app-shell {
+      display:flex; flex-direction:column;
+      height:100vh; height:100dvh; width:100vw;
+      position:relative; overflow:hidden;
     }
 
-    /* === SCROLLBAR === */
-    ::-webkit-scrollbar { width: 0; height: 0; }
-    * { scrollbar-width: none; }
-
-    /* === APP SHELL === */
-    .app-shell {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      height: 100dvh;
-      max-width: 480px;
-      margin: 0 auto;
-      position: relative;
-      overflow: hidden;
+    /* ===== STATUS BAR SPACER ===== */
+    .status-bar-spacer {
+      height:env(safe-area-inset-top, 0px);
+      background:#0a0e27; flex-shrink:0;
     }
 
-    /* === TOP BAR === */
-    .top-bar {
-      flex-shrink: 0;
-      height: 56px;
-      padding-top: env(safe-area-inset-top, 0px);
-      background: rgba(10, 14, 39, 0.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid #1e293b;
-      z-index: 50;
+    /* ===== APP HEADER ===== */
+    .app-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px; background:#0a0e27;
+      border-bottom:1px solid #1e293b; flex-shrink:0;
+      position:relative; z-index:100;
+    }
+    .app-header-left { display:flex; align-items:center; gap:10px; }
+    .app-header-logo { width:32px; height:32px; border-radius:8px; object-fit:contain; }
+    .app-header-title { font-size:18px; font-weight:700; letter-spacing:-0.3px; }
+    .app-header-title span { color:#10b981; }
+    .app-header-right { display:flex; align-items:center; gap:16px; }
+    .header-icon-btn {
+      width:36px; height:36px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      background:#111827; color:#94a3b8; font-size:18px;
+      transition:background .2s, color .2s; position:relative;
+    }
+    .header-icon-btn:active { background:#1e293b; color:#e2e8f0; }
+    .notif-badge {
+      position:absolute; top:4px; right:4px; width:8px; height:8px;
+      background:#ef4444; border-radius:50%; border:2px solid #0a0e27;
     }
 
-    /* === BOTTOM NAV === */
-    .bottom-nav {
-      flex-shrink: 0;
-      height: 60px;
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      background: rgba(10, 14, 39, 0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid #1e293b;
-      z-index: 50;
-    }
-
-    /* === CONTENT AREA === */
+    /* ===== CONTENT AREA ===== */
     .content-area {
-      flex: 1;
-      overflow: hidden;
-      position: relative;
+      flex:1; overflow-y:auto; overflow-x:hidden;
+      -webkit-overflow-scrolling:touch;
+      scroll-behavior:smooth;
+      padding-bottom:0;
     }
 
-    .tab-content {
-      position: absolute;
-      inset: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      overscroll-behavior: none;
-      padding: 16px;
-      opacity: 0;
-      transform: translateY(8px);
-      pointer-events: none;
-      transition: opacity 0.25s ease, transform 0.25s ease;
+    /* ===== VIEWS ===== */
+    .view { display:none; min-height:100%; }
+    .view.active { display:block; animation:viewFadeIn .25s ease; }
+    @keyframes viewFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      display:flex; align-items:stretch;
+      background:#0d1121; border-top:1px solid #1e293b;
+      padding-bottom:env(safe-area-inset-bottom, 0px);
+      flex-shrink:0; position:relative; z-index:100;
     }
-
-    .tab-content.active {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
+    .nav-item {
+      flex:1; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; padding:8px 0 6px; gap:2px;
+      color:#64748b; transition:color .2s; min-height:56px;
+      position:relative;
     }
-
-    /* === PULL TO REFRESH === */
-    .pull-indicator {
-      position: absolute;
-      top: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #1a2234;
-      border: 2px solid #10b981;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: top 0.3s ease;
-      z-index: 10;
+    .nav-item.active { color:#10b981; }
+    .nav-item.active::before {
+      content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:24px; height:3px; background:#10b981; border-radius:0 0 3px 3px;
     }
+    .nav-item svg { width:24px; height:24px; fill:currentColor; transition:fill .2s; }
+    .nav-item span { font-size:10px; font-weight:500; letter-spacing:0.2px; }
+    .nav-item:active { background:#111827; }
 
-    .pull-indicator.visible { top: 8px; }
-    .pull-indicator.spinning svg { animation: spin 0.8s linear infinite; }
-
-    /* === ANIMATIONS === */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* ===== SECTION STYLES ===== */
+    .section { padding:16px; }
+    .section-title {
+      font-size:15px; font-weight:700; color:#e2e8f0;
+      margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;
     }
+    .section-title .see-all { font-size:12px; color:#10b981; font-weight:500; }
 
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-      50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-    }
-
-    @keyframes bellShake {
-      0%, 100% { transform: rotate(0); }
-      15% { transform: rotate(14deg); }
-      30% { transform: rotate(-14deg); }
-      45% { transform: rotate(10deg); }
-      60% { transform: rotate(-8deg); }
-      75% { transform: rotate(4deg); }
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes tickerScroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    @keyframes dotPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .animate-fade-in { animation: fadeInUp 0.3s ease forwards; }
-    .animate-pulse-fab { animation: pulse 2s infinite; }
-    .animate-bell { animation: bellShake 0.8s ease-in-out; }
-    .animate-ticker { animation: tickerScroll 20s linear infinite; }
-
-    .skeleton {
-      background: linear-gradient(90deg, #1a2234 25%, #243049 50%, #1a2234 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 6px;
-    }
-
-    /* === CARD STYLES === */
+    /* ===== CARDS ===== */
     .card {
-      background: #111827;
-      border: 1px solid #1e293b;
-      border-radius: 12px;
-      padding: 16px;
-      transition: transform 0.15s ease;
+      background:#111827; border-radius:14px; padding:16px;
+      border:1px solid #1e293b; position:relative; overflow:hidden;
+    }
+    .card:active { background:#162033; }
+    .card-glow { box-shadow:0 0 40px rgba(16,185,129,0.06); }
+
+    /* ===== HOME VIEW ===== */
+    .greeting { padding:16px 16px 0; }
+    .greeting-text { font-size:13px; color:#64748b; margin-bottom:2px; }
+    .greeting-name { font-size:20px; font-weight:700; }
+
+    .balance-card {
+      margin:12px 16px; padding:20px;
+      background:linear-gradient(135deg,#0f2027,#1a3a2a,#10b98120);
+      border-radius:16px; border:1px solid #10b98130;
+      position:relative; overflow:hidden;
+    }
+    .balance-card::after {
+      content:''; position:absolute; top:-30px; right:-30px;
+      width:120px; height:120px; border-radius:50%;
+      background:radial-gradient(circle,#10b98115,transparent);
+    }
+    .balance-label { font-size:12px; color:#94a3b8; margin-bottom:4px; }
+    .balance-amount { font-size:28px; font-weight:800; letter-spacing:-0.5px; }
+    .balance-amount .currency { font-size:16px; font-weight:500; color:#94a3b8; margin-right:4px; }
+    .balance-change { display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:12px; font-weight:600; color:#10b981; background:#10b98118; padding:3px 8px; border-radius:6px; }
+
+    /* Quick Actions */
+    .quick-actions {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+      padding:0 16px; margin-bottom:16px;
+    }
+    .quick-action {
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      padding:14px 8px; background:#111827; border-radius:14px;
+      border:1px solid #1e293b; transition:all .2s;
+    }
+    .quick-action:active { background:#1a2234; transform:scale(0.96); }
+    .quick-action-icon {
+      width:40px; height:40px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px;
+    }
+    .quick-action-icon.buy { background:#10b98120; color:#10b981; }
+    .quick-action-icon.sell { background:#ef444420; color:#ef4444; }
+    .quick-action-icon.request { background:#06b6d420; color:#06b6d4; }
+    .quick-action-icon.property { background:#f59e0b20; color:#f59e0b; }
+    .quick-action span { font-size:11px; font-weight:500; color:#94a3b8; }
+
+    /* Ticker Scroll */
+    .ticker-scroll {
+      display:flex; gap:10px; overflow-x:auto; padding:0 16px 16px;
+      scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+    }
+    .ticker-item {
+      flex-shrink:0; width:140px; padding:12px;
+      background:#111827; border-radius:12px; border:1px solid #1e293b;
+      scroll-snap-align:start;
+    }
+    .ticker-name { font-size:12px; color:#94a3b8; margin-bottom:2px; }
+    .ticker-symbol { font-size:13px; font-weight:600; }
+    .ticker-price { font-size:16px; font-weight:700; margin-top:6px; }
+    .ticker-change { font-size:11px; font-weight:600; margin-top:2px; }
+    .ticker-change.up { color:#10b981; }
+    .ticker-change.down { color:#ef4444; }
+
+    /* Commodity List Item */
+    .commodity-item {
+      display:flex; align-items:center; gap:12px;
+      padding:14px 16px; border-bottom:1px solid #1e293b10;
+      transition:background .15s;
+    }
+    .commodity-item:active { background:#111827; }
+    .commodity-icon {
+      width:42px; height:42px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; flex-shrink:0;
+    }
+    .commodity-info { flex:1; min-width:0; }
+    .commodity-name { font-size:14px; font-weight:600; }
+    .commodity-origin { font-size:11px; color:#64748b; margin-top:1px; }
+    .commodity-price-col { text-align:right; flex-shrink:0; }
+    .commodity-price { font-size:14px; font-weight:700; }
+    .commodity-change { font-size:11px; font-weight:600; }
+    .commodity-change.up { color:#10b981; }
+    .commodity-change.down { color:#ef4444; }
+
+    /* Mini chart placeholder */
+    .mini-chart { width:48px; height:24px; flex-shrink:0; margin-right:8px; }
+
+    /* ===== MARKET VIEW ===== */
+    .search-bar {
+      margin:12px 16px; position:relative;
+    }
+    .search-bar input {
+      width:100%; padding:12px 16px 12px 42px;
+      background:#111827; border:1px solid #1e293b; border-radius:12px;
+      color:#e2e8f0; font-size:14px;
+    }
+    .search-bar input::placeholder { color:#475569; }
+    .search-bar input:focus { border-color:#10b981; }
+    .search-bar svg {
+      position:absolute; left:14px; top:50%; transform:translateY(-50%);
+      width:18px; height:18px; fill:#475569;
     }
 
-    .card:active { transform: scale(0.98); }
-
-    /* === TICKER === */
-    .ticker-track {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      padding: 2px 0;
+    .filter-tabs {
+      display:flex; gap:8px; padding:0 16px 12px;
+      overflow-x:auto; -webkit-overflow-scrolling:touch;
     }
-
-    .ticker-track::-webkit-scrollbar { display: none; }
-
-    .ticker-card {
-      flex-shrink: 0;
-      scroll-snap-align: start;
-      min-width: 150px;
-      background: #1a2234;
-      border: 1px solid #1e293b;
-      border-radius: 10px;
-      padding: 10px 12px;
+    .filter-tab {
+      flex-shrink:0; padding:8px 16px; border-radius:20px;
+      font-size:13px; font-weight:500; color:#64748b;
+      background:#111827; border:1px solid #1e293b;
+      transition:all .2s; white-space:nowrap;
     }
+    .filter-tab.active { background:#10b981; color:#fff; border-color:#10b981; }
+    .filter-tab:active { transform:scale(0.95); }
 
-    /* === CHIP === */
-    .chip {
-      flex-shrink: 0;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-      background: #1a2234;
-      color: #94a3b8;
-      border: 1px solid #1e293b;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    /* ===== ORDERS VIEW ===== */
+    .order-tabs {
+      display:flex; margin:12px 16px; background:#111827; border-radius:12px; padding:4px;
+      border:1px solid #1e293b;
     }
-
-    .chip.active {
-      background: rgba(16, 185, 129, 0.15);
-      color: #10b981;
-      border-color: rgba(16, 185, 129, 0.3);
+    .order-tab {
+      flex:1; padding:10px; text-align:center; font-size:13px; font-weight:600;
+      border-radius:10px; color:#64748b; transition:all .2s;
     }
+    .order-tab.active { background:#10b981; color:#fff; }
 
-    /* === FAB === */
+    .order-card {
+      margin:0 16px 10px; padding:16px; background:#111827;
+      border-radius:14px; border:1px solid #1e293b;
+    }
+    .order-card:active { background:#162033; }
+    .order-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .order-type { font-size:13px; font-weight:600; }
+    .order-status { font-size:11px; font-weight:600; padding:3px 10px; border-radius:6px; }
+    .order-status.active { background:#10b98120; color:#10b981; }
+    .order-status.completed { background:#06b6d420; color:#06b6d4; }
+    .order-status.cancelled { background:#ef444420; color:#ef4444; }
+    .order-status.pending { background:#f59e0b20; color:#f59e0b; }
+    .order-detail { display:flex; justify-content:space-between; padding:4px 0; }
+    .order-detail-label { font-size:12px; color:#64748b; }
+    .order-detail-value { font-size:12px; font-weight:500; }
+
+    /* FAB */
     .fab {
-      position: fixed;
-      bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-      right: 20px;
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #10b981, #06b6d4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
-      z-index: 40;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.2s ease;
+      position:fixed; bottom:80px; right:20px;
+      width:56px; height:56px; border-radius:16px;
+      background:linear-gradient(135deg,#10b981,#059669);
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font-size:28px; font-weight:300;
+      box-shadow:0 8px 24px #10b98140;
+      z-index:90; transition:transform .2s, box-shadow .2s;
     }
+    .fab:active { transform:scale(0.92); box-shadow:0 4px 16px #10b98130; }
 
-    .fab:active { transform: scale(0.92); }
-
-    /* === BADGE === */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
+    /* ===== PROPERTY VIEW ===== */
+    .property-banner-scroll {
+      display:flex; gap:12px; padding:12px 16px;
+      overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scroll-snap-type:x mandatory;
     }
-
-    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
-    .badge-yellow { background: rgba(234, 179, 8, 0.15); color: #eab308; }
-    .badge-gray { background: rgba(100, 116, 139, 0.15); color: #94a3b8; }
-    .badge-red { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-
-    /* === PROPERTY GRID === */
-    .prop-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+    .property-banner {
+      flex-shrink:0; width:calc(100vw - 48px); height:160px;
+      border-radius:16px; overflow:hidden; position:relative;
+      scroll-snap-align:start;
     }
-
-    .prop-card {
-      background: #111827;
-      border: 1px solid #1e293b;
-      border-radius: 12px;
-      overflow: hidden;
-      transition: transform 0.15s ease;
+    .property-banner-bg {
+      width:100%; height:100%; object-fit:cover;
     }
-
-    .prop-card:active { transform: scale(0.97); }
-
-    .prop-img {
-      width: 100%;
-      aspect-ratio: 4/3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .property-banner-overlay {
+      position:absolute; bottom:0; left:0; right:0; padding:16px;
+      background:linear-gradient(transparent,rgba(10,14,39,0.95));
     }
+    .property-banner-title { font-size:16px; font-weight:700; }
+    .property-banner-price { font-size:13px; color:#10b981; font-weight:600; margin-top:2px; }
 
-    /* === SUB TABS === */
-    .sub-tabs {
-      display: flex;
-      gap: 0;
-      background: #111827;
-      border-radius: 10px;
-      padding: 3px;
-      border: 1px solid #1e293b;
+    .property-card {
+      margin:0 16px 12px; padding:0; background:#111827;
+      border-radius:14px; border:1px solid #1e293b; overflow:hidden;
     }
+    .property-card:active { background:#162033; }
+    .property-card-img { width:100%; height:140px; object-fit:cover; }
+    .property-card-body { padding:14px; }
+    .property-card-title { font-size:14px; font-weight:600; margin-bottom:4px; }
+    .property-card-location { font-size:12px; color:#64748b; display:flex; align-items:center; gap:4px; margin-bottom:8px; }
+    .property-card-footer { display:flex; justify-content:space-between; align-items:center; }
+    .property-card-price { font-size:16px; font-weight:700; color:#10b981; }
+    .property-card-tag { font-size:10px; font-weight:600; padding:3px 8px; border-radius:6px; background:#06b6d420; color:#06b6d4; }
 
-    .sub-tab {
-      flex: 1;
-      padding: 8px 4px;
-      text-align: center;
-      font-size: 13px;
-      font-weight: 500;
-      color: #64748b;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: none;
-      background: transparent;
+    /* ===== PROFILE VIEW ===== */
+    .profile-header {
+      display:flex; flex-direction:column; align-items:center;
+      padding:24px 16px; position:relative;
     }
-
-    .sub-tab.active {
-      background: #1a2234;
-      color: #10b981;
+    .profile-avatar {
+      width:72px; height:72px; border-radius:20px; border:3px solid #10b981;
+      object-fit:contain; background:#111827; padding:4px;
     }
-
-    /* === MENU ITEM === */
-    .menu-item {
-      display: flex;
-      align-items: center;
-      padding: 14px 0;
-      border-bottom: 1px solid #1e293b;
-      cursor: pointer;
-      transition: opacity 0.15s ease;
+    .profile-name { font-size:18px; font-weight:700; margin-top:12px; }
+    .profile-role { font-size:13px; color:#10b981; font-weight:500; margin-top:2px; }
+    .profile-stats {
+      display:flex; gap:0; margin-top:16px; background:#111827; border-radius:14px;
+      border:1px solid #1e293b; width:100%; overflow:hidden;
     }
+    .profile-stat {
+      flex:1; text-align:center; padding:14px 8px;
+      border-right:1px solid #1e293b;
+    }
+    .profile-stat:last-child { border-right:none; }
+    .profile-stat-value { font-size:16px; font-weight:700; color:#10b981; }
+    .profile-stat-label { font-size:10px; color:#64748b; margin-top:2px; }
 
-    .menu-item:active { opacity: 0.7; }
-    .menu-item:last-child { border-bottom: none; }
+    .settings-group { padding:0 16px; margin-bottom:16px; }
+    .settings-group-title { font-size:12px; color:#64748b; font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+    .settings-list { background:#111827; border-radius:14px; border:1px solid #1e293b; overflow:hidden; }
+    .settings-item {
+      display:flex; align-items:center; gap:12px;
+      padding:14px 16px; border-bottom:1px solid #1e293b20;
+      transition:background .15s;
+    }
+    .settings-item:last-child { border-bottom:none; }
+    .settings-item:active { background:#162033; }
+    .settings-item-icon {
+      width:36px; height:36px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; flex-shrink:0;
+    }
+    .settings-item-icon.green { background:#10b98120; color:#10b981; }
+    .settings-item-icon.blue { background:#06b6d420; color:#06b6d4; }
+    .settings-item-icon.yellow { background:#f59e0b20; color:#f59e0b; }
+    .settings-item-icon.red { background:#ef444420; color:#ef4444; }
+    .settings-item-icon.purple { background:#8b5cf620; color:#8b5cf6; }
+    .settings-item-text { flex:1; }
+    .settings-item-label { font-size:14px; font-weight:500; }
+    .settings-item-desc { font-size:11px; color:#64748b; margin-top:1px; }
+    .settings-item-arrow { color:#475569; font-size:14px; }
 
-    /* === OVERLAY === */
+    /* ===== MODAL / BOTTOM SHEET ===== */
     .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 100;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+      z-index:200; justify-content:flex-end; flex-direction:column;
+    }
+    .modal-overlay.show { display:flex; animation:fadeIn .2s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .bottom-sheet {
+      background:#0d1121; border-radius:20px 20px 0 0;
+      padding:8px 0 env(safe-area-inset-bottom, 20px);
+      max-height:85vh; overflow-y:auto;
+      animation:slideUp .3s cubic-bezier(.32,.72,0,1);
+    }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .bottom-sheet-handle {
+      width:36px; height:4px; background:#334155; border-radius:2px;
+      margin:4px auto 12px;
+    }
+    .bottom-sheet-title {
+      font-size:17px; font-weight:700; padding:0 20px 16px;
     }
 
-    .modal-overlay.show {
-      opacity: 1;
-      pointer-events: auto;
+    /* ===== TOAST ===== */
+    .toast {
+      position:fixed; top:60px; left:16px; right:16px;
+      padding:14px 16px; background:#111827; border:1px solid #1e293b;
+      border-radius:14px; z-index:300;
+      display:flex; align-items:center; gap:10px;
+      transform:translateY(-100px); opacity:0;
+      transition:all .3s cubic-bezier(.32,.72,0,1);
     }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast-icon { font-size:20px; }
+    .toast-text { font-size:13px; font-weight:500; }
 
-    .modal-sheet {
-      width: 100%;
-      max-width: 480px;
-      background: #111827;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      padding: 20px 16px;
-      padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-      transform: translateY(100%);
-      transition: transform 0.3s ease;
-      border-top: 1px solid #1e293b;
+    /* ===== PULL TO REFRESH ===== */
+    .pull-indicator {
+      text-align:center; padding:8px; font-size:12px; color:#64748b;
+      display:none;
     }
+    .pull-indicator.visible { display:block; }
 
-    .modal-overlay.show .modal-sheet {
-      transform: translateY(0);
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; padding:48px 24px; text-align:center;
     }
+    .empty-state-icon { font-size:48px; margin-bottom:12px; opacity:0.5; }
+    .empty-state-title { font-size:16px; font-weight:600; margin-bottom:4px; }
+    .empty-state-desc { font-size:13px; color:#64748b; }
 
-    .modal-handle {
-      width: 36px;
-      height: 4px;
-      background: #374151;
-      border-radius: 2px;
-      margin: 0 auto 16px;
+    /* ===== CHART PLACEHOLDER ===== */
+    .chart-area {
+      height:180px; padding:0 16px; margin-bottom:12px;
     }
+    .chart-canvas { width:100%; height:100%; }
 
-    /* === INPUT === */
-    .input-dark {
-      width: 100%;
-      background: #0a0e27;
-      border: 1px solid #1e293b;
-      border-radius: 10px;
-      padding: 10px 14px 10px 40px;
-      color: #e2e8f0;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s ease;
+    /* ===== LIVE DOT ===== */
+    .live-dot {
+      display:inline-block; width:6px; height:6px; border-radius:50%;
+      background:#10b981; margin-right:4px;
+      animation:pulse 2s infinite;
     }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    .input-dark:focus { border-color: #10b981; }
-    .input-dark::placeholder { color: #475569; }
-
-    /* === SEARCH OVERLAY === */
-    .search-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(10, 14, 39, 0.97);
-      z-index: 60;
-      display: flex;
-      flex-direction: column;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
+    /* ===== LOADING SKELETON ===== */
+    .skeleton {
+      background:linear-gradient(90deg,#111827 25%,#1a2234 50%,#111827 75%);
+      background-size:200% 100%; border-radius:8px;
+      animation:shimmer 1.5s infinite;
     }
-
-    .search-overlay.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    /* === SPARKLINE === */
-    .sparkline { display: block; }
-
-    /* === NOTIFICATION DOT === */
-    .notif-dot {
-      position: absolute;
-      top: -2px;
-      right: -2px;
-      width: 8px;
-      height: 8px;
-      background: #ef4444;
-      border-radius: 50%;
-      border: 2px solid #0a0e27;
-      animation: dotPulse 2s infinite;
-    }
-
-    /* === ACTIVE TAB DOT === */
-    .nav-dot {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #10b981;
-      margin-top: 2px;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-
-    .nav-item.active .nav-dot { opacity: 1; }
-
-    /* === PRICE FLASH === */
-    .price-flash-up { animation: flashUp 0.6s ease; }
-    .price-flash-down { animation: flashDown 0.6s ease; }
-
-    @keyframes flashUp {
-      0% { color: #10b981; }
-      100% { color: inherit; }
-    }
-
-    @keyframes flashDown {
-      0% { color: #ef4444; }
-      100% { color: inherit; }
-    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
   </style>
 </head>
 <body>
-  <div class="app-shell" id="app">
+  <div id="app-shell">
+    <!-- Status Bar Spacer -->
+    <div class="status-bar-spacer"></div>
 
-    <!-- ===== TOP APP BAR ===== -->
-    <header class="top-bar flex items-center justify-between px-4">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #10b981, #06b6d4);">
-          <span class="text-white font-bold text-sm">N</span>
-        </div>
-        <span class="text-white font-bold text-lg tracking-wide">NCE</span>
+    <!-- App Header -->
+    <header class="app-header">
+      <div class="app-header-left">
+        <img src="./assets/images/nce-logo.png" alt="NCE" class="app-header-logo">
+        <div class="app-header-title"><span>NCE</span> Exchange</div>
       </div>
-      <div class="flex items-center gap-1">
-        <button class="w-10 h-10 flex items-center justify-center rounded-xl active:bg-white/5" onclick="toggleSearch()" aria-label="Cari">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div class="app-header-right">
+        <button class="header-icon-btn" onclick="showToast('search','Fitur pencarian segera hadir')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </button>
-        <button class="w-10 h-10 flex items-center justify-center rounded-xl active:bg-white/5 relative" id="bellBtn" onclick="shakeBell()" aria-label="Notifikasi">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span class="notif-dot"></span>
+        <button class="header-icon-btn" onclick="showToast('notif','Tidak ada notifikasi baru')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-badge"></span>
         </button>
-        <button class="w-10 h-10 flex items-center justify-center rounded-xl active:bg-white/5" aria-label="Profil" onclick="switchTab(4)">
-          <div class="w-7 h-7 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #10b981, #06b6d4);">
-            <span class="text-white font-semibold text-xs">DK</span>
-          </div>
+        <button class="header-icon-btn" onclick="showToast('scan','QR Scan segera hadir')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10"/></svg>
         </button>
       </div>
     </header>
 
-    <!-- ===== CONTENT AREA ===== -->
-    <main class="content-area">
+    <!-- Content Area -->
+    <div class="content-area" id="contentArea">
 
-      <!-- ===== TAB 1: HOME ===== -->
-      <div class="tab-content active" id="tab-home">
-
-        <!-- Portfolio Summary -->
-        <div class="card mb-4">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-xs text-slate-400">Total Nilai Portofolio</span>
-            <span class="badge badge-emerald">+2.4%</span>
-          </div>
-          <div class="text-2xl font-bold text-white mb-0.5">Rp 125.400.000</div>
-          <div class="text-xs text-emerald-400">+Rp 2.940.000 hari ini</div>
+      <!-- ===== HOME VIEW ===== -->
+      <div class="view active" id="view-home">
+        <div class="greeting">
+          <div class="greeting-text">Selamat datang 👋</div>
+          <div class="greeting-name">NCE Trading</div>
         </div>
 
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-4 gap-2 mb-4">
-          <div class="card !p-3 text-center">
-            <div class="text-lg font-bold text-white">1.234</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">Pembeli</div>
-          </div>
-          <div class="card !p-3 text-center">
-            <div class="text-lg font-bold text-white">567</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">Penjual</div>
-          </div>
-          <div class="card !p-3 text-center">
-            <div class="text-lg font-bold text-white">892</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">Listing</div>
-          </div>
-          <div class="card !p-3 text-center">
-            <div class="text-lg font-bold text-white">3.456</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">Transaksi</div>
+        <!-- Balance Card -->
+        <div class="balance-card card-glow">
+          <div class="balance-label">Total Portofolio</div>
+          <div class="balance-amount"><span class="currency">IDR</span>2,847,350,000</div>
+          <div class="balance-change">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 12H4z"/></svg>
+            +12.4% bulan ini
           </div>
         </div>
 
-        <!-- Price Ticker -->
-        <div class="mb-4">
-          <div class="flex items-center justify-between mb-2.5">
-            <span class="text-sm font-semibold text-white">Harga Komoditas</span>
-            <span class="text-xs text-emerald-400 cursor-pointer" onclick="switchTab(1)">Lihat Semua →</span>
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <button class="quick-action" onclick="switchTab(1)">
+            <div class="quick-action-icon buy">📊</div>
+            <span>Beli</span>
+          </button>
+          <button class="quick-action" onclick="showToast('sell','Fitur jual segera hadir')">
+            <div class="quick-action-icon sell">📉</div>
+            <span>Jual</span>
+          </button>
+          <button class="quick-action" onclick="switchTab(2)">
+            <div class="quick-action-icon request">📝</div>
+            <span>Permintaan</span>
+          </button>
+          <button class="quick-action" onclick="switchTab(3)">
+            <div class="quick-action-icon property">🏠</div>
+            <span>Properti</span>
+          </button>
+        </div>
+
+        <!-- Live Tickers -->
+        <div class="section">
+          <div class="section-title">
+            <span><span class="live-dot"></span>Harga Live</span>
+            <span class="see-all" onclick="switchTab(1)">Lihat Semua →</span>
           </div>
-          <div class="ticker-track" id="tickerTrack">
-            <!-- Ticker cards generated by JS -->
+        </div>
+        <div class="ticker-scroll" id="tickerScroll">
+          <div class="ticker-item">
+            <div class="ticker-name">Sawit CPO</div>
+            <div class="ticker-symbol">CPO</div>
+            <div class="ticker-price">14,250</div>
+            <div class="ticker-change up">+2.3%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Kopi Arabika</div>
+            <div class="ticker-symbol">KPI</div>
+            <div class="ticker-price">68,500</div>
+            <div class="ticker-change up">+1.8%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Nikel</div>
+            <div class="ticker-symbol">NKL</div>
+            <div class="ticker-price">182,300</div>
+            <div class="ticker-change down">-0.9%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Tembaga</div>
+            <div class="ticker-symbol">TMB</div>
+            <div class="ticker-price">95,800</div>
+            <div class="ticker-change up">+3.1%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Timah</div>
+            <div class="ticker-symbol">TMH</div>
+            <div class="ticker-price">278,500</div>
+            <div class="ticker-change up">+0.5%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Batu Bara</div>
+            <div class="ticker-symbol">BBA</div>
+            <div class="ticker-price">2,845</div>
+            <div class="ticker-change down">-1.2%</div>
           </div>
         </div>
 
-        <!-- Hot Commodities -->
-        <div class="mb-4">
-          <div class="flex items-center justify-between mb-2.5">
-            <span class="text-sm font-semibold text-white">Komoditas Populer</span>
-            <span class="text-xs text-emerald-400 cursor-pointer" onclick="switchTab(1)">Lihat Semua →</span>
+        <!-- Market Overview Chart -->
+        <div class="section" style="padding-top:0">
+          <div class="section-title">Grafik Pasar</div>
+          <div class="chart-area">
+            <canvas id="homeChart" class="chart-canvas"></canvas>
           </div>
+        </div>
 
-          <div class="space-y-2" id="hotCommodities">
-            <!-- Item 1 -->
-            <div class="card !p-3 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(16, 185, 129, 0.15);">
-                <span class="text-emerald-400 font-bold text-sm">P</span>
+        <!-- Trending Commodities -->
+        <div class="section" style="padding-top:0">
+          <div class="section-title">
+            <span>Komoditas Populer</span>
+            <span class="see-all" onclick="switchTab(1)">Lihat Semua →</span>
+          </div>
+          <div id="homeCommodityList">
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#10b98120">🌴</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Kelapa Sawit CPO</div>
+                <div class="commodity-origin">Riau, Sumatera</div>
               </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-semibold text-white">Pinang</div>
-                <div class="text-xs text-slate-400">Rp 45.000/kg</div>
-              </div>
-              <div class="text-right flex-shrink-0">
-                <div class="text-xs font-semibold text-emerald-400">+3.2%</div>
-                <svg class="sparkline mt-1" width="60" height="20" viewBox="0 0 60 20"><polyline fill="none" stroke="#10b981" stroke-width="1.5" points="0,15 8,12 16,14 24,8 32,10 40,5 48,7 56,3"/></svg>
+              <canvas class="mini-chart" id="miniChart1"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">14,250/kg</div>
+                <div class="commodity-change up">+2.3%</div>
               </div>
             </div>
-
-            <!-- Item 2 -->
-            <div class="card !p-3 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(234, 179, 8, 0.15);">
-                <span class="text-yellow-400 font-bold text-sm">K</span>
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#8b5cf620">☕</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Kopi Arabika</div>
+                <div class="commodity-origin">Aceh, Sumatera</div>
               </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-semibold text-white">Kakao</div>
-                <div class="text-xs text-slate-400">Rp 58.000/kg</div>
-              </div>
-              <div class="text-right flex-shrink-0">
-                <div class="text-xs font-semibold text-emerald-400">+5.1%</div>
-                <svg class="sparkline mt-1" width="60" height="20" viewBox="0 0 60 20"><polyline fill="none" stroke="#10b981" stroke-width="1.5" points="0,18 8,16 16,14 24,12 32,9 40,7 48,4 56,2"/></svg>
+              <canvas class="mini-chart" id="miniChart2"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">68,500/kg</div>
+                <div class="commodity-change up">+1.8%</div>
               </div>
             </div>
-
-            <!-- Item 3 -->
-            <div class="card !p-3 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(6, 182, 212, 0.15);">
-                <span class="text-cyan-400 font-bold text-sm">S</span>
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#06b6d420">⛏️</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Nikel</div>
+                <div class="commodity-origin">Sulawesi Tengah</div>
               </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-semibold text-white">Sawit</div>
-                <div class="text-xs text-slate-400">Rp 12.300/kg</div>
-              </div>
-              <div class="text-right flex-shrink-0">
-                <div class="text-xs font-semibold text-emerald-400">+0.8%</div>
-                <svg class="sparkline mt-1" width="60" height="20" viewBox="0 0 60 20"><polyline fill="none" stroke="#10b981" stroke-width="1.5" points="0,12 8,10 16,14 24,11 32,9 40,12 48,8 56,10"/></svg>
+              <canvas class="mini-chart" id="miniChart3"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">182,300/kg</div>
+                <div class="commodity-change down">-0.9%</div>
               </div>
             </div>
-
-            <!-- Item 4 -->
-            <div class="card !p-3 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(139, 92, 246, 0.15);">
-                <span class="text-violet-400 font-bold text-sm">Ko</span>
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#f59e0b20">🪙</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Tembaga</div>
+                <div class="commodity-origin">Papua</div>
               </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-semibold text-white">Kopi</div>
-                <div class="text-xs text-slate-400">Rp 95.000/kg</div>
+              <canvas class="mini-chart" id="miniChart4"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">95,800/kg</div>
+                <div class="commodity-change up">+3.1%</div>
               </div>
-              <div class="text-right flex-shrink-0">
-                <div class="text-xs font-semibold text-red-400">-0.3%</div>
-                <svg class="sparkline mt-1" width="60" height="20" viewBox="0 0 60 20"><polyline fill="none" stroke="#ef4444" stroke-width="1.5" points="0,6 8,8 16,7 24,10 32,9 40,12 48,11 56,14"/></svg>
+            </div>
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#ef444420">🔥</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Batu Bara</div>
+                <div class="commodity-origin">Kalimantan Timur</div>
+              </div>
+              <canvas class="mini-chart" id="miniChart5"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">2,845/kg</div>
+                <div class="commodity-change down">-1.2%</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Recent Activity -->
-        <div class="mb-2">
-          <div class="flex items-center justify-between mb-2.5">
-            <span class="text-sm font-semibold text-white">Aktivitas Terakhir</span>
-          </div>
-
-          <div class="space-y-2">
-            <div class="card !p-3 flex items-center gap-3">
-              <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background: rgba(16, 185, 129, 0.15);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm text-white font-medium">Beli Pinang</div>
-                <div class="text-xs text-slate-400">500 kg • Rp 22.500.000</div>
-              </div>
-              <div class="text-right flex-shrink-0">
-                <span class="badge badge-emerald">Selesai</span>
-                <div class="text-[10px] text-slate-500 mt-1">2 jam lalu</div>
+        <div class="section" style="padding-top:0; padding-bottom:24px;">
+          <div class="section-title">Aktivitas Terakhir</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="card" style="padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Beli CPO - 50 Ton</div>
+                  <div style="font-size:11px;color:#64748b;margin-top:2px;">Hari ini, 14:32</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:13px;font-weight:600;color:#10b981;">+Rp 712.5M</div>
+                  <div style="font-size:10px;color:#64748b;">Selesai</div>
+                </div>
               </div>
             </div>
-
-            <div class="card !p-3 flex items-center gap-3">
-              <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background: rgba(234, 179, 8, 0.15);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm text-white font-medium">Jual Kakao</div>
-                <div class="text-xs text-slate-400">200 kg • Rp 11.600.000</div>
-              </div>
-              <div class="text-right flex-shrink-0">
-                <span class="badge badge-yellow">Negosiasi</span>
-                <div class="text-[10px] text-slate-500 mt-1">5 jam lalu</div>
+            <div class="card" style="padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Jual Nikel - 20 Ton</div>
+                  <div style="font-size:11px;color:#64748b;margin-top:2px;">Kemarin, 09:15</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:13px;font-weight:600;color:#10b981;">+Rp 3.64M</div>
+                  <div style="font-size:10px;color:#64748b;">Selesai</div>
+                </div>
               </div>
             </div>
-
-            <div class="card !p-3 flex items-center gap-3">
-              <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background: rgba(6, 182, 212, 0.15);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm text-white font-medium">Jual Sawit</div>
-                <div class="text-xs text-slate-400">1.000 kg • Rp 12.300.000</div>
-              </div>
-              <div class="text-right flex-shrink-0">
-                <span class="badge badge-cyan">Dikirim</span>
-                <div class="text-[10px] text-slate-500 mt-1">1 hari lalu</div>
+            <div class="card" style="padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Permintaan Kopi</div>
+                  <div style="font-size:11px;color:#64748b;margin-top:2px;">2 hari lalu, 16:45</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:13px;font-weight:600;color:#f59e0b;">Pending</div>
+                  <div style="font-size:10px;color:#64748b;">Menunggu</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        <div class="h-4"></div>
       </div>
 
-      <!-- ===== TAB 2: MARKET ===== -->
-      <div class="tab-content" id="tab-market">
-
-        <!-- Search Bar -->
-        <div class="relative mb-3">
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" class="input-dark" placeholder="Cari komoditas..." id="marketSearch" oninput="filterMarket()">
+      <!-- ===== MARKET VIEW ===== -->
+      <div class="view" id="view-market">
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" placeholder="Cari komoditas..." id="marketSearch" oninput="filterMarket()">
         </div>
 
-        <!-- Category Chips -->
-        <div class="flex gap-2 overflow-x-auto mb-4 pb-1" style="-webkit-overflow-scrolling:touch;" id="categoryChips">
-          <button class="chip active" onclick="selectCategory(this, 'semua')">Semua</button>
-          <button class="chip" onclick="selectCategory(this, 'pinang')">Pinang</button>
-          <button class="chip" onclick="selectCategory(this, 'kelapa')">Kelapa</button>
-          <button class="chip" onclick="selectCategory(this, 'sawit')">Sawit</button>
-          <button class="chip" onclick="selectCategory(this, 'kakao')">Kakao</button>
-          <button class="chip" onclick="selectCategory(this, 'kopi')">Kopi</button>
-          <button class="chip" onclick="selectCategory(this, 'karet')">Karet</button>
-          <button class="chip" onclick="selectCategory(this, 'sagu')">Sagu</button>
-          <button class="chip" onclick="selectCategory(this, 'rumput laut')">Rumput Laut</button>
+        <div class="filter-tabs" id="marketFilters">
+          <button class="filter-tab active" onclick="setMarketFilter(this,'all')">Semua</button>
+          <button class="filter-tab" onclick="setMarketFilter(this,'agri')">🌾 Pertanian</button>
+          <button class="filter-tab" onclick="setMarketFilter(this,'mining')">⛏️ Pertambangan</button>
+          <button class="filter-tab" onclick="setMarketFilter(this,'forest')">🌲 Kehutanan</button>
+          <button class="filter-tab" onclick="setMarketFilter(this,'marine')">🐟 Perikanan</button>
         </div>
 
-        <!-- Commodity List -->
-        <div class="space-y-1" id="commodityList">
-
-          <div class="flex items-center gap-3 py-3 border-b border-border cursor-pointer active:bg-white/3 commodity-item" data-category="pinang" data-name="Pinang">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(16, 185, 129, 0.15);">
-              <span class="text-emerald-400 font-bold text-sm">P</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-white">Pinang</div>
-              <div class="text-xs text-slate-400">Areca catechu</div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <div class="text-sm font-semibold text-white">Rp 45.000</div>
-              <div class="text-xs font-semibold text-emerald-400">▲ +3.2%</div>
-            </div>
+        <!-- Market Stats -->
+        <div style="display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto;">
+          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+            <div style="font-size:10px;color:#64748b;">Volume 24h</div>
+            <div style="font-size:14px;font-weight:700;color:#10b981;">2.4T</div>
           </div>
-
-          <div class="flex items-center gap-3 py-3 border-b border-border cursor-pointer active:bg-white/3 commodity-item" data-category="kelapa" data-name="Kelapa">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(234, 179, 8, 0.15);">
-              <span class="text-yellow-400 font-bold text-sm">K</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-white">Kelapa</div>
-              <div class="text-xs text-slate-400">Cocos nucifera</div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <div class="text-sm font-semibold text-white">Rp 8.500</div>
-              <div class="text-xs font-semibold text-red-400">▼ -1.1%</div>
-            </div>
+          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+            <div style="font-size:10px;color:#64748b;">Transaksi</div>
+            <div style="font-size:14px;font-weight:700;">12,847</div>
           </div>
-
-          <div class="flex items-center gap-3 py-3 border-b border-border cursor-pointer active:bg-white/3 commodity-item" data-category="sawit" data-name="Sawit">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(6, 182, 212, 0.15);">
-              <span class="text-cyan-400 font-bold text-sm">S</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-white">Sawit</div>
-              <div class="text-xs text-slate-400">Elaeis guineensis</div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <div class="text-sm font-semibold text-white">Rp 12.300</div>
-              <div class="text-xs font-semibold text-emerald-400">▲ +0.8%</div>
-            </div>
+          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+            <div style="font-size:10px;color:#64748b;">Komoditas</div>
+            <div style="font-size:14px;font-weight:700;">256</div>
           </div>
-
-          <div class="flex items-center gap-3 py-3 border-b border-border cursor-pointer active:bg-white/3 commodity-item" data-category="kakao" data-name="Kakao">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(234, 179, 8, 0.15);">
-              <span class="text-yellow-400 font-bold text-sm">Kk</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-white">Kakao</div>
-              <div class="text-xs text-slate-400">Theobroma cacao</div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <div class="text-sm font-semibold text-white">Rp 58.000</div>
-              <div class="text-xs font-semibold text-emerald-400">▲ +5.1%</div>
-            </div>
+          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+            <div style="font-size:10px;color:#64748b;">Produsen</div>
+            <div style="font-size:14px;font-weight:700;">1,423</div>
           </div>
-
-          <div class="flex items-center gap-3 py-3 border-b border-border cursor-pointer active:bg-white/3 commodity-item" data-category="kopi" data-name="Kopi">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(139, 92, 246, 0.15);">
-              <span class="text-violet-400 font-bold text-sm">Ko</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-white">Kopi</div>
-              <div class="text-xs text-slate-400">Coffea spp.</div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <div class="text-sm font-semibold text-white">Rp 95.000</div>
-              <div class="text-xs font-semibold text-red-400">▼ -0.3%</div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3 py-3 border-b border-border cursor-pointer active:bg-white/3 commodity-item" data-category="karet" data-name="Karet">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(244, 114, 182, 0.15);">
-              <span class="text-pink-400 font-bold text-sm">Kr</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-white">Karet</div>
-              <div class="text-xs text-slate-400">Hevea brasiliensis</div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <div class="text-sm font-semibold text-white">Rp 15.200</div>
-              <div class="text-xs font-semibold text-emerald-400">▲ +1.7%</div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3 py-3 border-b border-border cursor-pointer active:bg-white/3 commodity-item" data-category="sagu" data-name="Sagu">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(251, 146, 60, 0.15);">
-              <span class="text-orange-400 font-bold text-sm">Sg</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-white">Sagu</div>
-              <div class="text-xs text-slate-400">Metroxylon sagu</div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <div class="text-sm font-semibold text-white">Rp 22.000</div>
-              <div class="text-xs font-semibold text-emerald-400">▲ +0.5%</div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3 py-3 cursor-pointer active:bg-white/3 commodity-item" data-category="rumput laut" data-name="Rumput Laut">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background: rgba(52, 211, 153, 0.15);">
-              <span class="text-emerald-300 font-bold text-sm">RL</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-white">Rumput Laut</div>
-              <div class="text-xs text-slate-400">Eucheuma cottonii</div>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <div class="text-sm font-semibold text-white">Rp 18.500</div>
-              <div class="text-xs font-semibold text-red-400">▼ -2.1%</div>
-            </div>
-          </div>
-
         </div>
 
-        <div class="h-20"></div>
+        <div id="marketList">
+          <!-- Agriculture -->
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Kelapa Sawit CPO')">
+            <div class="commodity-icon" style="background:#10b98120">🌴</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Kelapa Sawit CPO</div>
+              <div class="commodity-origin">Riau · Vol: 2.4M ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">14,250/kg</div>
+              <div class="commodity-change up">+2.3%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Kopi Arabika')">
+            <div class="commodity-icon" style="background:#8b5cf620">☕</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Kopi Arabika</div>
+              <div class="commodity-origin">Aceh · Vol: 890K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">68,500/kg</div>
+              <div class="commodity-change up">+1.8%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Kakao')">
+            <div class="commodity-icon" style="background:#a1620720">🍫</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Kakao</div>
+              <div class="commodity-origin">Sulawesi · Vol: 620K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">52,800/kg</div>
+              <div class="commodity-change up">+4.1%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Karet')">
+            <div class="commodity-icon" style="background:#eab30820">🟤</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Karet SIR20</div>
+              <div class="commodity-origin">Jambi · Vol: 340K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">16,200/kg</div>
+              <div class="commodity-change down">-0.8%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Beras')">
+            <div class="commodity-icon" style="background:#22c55e20">🌾</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Beras Premium</div>
+              <div class="commodity-origin">Jawa Barat · Vol: 1.2M ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">12,800/kg</div>
+              <div class="commodity-change up">+0.5%</div>
+            </div>
+          </div>
+          <!-- Mining -->
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Nikel')">
+            <div class="commodity-icon" style="background:#06b6d420">⛏️</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Nikel</div>
+              <div class="commodity-origin">Sulawesi Tengah · Vol: 1.6M ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">182,300/kg</div>
+              <div class="commodity-change down">-0.9%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Tembaga')">
+            <div class="commodity-icon" style="background:#f59e0b20">🪙</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Tembaga</div>
+              <div class="commodity-origin">Papua · Vol: 980K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">95,800/kg</div>
+              <div class="commodity-change up">+3.1%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Timah')">
+            <div class="commodity-icon" style="background:#94a3b820">💎</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Timah</div>
+              <div class="commodity-origin">Bangka Belitung · Vol: 75K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">278,500/kg</div>
+              <div class="commodity-change up">+0.5%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Batu Bara')">
+            <div class="commodity-icon" style="background:#ef444420">🔥</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Batu Bara</div>
+              <div class="commodity-origin">Kalimantan Timur · Vol: 6.2M ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">2,845/kg</div>
+              <div class="commodity-change down">-1.2%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Emas')">
+            <div class="commodity-icon" style="background:#eab30820">🥇</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Emas</div>
+              <div class="commodity-origin">Nusa Tenggara · Vol: 120K oz</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">1,185,000/g</div>
+              <div class="commodity-change up">+1.9%</div>
+            </div>
+          </div>
+          <!-- Forest -->
+          <div class="commodity-item market-item" data-cat="forest" onclick="openCommodityDetail('Kayu Merbau')">
+            <div class="commodity-icon" style="background:#16a34a20">🪵</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Kayu Merbau</div>
+              <div class="commodity-origin">Papua · Vol: 45K m3</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">8,500,000/m3</div>
+              <div class="commodity-change up">+2.7%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="forest" onclick="openCommodityDetail('Rotan')">
+            <div class="commodity-icon" style="background:#65a30d20">🌿</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Rotan</div>
+              <div class="commodity-origin">Kalimantan · Vol: 28K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">25,000/kg</div>
+              <div class="commodity-change down">-0.3%</div>
+            </div>
+          </div>
+          <!-- Marine -->
+          <div class="commodity-item market-item" data-cat="marine" onclick="openCommodityDetail('Udang')">
+            <div class="commodity-icon" style="background:#06b6d420">🦐</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Udang Windu</div>
+              <div class="commodity-origin">Sulawesi Selatan · Vol: 180K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">145,000/kg</div>
+              <div class="commodity-change up">+5.2%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="marine" onclick="openCommodityDetail('Tuna')">
+            <div class="commodity-icon" style="background:#3b82f620">🐟</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Tuna Sashimi</div>
+              <div class="commodity-origin">Maluku · Vol: 95K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">285,000/kg</div>
+              <div class="commodity-change up">+1.4%</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- ===== TAB 3: ORDERS ===== -->
-      <div class="tab-content" id="tab-orders">
-
-        <!-- Sub Tabs -->
-        <div class="sub-tabs mb-4">
-          <button class="sub-tab active" onclick="switchSubTab(this, 'permintaan')">Permintaan Beli</button>
-          <button class="sub-tab" onclick="switchSubTab(this, 'penawaran')">Penawaran Saya</button>
-          <button class="sub-tab" onclick="switchSubTab(this, 'riwayat')">Riwayat</button>
+      <!-- ===== ORDERS VIEW ===== -->
+      <div class="view" id="view-orders">
+        <div style="padding:16px 16px 0;">
+          <div style="font-size:20px;font-weight:700;margin-bottom:4px;">Permintaan Beli</div>
+          <div style="font-size:13px;color:#64748b;">Kelola permintaan pembelian komoditas</div>
         </div>
 
-        <!-- Sub Tab: Permintaan Beli -->
-        <div class="sub-content active" id="sub-permintaan">
-          <div class="space-y-3">
+        <div class="order-tabs">
+          <button class="order-tab active" onclick="setOrderTab(this,'active')">Aktif</button>
+          <button class="order-tab" onclick="setOrderTab(this,'completed')">Selesai</button>
+          <button class="order-tab" onclick="setOrderTab(this,'pending')">Pending</button>
+          <button class="order-tab" onclick="setOrderTab(this,'cancelled')">Batal</button>
+        </div>
 
-            <!-- Order Card 1 -->
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-emerald">Pinang</span>
-                <span class="badge badge-emerald">Aktif</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume Dibutuhkan</div>
-                  <div class="text-sm font-semibold text-white">500 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Target</div>
-                  <div class="text-sm font-semibold text-white">Rp 44.000/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-1.5 mb-2">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-xs text-slate-400">Medan, Sumatera Utara</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  <span class="text-xs text-emerald-400 font-medium">3 penawaran masuk</span>
-                </div>
-                <span class="text-[10px] text-slate-500">2 jam lalu</span>
-              </div>
+        <div id="ordersList">
+          <!-- Active Orders -->
+          <div class="order-card order-item" data-status="active">
+            <div class="order-header">
+              <div class="order-type">🌾 CPO - 500 Ton</div>
+              <span class="order-status active">Aktif</span>
             </div>
-
-            <!-- Order Card 2 -->
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-cyan">Kakao</span>
-                <span class="badge badge-yellow">Negosiasi</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume Dibutuhkan</div>
-                  <div class="text-sm font-semibold text-white">200 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Target</div>
-                  <div class="text-sm font-semibold text-white">Rp 56.000/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-1.5 mb-2">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-xs text-slate-400">Makassar, Sulawesi Selatan</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  <span class="text-xs text-yellow-400 font-medium">5 penawaran masuk</span>
-                </div>
-                <span class="text-[10px] text-slate-500">5 jam lalu</span>
-              </div>
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 14,250/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 7.125M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Sawit Nusantara</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">12 Jun 2026</span></div>
+          </div>
+          <div class="order-card order-item" data-status="active">
+            <div class="order-header">
+              <div class="order-type">☕ Kopi Arabika - 200 Ton</div>
+              <span class="order-status active">Aktif</span>
             </div>
-
-            <!-- Order Card 3 -->
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-emerald">Sawit</span>
-                <span class="badge badge-emerald">Aktif</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume Dibutuhkan</div>
-                  <div class="text-sm font-semibold text-white">1.000 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Target</div>
-                  <div class="text-sm font-semibold text-white">Rp 12.000/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-1.5 mb-2">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-xs text-slate-400">Pontianak, Kalimantan Barat</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  <span class="text-xs text-emerald-400 font-medium">1 penawaran masuk</span>
-                </div>
-                <span class="text-[10px] text-slate-500">1 hari lalu</span>
-              </div>
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 68,500/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 13.7M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">CV Kopi Gayo</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">10 Jun 2026</span></div>
+          </div>
+          <!-- Completed Orders -->
+          <div class="order-card order-item" data-status="completed">
+            <div class="order-header">
+              <div class="order-type">⛏️ Nikel - 1000 Ton</div>
+              <span class="order-status completed">Selesai</span>
             </div>
-
-            <!-- Order Card 4 -->
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-cyan">Kopi</span>
-                <span class="badge badge-gray">Selesai</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume Dibutuhkan</div>
-                  <div class="text-sm font-semibold text-white">300 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Target</div>
-                  <div class="text-sm font-semibold text-white">Rp 94.000/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-1.5 mb-2">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-xs text-slate-400">Bandung, Jawa Barat</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                  <span class="text-xs text-slate-400 font-medium">2 penawaran</span>
-                </div>
-                <span class="text-[10px] text-slate-500">3 hari lalu</span>
-              </div>
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 182,300/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 182.3M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Vale Indonesia</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">5 Jun 2026</span></div>
+          </div>
+          <!-- Pending Orders -->
+          <div class="order-card order-item" data-status="pending">
+            <div class="order-header">
+              <div class="order-type">🪙 Tembaga - 300 Ton</div>
+              <span class="order-status pending">Pending</span>
             </div>
-
-            <!-- Order Card 5 -->
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-emerald">Karet</span>
-                <span class="badge badge-emerald">Aktif</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume Dibutuhkan</div>
-                  <div class="text-sm font-semibold text-white">750 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Target</div>
-                  <div class="text-sm font-semibold text-white">Rp 14.800/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center gap-1.5 mb-2">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-xs text-slate-400">Palembang, Sumatera Selatan</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  <span class="text-xs text-emerald-400 font-medium">4 penawaran masuk</span>
-                </div>
-                <span class="text-[10px] text-slate-500">6 jam lalu</span>
-              </div>
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 95,800/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 28.74M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Freeport</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">14 Jun 2026</span></div>
+          </div>
+          <!-- Cancelled -->
+          <div class="order-card order-item" data-status="cancelled">
+            <div class="order-header">
+              <div class="order-type">🔥 Batu Bara - 5000 Ton</div>
+              <span class="order-status cancelled">Dibatalkan</span>
             </div>
-
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 2,845/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 14.225M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Bumi Resources</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">1 Jun 2026</span></div>
           </div>
         </div>
 
-        <!-- Sub Tab: Penawaran Saya -->
-        <div class="sub-content" id="sub-penawaran" style="display:none;">
-          <div class="space-y-3">
-
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-emerald">Pinang</span>
-                <span class="badge badge-yellow">Negosiasi</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume Ditawarkan</div>
-                  <div class="text-sm font-semibold text-white">500 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Penawaran</div>
-                  <div class="text-sm font-semibold text-white">Rp 44.500/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">Untuk: PT Nusantara Jaya</span>
-                <span class="text-[10px] text-slate-500">1 jam lalu</span>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-cyan">Kakao</span>
-                <span class="badge badge-emerald">Diterima</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume Ditawarkan</div>
-                  <div class="text-sm font-semibold text-white">200 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Penawaran</div>
-                  <div class="text-sm font-semibold text-white">Rp 57.500/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">Untuk: CV Sulawesi Commodity</span>
-                <span class="text-[10px] text-slate-500">1 hari lalu</span>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-emerald">Sawit</span>
-                <span class="badge badge-gray">Ditolak</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume Ditawarkan</div>
-                  <div class="text-sm font-semibold text-white">1.000 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Penawaran</div>
-                  <div class="text-sm font-semibold text-white">Rp 12.500/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">Untuk: PT Kalimantan Sawit</span>
-                <span class="text-[10px] text-slate-500">2 hari lalu</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Sub Tab: Riwayat -->
-        <div class="sub-content" id="sub-riwayat" style="display:none;">
-          <div class="space-y-3">
-
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-emerald">Pinang</span>
-                <span class="badge badge-gray">Selesai</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume</div>
-                  <div class="text-sm font-semibold text-white">500 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Final</div>
-                  <div class="text-sm font-semibold text-white">Rp 44.200/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">PT Sumatera Pinang Jaya</span>
-                <span class="text-[10px] text-slate-500">3 hari lalu</span>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-cyan">Kopi</span>
-                <span class="badge badge-gray">Selesai</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume</div>
-                  <div class="text-sm font-semibold text-white">300 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Final</div>
-                  <div class="text-sm font-semibold text-white">Rp 93.500/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">CV Java Arabika</span>
-                <span class="text-[10px] text-slate-500">5 hari lalu</span>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-emerald">Sagu</span>
-                <span class="badge badge-gray">Selesai</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume</div>
-                  <div class="text-sm font-semibold text-white">400 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Final</div>
-                  <div class="text-sm font-semibold text-white">Rp 21.800/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">PT Papua Sagu Nusantara</span>
-                <span class="text-[10px] text-slate-500">1 minggu lalu</span>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="flex items-center justify-between mb-2">
-                <span class="badge badge-cyan">Rumput Laut</span>
-                <span class="badge badge-gray">Selesai</span>
-              </div>
-              <div class="flex items-center justify-between mb-2">
-                <div>
-                  <div class="text-xs text-slate-400">Volume</div>
-                  <div class="text-sm font-semibold text-white">600 kg</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-slate-400">Harga Final</div>
-                  <div class="text-sm font-semibold text-white">Rp 18.200/kg</div>
-                </div>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-slate-400">CV Sulawesi Seaweed</span>
-                <span class="text-[10px] text-slate-500">2 minggu lalu</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="h-20"></div>
+        <!-- FAB -->
+        <button class="fab" onclick="openNewRequestSheet()">+</button>
       </div>
 
-      <!-- ===== TAB 4: PROPERTY ===== -->
-      <div class="tab-content" id="tab-property">
-
-        <!-- Type Filter Chips -->
-        <div class="flex gap-2 overflow-x-auto mb-4 pb-1" id="propChips">
-          <button class="chip active" onclick="selectPropChip(this, 'semua')">Semua</button>
-          <button class="chip" onclick="selectPropChip(this, 'rumah')">Rumah</button>
-          <button class="chip" onclick="selectPropChip(this, 'tanah')">Tanah</button>
-          <button class="chip" onclick="selectPropChip(this, 'ruko')">Ruko</button>
-          <button class="chip" onclick="selectPropChip(this, 'gudang')">Gudang</button>
+      <!-- ===== PROPERTY VIEW ===== -->
+      <div class="view" id="view-property">
+        <div style="padding:16px 16px 0;">
+          <div style="font-size:20px;font-weight:700;margin-bottom:4px;">Property Exchange</div>
+          <div style="font-size:13px;color:#64748b;">Investasi properti Nusantara</div>
         </div>
 
-        <!-- Property Grid -->
-        <div class="prop-grid" id="propGrid">
-
-          <!-- Property 1 -->
-          <div class="prop-card" data-type="rumah">
-            <div class="prop-img" style="background: linear-gradient(135deg, #10b981, #059669);">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </div>
-            <div class="p-3">
-              <div class="text-sm font-bold text-white">Rp 850.000.000</div>
-              <div class="text-xs text-white font-medium mt-0.5 truncate">Rumah Modern 2LT</div>
-              <div class="flex items-center gap-1 mt-1">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-[10px] text-slate-400">Medan • 120 m²</span>
+        <!-- Featured Banners -->
+        <div class="property-banner-scroll">
+          <div class="property-banner">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027,#1a3a2a,#10b98140);display:flex;align-items:flex-end;">
+              <div class="property-banner-overlay">
+                <div class="property-banner-title">🌱 Sawit Plantation</div>
+                <div class="property-banner-price">Mulai Rp 2.5M / hektar</div>
               </div>
-              <span class="badge badge-emerald mt-1.5" style="font-size:9px;">Rumah</span>
             </div>
           </div>
-
-          <!-- Property 2 -->
-          <div class="prop-card" data-type="tanah">
-            <div class="prop-img" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-            </div>
-            <div class="p-3">
-              <div class="text-sm font-bold text-white">Rp 1.200.000.000</div>
-              <div class="text-xs text-white font-medium mt-0.5 truncate">Tanah Sawit 5 Ha</div>
-              <div class="flex items-center gap-1 mt-1">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-[10px] text-slate-400">Riau • 50.000 m²</span>
+          <div class="property-banner">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027,#1a2a3a,#06b6d440);display:flex;align-items:flex-end;">
+              <div class="property-banner-overlay">
+                <div class="property-banner-title">🏗️ Industrial Zone</div>
+                <div class="property-banner-price">Mulai Rp 15M / m2</div>
               </div>
-              <span class="badge badge-cyan mt-1.5" style="font-size:9px;">Tanah</span>
             </div>
           </div>
-
-          <!-- Property 3 -->
-          <div class="prop-card" data-type="ruko">
-            <div class="prop-img" style="background: linear-gradient(135deg, #eab308, #ca8a04);">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><rect x="9" y="14" width="6" height="8"/></svg>
-            </div>
-            <div class="p-3">
-              <div class="text-sm font-bold text-white">Rp 2.500.000.000</div>
-              <div class="text-xs text-white font-medium mt-0.5 truncate">Ruko 3 Lantai Strategis</div>
-              <div class="flex items-center gap-1 mt-1">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-[10px] text-slate-400">Surabaya • 200 m²</span>
+          <div class="property-banner">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027,#2a1a3a,#8b5cf640);display:flex;align-items:flex-end;">
+              <div class="property-banner-overlay">
+                <div class="property-banner-title">🏝️ Resort & Tourism</div>
+                <div class="property-banner-price">Mulai Rp 500M / unit</div>
               </div>
-              <span class="badge badge-yellow mt-1.5" style="font-size:9px;">Ruko</span>
             </div>
           </div>
-
-          <!-- Property 4 -->
-          <div class="prop-card" data-type="gudang">
-            <div class="prop-img" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V4a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>
-            </div>
-            <div class="p-3">
-              <div class="text-sm font-bold text-white">Rp 3.800.000.000</div>
-              <div class="text-xs text-white font-medium mt-0.5 truncate">Gudang Logistik Besar</div>
-              <div class="flex items-center gap-1 mt-1">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-[10px] text-slate-400">Jakarta • 500 m²</span>
-              </div>
-              <span class="badge badge-gray mt-1.5" style="font-size:9px;">Gudang</span>
-            </div>
-          </div>
-
-          <!-- Property 5 -->
-          <div class="prop-card" data-type="rumah">
-            <div class="prop-img" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            </div>
-            <div class="p-3">
-              <div class="text-sm font-bold text-white">Rp 650.000.000</div>
-              <div class="text-xs text-white font-medium mt-0.5 truncate">Rumah Minimalis</div>
-              <div class="flex items-center gap-1 mt-1">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-[10px] text-slate-400">Semarang • 90 m²</span>
-              </div>
-              <span class="badge badge-emerald mt-1.5" style="font-size:9px;">Rumah</span>
-            </div>
-          </div>
-
-          <!-- Property 6 -->
-          <div class="prop-card" data-type="tanah">
-            <div class="prop-img" style="background: linear-gradient(135deg, #14b8a6, #0d9488);">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-            </div>
-            <div class="p-3">
-              <div class="text-sm font-bold text-white">Rp 750.000.000</div>
-              <div class="text-xs text-white font-medium mt-0.5 truncate">Tanah Kavling Premium</div>
-              <div class="flex items-center gap-1 mt-1">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span class="text-[10px] text-slate-400">Bali • 300 m²</span>
-              </div>
-              <span class="badge badge-cyan mt-1.5" style="font-size:9px;">Tanah</span>
-            </div>
-          </div>
-
         </div>
 
-        <div class="h-4"></div>
+        <!-- Property Category Filters -->
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="setPropertyFilter(this,'all')">Semua</button>
+          <button class="filter-tab" onclick="setPropertyFilter(this,'plantation')">Perkebunan</button>
+          <button class="filter-tab" onclick="setPropertyFilter(this,'industrial')">Industri</button>
+          <button class="filter-tab" onclick="setPropertyFilter(this,'commercial')">Komersial</button>
+          <button class="filter-tab" onclick="setPropertyFilter(this,'residential')">Residensial</button>
+        </div>
+
+        <div id="propertyList">
+          <div class="property-card property-item" data-type="plantation" onclick="openPropertyDetail('Perkebunan Sawit Riau')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#10b98130,#06b6d420);display:flex;align-items:center;justify-content:center;font-size:48px;">🌴</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Perkebunan Sawit Riau</div>
+              <div class="property-card-location">📍 Riau, Sumatera · 500 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 1.25T</div>
+                <span class="property-card-tag">Perkebunan</span>
+              </div>
+            </div>
+          </div>
+          <div class="property-card property-item" data-type="industrial" onclick="openPropertyDetail('Kawasan Industri Morowali')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#06b6d430,#3b82f620);display:flex;align-items:center;justify-content:center;font-size:48px;">🏭</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Kawasan Industri Morowali</div>
+              <div class="property-card-location">📍 Sulawesi Tengah · 200 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 3.8T</div>
+                <span class="property-card-tag">Industri</span>
+              </div>
+            </div>
+          </div>
+          <div class="property-card property-item" data-type="commercial" onclick="openPropertyDetail('Pusat Perdagangan Makassar')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#8b5cf630,#ec489920);display:flex;align-items:center;justify-content:center;font-size:48px;">🏢</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Pusat Perdagangan Makassar</div>
+              <div class="property-card-location">📍 Makassar, Sulawesi · 5 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 850M</div>
+                <span class="property-card-tag">Komersial</span>
+              </div>
+            </div>
+          </div>
+          <div class="property-card property-item" data-type="residential" onclick="openPropertyDetail('Residensial Premium Bali')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#f59e0b30,#ef444420);display:flex;align-items:center;justify-content:center;font-size:48px;">🏡</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Residensial Premium Bali</div>
+              <div class="property-card-location">📍 Badung, Bali · 2 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 1.5T</div>
+                <span class="property-card-tag">Residensial</span>
+              </div>
+            </div>
+          </div>
+          <div class="property-card property-item" data-type="plantation" onclick="openPropertyDetail('Kebun Kopi Aceh')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#8b5cf630,#10b98120);display:flex;align-items:center;justify-content:center;font-size:48px;">☕</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Kebun Kopi Aceh</div>
+              <div class="property-card-location">📍 Aceh Besar · 150 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 420M</div>
+                <span class="property-card-tag">Perkebunan</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- ===== TAB 5: PROFILE ===== -->
-      <div class="tab-content" id="tab-profile">
-
-        <!-- Profile Header -->
-        <div class="flex flex-col items-center mb-5">
-          <div class="w-20 h-20 rounded-full flex items-center justify-center mb-3" style="background: linear-gradient(135deg, #10b981, #06b6d4);">
-            <span class="text-white font-bold text-2xl">DK</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-lg font-bold text-white">PT DDK Commodity</span>
-            <div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      <!-- ===== PROFILE VIEW ===== -->
+      <div class="view" id="view-profile">
+        <div class="profile-header">
+          <img src="./assets/images/nce-logo.png" alt="NCE" class="profile-avatar">
+          <div class="profile-name">PT Nusantara Trading</div>
+          <div class="profile-role">Premium Trader</div>
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <div class="profile-stat-value">247</div>
+              <div class="profile-stat-label">Transaksi</div>
             </div>
-          </div>
-          <span class="text-xs text-slate-400 mt-1">Bergabung sejak Januari 2026</span>
-        </div>
-
-        <!-- Stats Row -->
-        <div class="grid grid-cols-3 gap-3 mb-5">
-          <div class="card !p-3 text-center">
-            <div class="text-lg font-bold text-white">4.8★</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">Rating</div>
-          </div>
-          <div class="card !p-3 text-center">
-            <div class="text-lg font-bold text-white">156</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">Transaksi</div>
-          </div>
-          <div class="card !p-3 text-center">
-            <div class="text-lg font-bold text-white">23</div>
-            <div class="text-[10px] text-slate-400 mt-0.5">Listing</div>
-          </div>
-        </div>
-
-        <!-- Verification Badges -->
-        <div class="card mb-5">
-          <div class="text-xs text-slate-400 mb-3 font-medium">Verifikasi</div>
-          <div class="space-y-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(16, 185, 129, 0.15);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm text-white font-medium">Verified Supplier</div>
-              </div>
-              <span class="badge badge-emerald">Aktif</span>
+            <div class="profile-stat">
+              <div class="profile-stat-value">4.8</div>
+              <div class="profile-stat-label">Rating</div>
             </div>
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(6, 182, 212, 0.15);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm text-white font-medium">Verified Buyer</div>
-              </div>
-              <span class="badge badge-cyan">Aktif</span>
-            </div>
-            <div class="flex items-center gap-3 opacity-50">
-              <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(100, 116, 139, 0.15);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm text-slate-400 font-medium">Verified Exporter</div>
-              </div>
-              <span class="badge badge-gray">Terkunci</span>
+            <div class="profile-stat">
+              <div class="profile-stat-value">3yr</div>
+              <div class="profile-stat-label">Member</div>
             </div>
           </div>
         </div>
 
-        <!-- Menu Items -->
-        <div class="card !p-4 mb-4">
-          <div class="menu-item" onclick="switchTab(1)">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center mr-3" style="background: rgba(16, 185, 129, 0.1);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <!-- Wallet Summary -->
+        <div style="padding:0 16px 16px;">
+          <div class="card card-glow" style="background:linear-gradient(135deg,#111827,#1a2234);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <span style="font-size:13px;color:#64748b;">Saldo Dompet</span>
+              <span style="font-size:12px;color:#10b981;font-weight:600;">Lihat Detail →</span>
             </div>
-            <span class="flex-1 text-sm text-white font-medium">Komoditas Saya</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-
-          <div class="menu-item" onclick="switchTab(3)">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center mr-3" style="background: rgba(6, 182, 212, 0.1);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <div style="font-size:24px;font-weight:800;">Rp 847.5M</div>
+            <div style="display:flex;gap:10px;margin-top:14px;">
+              <button style="flex:1;padding:10px;background:#10b981;color:#fff;border-radius:10px;font-size:13px;font-weight:600;">Deposit</button>
+              <button style="flex:1;padding:10px;background:#1e293b;color:#e2e8f0;border-radius:10px;font-size:13px;font-weight:600;">Tarik</button>
             </div>
-            <span class="flex-1 text-sm text-white font-medium">Properti Saya</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-
-          <div class="menu-item">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center mr-3" style="background: rgba(100, 116, 139, 0.1);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </div>
-            <span class="flex-1 text-sm text-white font-medium">Pengaturan</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-
-          <div class="menu-item">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center mr-3" style="background: rgba(100, 116, 139, 0.1);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </div>
-            <span class="flex-1 text-sm text-white font-medium">Bantuan</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-
-          <div class="menu-item">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center mr-3" style="background: rgba(239, 68, 68, 0.1);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            </div>
-            <span class="flex-1 text-sm text-red-400 font-medium">Keluar</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
         </div>
 
-        <!-- App Version -->
-        <div class="text-center text-xs text-slate-600 pb-4">NCE v1.0.0</div>
+        <!-- Verification Status -->
+        <div style="padding:0 16px 16px;">
+          <div class="card" style="display:flex;align-items:center;gap:12px;padding:14px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:#10b98120;display:flex;align-items:center;justify-content:center;font-size:20px;">✅</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;">Terverifikasi</div>
+              <div style="font-size:11px;color:#64748b;">KYC & AML Complete</div>
+            </div>
+            <span style="font-size:11px;color:#10b981;font-weight:600;">Level 3</span>
+          </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="settings-group">
+          <div class="settings-group-title">Akun</div>
+          <div class="settings-list">
+            <div class="settings-item" onclick="showToast('profile','Profil segera hadir')">
+              <div class="settings-item-icon green">👤</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Profil Perusahaan</div>
+                <div class="settings-item-desc">Data perusahaan & dokumen</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('security','Keamanan segera hadir')">
+              <div class="settings-item-icon blue">🔒</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Keamanan</div>
+                <div class="settings-item-desc">Password, 2FA, biometrik</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('kyc','KYC segera hadir')">
+              <div class="settings-item-icon purple">📋</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Verifikasi KYC</div>
+                <div class="settings-item-desc">Identitas & dokumen legal</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group-title">Preferensi</div>
+          <div class="settings-list">
+            <div class="settings-item" onclick="showToast('notif','Notifikasi segera hadir')">
+              <div class="settings-item-icon yellow">🔔</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Notifikasi</div>
+                <div class="settings-item-desc">Push, email, SMS</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('lang','Bahasa segera hadir')">
+              <div class="settings-item-icon blue">🌐</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Bahasa</div>
+                <div class="settings-item-desc">Indonesia</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('theme','Tema segera hadir')">
+              <div class="settings-item-icon green">🎨</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Tampilan</div>
+                <div class="settings-item-desc">Dark mode</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group-title">Lainnya</div>
+          <div class="settings-list">
+            <div class="settings-item" onclick="showToast('help','Pusat bantuan segera hadir')">
+              <div class="settings-item-icon blue">❓</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Pusat Bantuan</div>
+                <div class="settings-item-desc">FAQ & dukungan</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('terms','Syarat segera hadir')">
+              <div class="settings-item-icon purple">📄</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Syarat & Ketentuan</div>
+                <div class="settings-item-desc">Kebijakan privasi</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('logout','Logout segera hadir')">
+              <div class="settings-item-icon red">🚪</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Keluar</div>
+                <div class="settings-item-desc">Logout dari akun</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;padding:16px 16px 32px;">
+          <div style="font-size:11px;color:#475569;">NCE v2.0.0 · Nusantara Commodity Exchange</div>
+          <div style="font-size:11px;color:#475569;margin-top:2px;">© 2026 PT NCE Indonesia</div>
+        </div>
       </div>
 
-    </main>
+    </div><!-- /content-area -->
 
-    <!-- ===== FAB BUTTONS ===== -->
-    <!-- Market FAB -->
-    <button class="fab" id="fabMarket" style="display:none;" onclick="openModal()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </button>
-
-    <!-- Orders FAB -->
-    <button class="fab" id="fabOrders" style="display:none;" onclick="openModal()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </button>
-
-    <!-- ===== BOTTOM NAVIGATION ===== -->
-    <nav class="bottom-nav flex items-center justify-around px-2">
-      <button class="nav-item active flex flex-col items-center justify-center flex-1 py-1" onclick="switchTab(0)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span class="text-[10px] mt-0.5 font-medium">Home</span>
-        <div class="nav-dot"></div>
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="switchTab(0)" data-tab="0">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
       </button>
-      <button class="nav-item flex flex-col items-center justify-center flex-1 py-1" onclick="switchTab(1)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        <span class="text-[10px] mt-0.5 font-medium">Market</span>
-        <div class="nav-dot"></div>
+      <button class="nav-item" onclick="switchTab(1)" data-tab="1">
+        <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span>Market</span>
       </button>
-      <button class="nav-item flex flex-col items-center justify-center flex-1 py-1" onclick="switchTab(2)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        <span class="text-[10px] mt-0.5 font-medium">Orders</span>
-        <div class="nav-dot"></div>
+      <button class="nav-item" onclick="switchTab(2)" data-tab="2">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        <span>Orders</span>
       </button>
-      <button class="nav-item flex flex-col items-center justify-center flex-1 py-1" onclick="switchTab(3)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-        <span class="text-[10px] mt-0.5 font-medium">Property</span>
-        <div class="nav-dot"></div>
+      <button class="nav-item" onclick="switchTab(3)" data-tab="3">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Property</span>
       </button>
-      <button class="nav-item flex flex-col items-center justify-center flex-1 py-1" onclick="switchTab(4)">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span class="text-[10px] mt-0.5 font-medium">Profile</span>
-        <div class="nav-dot"></div>
+      <button class="nav-item" onclick="switchTab(4)" data-tab="4">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profil</span>
       </button>
     </nav>
 
-  </div>
-
-  <!-- ===== SEARCH OVERLAY ===== -->
-  <div class="search-overlay" id="searchOverlay">
-    <div class="flex items-center gap-3 p-4" style="padding-top: calc(16px + env(safe-area-inset-top, 0px));">
-      <div class="relative flex-1">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" class="input-dark" placeholder="Cari komoditas, properti, pengguna..." id="globalSearch" autofocus>
-      </div>
-      <button class="text-sm text-emerald-400 font-medium" onclick="toggleSearch()">Batal</button>
-    </div>
-    <div class="px-4">
-      <div class="text-xs text-slate-400 mb-3">Pencarian Populer</div>
-      <div class="flex flex-wrap gap-2">
-        <span class="chip" onclick="toggleSearch(); switchTab(1);">Pinang</span>
-        <span class="chip" onclick="toggleSearch(); switchTab(1);">Sawit</span>
-        <span class="chip" onclick="toggleSearch(); switchTab(1);">Kakao</span>
-        <span class="chip" onclick="toggleSearch(); switchTab(1);">Kopi</span>
-        <span class="chip" onclick="toggleSearch(); switchTab(3);">Gudang</span>
-        <span class="chip" onclick="toggleSearch(); switchTab(3);">Tanah</span>
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+      <div class="bottom-sheet" id="bottomSheet" onclick="event.stopPropagation()">
+        <div class="bottom-sheet-handle"></div>
+        <div id="bottomSheetContent"></div>
       </div>
     </div>
-  </div>
 
-  <!-- ===== CREATE ORDER MODAL ===== -->
-  <div class="modal-overlay" id="createModal">
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="text-base font-bold text-white mb-4">Buat Permintaan Beli</div>
-      
-      <div class="space-y-3">
-        <div>
-          <label class="text-xs text-slate-400 mb-1 block">Komoditas</label>
-          <select class="w-full bg-navy border border-border rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-emerald">
-            <option>Pilih Komoditas</option>
-            <option>Pinang</option>
-            <option>Kelapa</option>
-            <option>Sawit</option>
-            <option>Kakao</option>
-            <option>Kopi</option>
-            <option>Karet</option>
-            <option>Sagu</option>
-            <option>Rumput Laut</option>
-          </select>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-xs text-slate-400 mb-1 block">Volume (kg)</label>
-            <input type="number" placeholder="0" class="w-full bg-navy border border-border rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-emerald">
-          </div>
-          <div>
-            <label class="text-xs text-slate-400 mb-1 block">Harga Target/kg</label>
-            <input type="number" placeholder="0" class="w-full bg-navy border border-border rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-emerald">
-          </div>
-        </div>
-        
-        <div>
-          <label class="text-xs text-slate-400 mb-1 block">Lokasi Pengiriman</label>
-          <input type="text" placeholder="Kota, Provinsi" class="w-full bg-navy border border-border rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-emerald">
-        </div>
-        
-        <div>
-          <label class="text-xs text-slate-400 mb-1 block">Catatan (Opsional)</label>
-          <textarea placeholder="Detail tambahan..." rows="2" class="w-full bg-navy border border-border rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-emerald resize-none"></textarea>
-        </div>
-        
-        <button class="w-full py-3 rounded-xl text-white font-semibold text-sm mt-2" style="background: linear-gradient(135deg, #10b981, #06b6d4);" onclick="closeModal()">
-          Kirim Permintaan
-        </button>
-      </div>
+    <!-- Toast -->
+    <div class="toast" id="toast">
+      <span class="toast-icon" id="toastIcon">ℹ️</span>
+      <span class="toast-text" id="toastText"></span>
     </div>
   </div>
-
-  <!-- ===== PULL TO REFRESH INDICATOR ===== -->
-  <div class="pull-indicator" id="pullIndicator">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-  </div>
-
-  <!-- PWA Scripts -->
-  <script type="module" src="./assets/js/modules/mobile/index.js"></script>
-  <script type="module" src="./assets/js/modules/pwa/index.js"></script>
 
   <script>
-    // ===== DATA =====
-    const tickerData = [
-      { name: 'Pinang', price: 'Rp 45.000', unit: '/kg', change: '+3.2%', up: true },
-      { name: 'Kelapa', price: 'Rp 8.500', unit: '/butir', change: '-1.1%', up: false },
-      { name: 'Sawit', price: 'Rp 12.300', unit: '/kg', change: '+0.8%', up: true },
-      { name: 'Kakao', price: 'Rp 58.000', unit: '/kg', change: '+5.1%', up: true },
-      { name: 'Kopi', price: 'Rp 95.000', unit: '/kg', change: '-0.3%', up: false },
-      { name: 'Karet', price: 'Rp 15.200', unit: '/kg', change: '+1.7%', up: true },
-      { name: 'Sagu', price: 'Rp 22.000', unit: '/kg', change: '+0.5%', up: true },
-      { name: 'Rumput Laut', price: 'Rp 18.500', unit: '/kg', change: '-2.1%', up: false },
-    ];
-
-    const tabIds = ['tab-home', 'tab-market', 'tab-orders', 'tab-property', 'tab-profile'];
-    let activeTab = 0;
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    // ===== INIT TICKER =====
-    function initTicker() {
-      const track = document.getElementById('tickerTrack');
-      let html = '';
-      tickerData.forEach(t => {
-        const color = t.up ? '#10b981' : '#ef4444';
-        const arrow = t.up ? '▲' : '▼';
-        html += `
-          <div class="ticker-card">
-            <div class="text-xs font-semibold text-white mb-1">${t.name}</div>
-            <div class="text-xs text-slate-300">${t.price}${t.unit}</div>
-            <div class="text-[11px] font-semibold mt-1" style="color:${color}">${arrow} ${t.change}</div>
-          </div>
-        `;
-      });
-      track.innerHTML = html;
-    }
-
     // ===== TAB SWITCHING =====
+    const views = ['view-home','view-market','view-orders','view-property','view-profile'];
+    const navItems = document.querySelectorAll('.nav-item');
+    let currentTab = 0;
+
     function switchTab(index) {
-      if (index === activeTab) return;
-      activeTab = index;
-
-      // Update content
-      tabIds.forEach((id, i) => {
-        const el = document.getElementById(id);
-        if (i === index) {
-          el.classList.add('active');
-          el.scrollTop = 0;
-        } else {
-          el.classList.remove('active');
-        }
+      if (index === currentTab) {
+        // Scroll to top if same tab
+        document.getElementById('contentArea').scrollTop = 0;
+        return;
+      }
+      currentTab = index;
+      views.forEach((v, i) => {
+        const el = document.getElementById(v);
+        el.classList.toggle('active', i === index);
       });
-
-      // Update bottom nav
-      const navItems = document.querySelectorAll('.nav-item');
-      navItems.forEach((item, i) => {
-        if (i === index) {
-          item.classList.add('active');
-          item.style.color = '#10b981';
-        } else {
-          item.classList.remove('active');
-          item.style.color = '#64748b';
-        }
+      navItems.forEach((n, i) => {
+        n.classList.toggle('active', i === index);
       });
+      document.getElementById('contentArea').scrollTop = 0;
 
-      // Update FABs
-      document.getElementById('fabMarket').style.display = index === 1 ? 'flex' : 'none';
-      document.getElementById('fabOrders').style.display = index === 2 ? 'flex' : 'none';
+      // Update header title based on tab
+      const titles = ['NCE Exchange', 'Pasar Komoditas', 'Permintaan Beli', 'Property Exchange', 'Profil'];
+      document.querySelector('.app-header-title').innerHTML = index === 0
+        ? '<span>NCE</span> Exchange'
+        : titles[index];
     }
 
-    // ===== SUB TAB SWITCHING =====
-    function switchSubTab(btn, subId) {
-      // Update buttons
-      btn.parentElement.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      // Update content
-      document.querySelectorAll('#tab-orders .sub-content').forEach(c => {
-        c.style.display = 'none';
-        c.classList.remove('active');
-      });
-      const target = document.getElementById('sub-' + subId);
-      target.style.display = 'block';
-      target.classList.add('active');
+    // ===== TOAST =====
+    let toastTimer;
+    function showToast(icon, text) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastIcon').textContent = icon === 'notif' ? '🔔' : icon === 'search' ? '🔍' : icon === 'scan' ? '📷' : icon === 'sell' ? '📉' : icon === 'profile' ? '👤' : icon === 'security' ? '🔒' : icon === 'kyc' ? '📋' : icon === 'notif_set' ? '🔔' : icon === 'lang' ? '🌐' : icon === 'theme' ? '🎨' : icon === 'help' ? '❓' : icon === 'terms' ? '📄' : icon === 'logout' ? '🚪' : 'ℹ️';
+      document.getElementById('toastText').textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
-    // ===== CATEGORY CHIP =====
-    function selectCategory(btn, category) {
-      document.querySelectorAll('#categoryChips .chip').forEach(c => c.classList.remove('active'));
+    // ===== MARKET FILTER =====
+    function setMarketFilter(btn, cat) {
+      document.querySelectorAll('#marketFilters .filter-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-
-      document.querySelectorAll('.commodity-item').forEach(item => {
-        if (category === 'semua' || item.dataset.category === category) {
+      document.querySelectorAll('.market-item').forEach(item => {
+        if (cat === 'all' || item.dataset.cat === cat) {
           item.style.display = 'flex';
         } else {
           item.style.display = 'none';
@@ -1581,144 +1281,258 @@
       });
     }
 
-    // ===== PROPERTY CHIP =====
-    function selectPropChip(btn, type) {
-      document.querySelectorAll('#propChips .chip').forEach(c => c.classList.remove('active'));
-      btn.classList.add('active');
-
-      document.querySelectorAll('.prop-card').forEach(card => {
-        if (type === 'semua' || card.dataset.type === type) {
-          card.style.display = 'block';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-    }
-
-    // ===== SEARCH =====
-    function toggleSearch() {
-      const overlay = document.getElementById('searchOverlay');
-      overlay.classList.toggle('show');
-      if (overlay.classList.contains('show')) {
-        document.getElementById('globalSearch').focus();
-      }
-    }
-
-    // ===== MARKET SEARCH =====
     function filterMarket() {
-      const query = document.getElementById('marketSearch').value.toLowerCase();
-      document.querySelectorAll('.commodity-item').forEach(item => {
-        const name = item.dataset.name.toLowerCase();
-        item.style.display = name.includes(query) ? 'flex' : 'none';
+      const q = document.getElementById('marketSearch').value.toLowerCase();
+      document.querySelectorAll('.market-item').forEach(item => {
+        const name = item.querySelector('.commodity-name').textContent.toLowerCase();
+        item.style.display = name.includes(q) ? 'flex' : 'none';
       });
     }
 
-    // ===== BELL SHAKE =====
-    function shakeBell() {
-      const btn = document.getElementById('bellBtn');
-      btn.querySelector('svg').classList.add('animate-bell');
-      setTimeout(() => btn.querySelector('svg').classList.remove('animate-bell'), 800);
-    }
-
-    // Auto shake bell every 15s
-    setInterval(() => {
-      shakeBell();
-    }, 15000);
-
-    // ===== MODAL =====
-    function openModal() {
-      document.getElementById('createModal').classList.add('show');
-    }
-
-    function closeModal() {
-      document.getElementById('createModal').classList.remove('show');
-    }
-
-    // Close modal on overlay click
-    document.getElementById('createModal').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
-    });
-
-    // ===== PULL TO REFRESH =====
-    let pullStartY = 0;
-    let isPulling = false;
-
-    document.querySelectorAll('.tab-content').forEach(tab => {
-      tab.addEventListener('touchstart', function(e) {
-        if (this.scrollTop === 0) {
-          pullStartY = e.touches[0].clientY;
-          isPulling = true;
-        }
-      }, { passive: true });
-
-      tab.addEventListener('touchmove', function(e) {
-        if (!isPulling) return;
-        const diff = e.touches[0].clientY - pullStartY;
-        const indicator = document.getElementById('pullIndicator');
-        if (diff > 60 && this.scrollTop === 0) {
-          indicator.classList.add('visible');
+    // ===== ORDER TABS =====
+    function setOrderTab(btn, status) {
+      document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.order-item').forEach(item => {
+        if (status === 'active' || item.dataset.status === status) {
+          item.style.display = item.dataset.status === 'active' || item.dataset.status === status ? 'block' : 'none';
         } else {
-          indicator.classList.remove('visible');
+          item.style.display = 'none';
         }
-      }, { passive: true });
-
-      tab.addEventListener('touchend', function() {
-        isPulling = false;
-        const indicator = document.getElementById('pullIndicator');
-        if (indicator.classList.contains('visible')) {
-          indicator.classList.add('spinning');
-          setTimeout(() => {
-            indicator.classList.remove('visible', 'spinning');
-          }, 1500);
-        }
-      }, { passive: true });
-    });
-
-    // ===== SWIPE BETWEEN TABS =====
-    document.querySelector('.content-area').addEventListener('touchstart', function(e) {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-
-    document.querySelector('.content-area').addEventListener('touchend', function(e) {
-      touchEndX = e.changedTouches[0].screenX;
-      const diff = touchStartX - touchEndX;
-      if (Math.abs(diff) > 80) {
-        if (diff > 0 && activeTab < 4) {
-          switchTab(activeTab + 1);
-        } else if (diff < 0 && activeTab > 0) {
-          switchTab(activeTab - 1);
-        }
-      }
-    }, { passive: true });
-
-    // ===== PRICE SIMULATION =====
-    function simulatePriceChange() {
-      const items = document.querySelectorAll('.commodity-item');
-      const randomIdx = Math.floor(Math.random() * items.length);
-      const priceEl = items[randomIdx]?.querySelector('.text-right .text-sm');
-      if (priceEl) {
-        const isUp = Math.random() > 0.4;
-        priceEl.classList.add(isUp ? 'price-flash-up' : 'price-flash-down');
-        setTimeout(() => {
-          priceEl.classList.remove('price-flash-up', 'price-flash-down');
-        }, 600);
-      }
+      });
+      // Show all matching
+      document.querySelectorAll('.order-item').forEach(item => {
+        item.style.display = item.dataset.status === status ? 'block' : 'none';
+      });
     }
 
-    setInterval(simulatePriceChange, 3000);
+    // ===== PROPERTY FILTER =====
+    function setPropertyFilter(btn, type) {
+      document.querySelectorAll('#view-property .filter-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.property-item').forEach(item => {
+        if (type === 'all' || item.dataset.type === type) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // ===== COMMODITY DETAIL BOTTOM SHEET =====
+    function openCommodityDetail(name) {
+      const content = `
+        <div class="bottom-sheet-title">${name}</div>
+        <div style="padding:0 20px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+              <div style="font-size:28px;font-weight:800;">14,250</div>
+              <div style="font-size:13px;color:#10b981;font-weight:600;">+2.3% hari ini</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;color:#64748b;">24h Volume</div>
+              <div style="font-size:14px;font-weight:600;">2.4M ton</div>
+            </div>
+          </div>
+          <div style="height:120px;background:#111827;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:13px;">Chart Area</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Harga Buka</div>
+              <div style="font-size:14px;font-weight:600;">13,980</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Harga Tutup</div>
+              <div style="font-size:14px;font-weight:600;">14,250</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Tertinggi</div>
+              <div style="font-size:14px;font-weight:600;">14,500</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Terendah</div>
+              <div style="font-size:14px;font-weight:600;">13,750</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button style="flex:1;padding:14px;background:#10b981;color:#fff;border-radius:12px;font-size:15px;font-weight:700;">Beli</button>
+            <button style="flex:1;padding:14px;background:#ef4444;color:#fff;border-radius:12px;font-size:15px;font-weight:700;">Jual</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('bottomSheetContent').innerHTML = content;
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    // ===== NEW REQUEST SHEET =====
+    function openNewRequestSheet() {
+      const content = `
+        <div class="bottom-sheet-title">Buat Permintaan Beli</div>
+        <div style="padding:0 20px 20px;">
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Komoditas</label>
+            <select style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;">
+              <option>Pilih Komoditas</option>
+              <option>Kelapa Sawit CPO</option>
+              <option>Kopi Arabika</option>
+              <option>Nikel</option>
+              <option>Tembaga</option>
+            </select>
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Jumlah (Ton)</label>
+            <input type="number" placeholder="Masukkan jumlah" style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Harga Maks (Rp/kg)</label>
+            <input type="number" placeholder="Masukkan harga" style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Catatan</label>
+            <textarea placeholder="Catatan tambahan..." rows="3" style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;resize:none;"></textarea>
+          </div>
+          <button style="width:100%;padding:14px;background:#10b981;color:#fff;border-radius:12px;font-size:15px;font-weight:700;" onclick="closeModal();showToast('✅','Permintaan berhasil dibuat')">Kirim Permintaan</button>
+        </div>
+      `;
+      document.getElementById('bottomSheetContent').innerHTML = content;
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    // ===== PROPERTY DETAIL =====
+    function openPropertyDetail(name) {
+      const content = `
+        <div class="bottom-sheet-title">${name}</div>
+        <div style="padding:0 20px 20px;">
+          <div style="height:140px;background:linear-gradient(135deg,#111827,#1a2234);border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:48px;">🌴</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Luas</div>
+              <div style="font-size:14px;font-weight:600;">500 Ha</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Harga/m2</div>
+              <div style="font-size:14px;font-weight:600;">Rp 250K</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">ROI</div>
+              <div style="font-size:14px;font-weight:600;color:#10b981;">18.5%/yr</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Status</div>
+              <div style="font-size:14px;font-weight:600;color:#06b6d4;">Tersedia</div>
+            </div>
+          </div>
+          <button style="width:100%;padding:14px;background:#10b981;color:#fff;border-radius:12px;font-size:15px;font-weight:700;" onclick="closeModal();showToast('✅','Investasi berhasil diajukan')">Investasi Sekarang</button>
+        </div>
+      `;
+      document.getElementById('bottomSheetContent').innerHTML = content;
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    // ===== CLOSE MODAL =====
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+    // ===== MINI CHARTS =====
+    function drawMiniChart(canvasId, up) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = 48, h = 24;
+      canvas.width = w * 2; canvas.height = h * 2;
+      ctx.scale(2, 2);
+      const points = [];
+      let y = h / 2;
+      for (let i = 0; i < 8; i++) {
+        y += (Math.random() - (up ? 0.35 : 0.65)) * 5;
+        y = Math.max(3, Math.min(h - 3, y));
+        points.push({ x: (i / 7) * w, y });
+      }
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        const cp1x = (points[i - 1].x + points[i].x) / 2;
+        ctx.bezierCurveTo(cp1x, points[i - 1].y, cp1x, points[i].y, points[i].x, points[i].y);
+      }
+      ctx.strokeStyle = up ? '#10b981' : '#ef4444';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // ===== HOME CHART =====
+    function drawHomeChart() {
+      const canvas = document.getElementById('homeChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width * 2;
+      canvas.height = rect.height * 2;
+      ctx.scale(2, 2);
+      const w = rect.width, h = rect.height;
+
+      // Grid lines
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < 5; i++) {
+        const y = (h / 4) * i;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // Main line
+      const points = [];
+      let y = h * 0.6;
+      for (let i = 0; i < 30; i++) {
+        y += (Math.random() - 0.4) * (h * 0.06);
+        y = Math.max(h * 0.1, Math.min(h * 0.85, y));
+        points.push({ x: (i / 29) * w, y });
+      }
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        const cp1x = (points[i - 1].x + points[i].x) / 2;
+        ctx.bezierCurveTo(cp1x, points[i - 1].y, cp1x, points[i].y, points[i].x, points[i].y);
+      }
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Gradient fill
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, 'rgba(16,185,129,0.15)');
+      grad.addColorStop(1, 'rgba(16,185,129,0)');
+      ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
 
     // ===== INIT =====
-    function init() {
-      initTicker();
-      // Set initial nav colors
-      document.querySelectorAll('.nav-item').forEach((item, i) => {
-        item.style.color = i === 0 ? '#10b981' : '#64748b';
-      });
-      // FAB pulse
-      document.querySelectorAll('.fab').forEach(fab => fab.classList.add('animate-pulse-fab'));
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      // Draw charts
+      drawMiniChart('miniChart1', true);
+      drawMiniChart('miniChart2', true);
+      drawMiniChart('miniChart3', false);
+      drawMiniChart('miniChart4', true);
+      drawMiniChart('miniChart5', false);
+      setTimeout(drawHomeChart, 100);
 
-    init();
+      // Register SW
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+
+      // Prevent pull-to-refresh
+      document.body.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 1) e.preventDefault();
+      }, { passive: false });
+
+      // Handle back button
+      window.addEventListener('popstate', () => {
+        if (currentTab !== 0) switchTab(0);
+      });
+    });
+
+    // Resize chart on orientation change
+    window.addEventListener('resize', () => setTimeout(drawHomeChart, 200));
   </script>
 </body>
 </html>
