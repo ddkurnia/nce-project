@@ -108,7 +108,7 @@
       content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
       width:24px; height:3px; background:#10b981; border-radius:0 0 3px 3px;
     }
-    .nav-item svg { width:24px; height:24px; fill:currentColor; transition:fill .2s; }
+    .nav-item svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:all .2s; }
     .nav-item span { font-size:10px; font-weight:500; letter-spacing:0.2px; }
     .nav-item:active { background:#111827; }
 
@@ -1199,7 +1199,7 @@
         <span>Home</span>
       </button>
       <button class="nav-item" onclick="switchTab(1)" data-tab="1">
-        <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         <span>Market</span>
       </button>
       <button class="nav-item" onclick="switchTab(2)" data-tab="2">
@@ -1207,7 +1207,7 @@
         <span>Orders</span>
       </button>
       <button class="nav-item" onclick="switchTab(3)" data-tab="3">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         <span>Property</span>
       </button>
       <button class="nav-item" onclick="switchTab(4)" data-tab="4">
