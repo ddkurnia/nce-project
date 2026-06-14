@@ -4,12 +4,14 @@
   "description": "Platform perdagangan komoditas Nusantara - Digital Marketplace for Real Commodities",
   "start_url": "./index.html",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#0a0e27",
   "theme_color": "#0a0e27",
   "orientation": "portrait",
   "scope": "./",
   "lang": "id",
   "categories": ["business", "finance"],
+  "prefer_related_applications": true,
   "icons": [
     {
       "src": "./assets/images/icons/icon-72x72.png",
