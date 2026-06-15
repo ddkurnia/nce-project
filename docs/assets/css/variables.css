@@ -9,7 +9,8 @@
   --bg-card: #0D1424;
   --bg-card-hover: #111B2E;
   --bg-input: #0A0F1E;
-  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --bg-overlay: rgba(0, 0, 0, 0.75);
+  --bg-surface: #131D30;
 
   /* — Gold Accent — */
   --gold: #D4AF37;
@@ -17,6 +18,7 @@
   --gold-dark: #B8962E;
   --gold-glow: rgba(212, 175, 55, 0.15);
   --gold-glow-strong: rgba(212, 175, 55, 0.3);
+  --gold-gradient: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light));
 
   /* — Text — */
   --text-primary: #FFFFFF;
@@ -27,12 +29,15 @@
   /* — Semantic — */
   --success: #22C55E;
   --success-bg: rgba(34, 197, 94, 0.1);
+  --success-light: #4ADE80;
   --danger: #EF4444;
   --danger-bg: rgba(239, 68, 68, 0.1);
+  --danger-light: #F87171;
   --warning: #F59E0B;
   --warning-bg: rgba(245, 158, 11, 0.1);
   --info: #3B82F6;
   --info-bg: rgba(59, 130, 246, 0.1);
+  --info-light: #60A5FA;
 
   /* — Border — */
   --border: #1E293B;
@@ -98,6 +103,6 @@
   /* — Layout — */
   --header-height: 56px;
   --bottom-nav-height: 64px;
-  --ticker-height: 40px;
+  --ticker-height: 36px;
   --max-width: 480px;
 }
