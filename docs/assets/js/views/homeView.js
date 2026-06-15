@@ -1,27 +1,24 @@
 import { getState, setState, subscribe } from '../state.js';
-import { renderMarketPulse } from '../components/marketBoard.js';
 import { renderStatCard, renderRequestCard } from '../components/cards.js';
 import { renderSparklineSVG } from '../components/sparkline.js';
 import { renderStatGridSkeleton, renderMarketTableSkeleton } from '../components/loading.js';
-import { generateMockCommodities, generateMockRequests, timeAgo } from '../utils/helpers.js';
+import { renderMatchCard, renderMatchSummary, generateMockMatches } from '../components/businessMatch.js';
+import { renderTrustMeter } from '../components/trustScore.js';
+import { generateMockCommodities, generateMockRequests, timeAgo, getRandomInt } from '../utils/helpers.js';
 import { formatRupiah, formatPercent, formatNumber } from '../utils/formatter.js';
 import { getCommodityLabel, getCommodityIcon } from '../constants/commodities.js';
-import { getStatusLabel, getStatusBadgeClass } from '../constants/requests.js';
 import { showSearch } from '../components/header.js';
 import { commodityService } from '../services/commodityService.js';
 import { requestService } from '../services/requestService.js';
+import { initNotifications } from '../services/notificationService.js';
 
 let container = null;
-let pulseContainer = null;
 
 export async function mount(el) {
   container = el;
   showSearch(false);
-
-  // Show loading first
   container.innerHTML = renderLoadingState();
 
-  // Load data
   try {
     let commodities = [];
     let requests = [];
@@ -40,9 +37,11 @@ export async function mount(el) {
       requests = generateMockRequests();
     }
 
+    // Init notifications
+    initNotifications();
+
     setState('commodities', commodities);
     setState('requests', requests);
-
     renderHome(commodities, requests);
   } catch (err) {
     console.error('Home view error:', err);
@@ -66,16 +65,17 @@ function renderHome(commodities, requests) {
 
   const user = getState('user');
   const greeting = user ? `Halo, ${user.displayName || 'Trader'}` : 'Lantai Digital Indonesia';
+  const trustScore = user ? 65 : 0;
 
   const topCommodities = commodities.slice(0, 5);
-  const openRequests = requests.filter(r => r.status === 'open');
+  const topMovers = [...commodities].sort((a, b) => Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0)).slice(0, 3);
   const recentRequests = requests.slice(0, 3);
+  const matches = generateMockMatches();
 
-  // Stats
-  const totalListings = commodities.length;
-  const activeBuyers = requests.filter(r => r.status === 'open').length;
-  const activeSellers = commodities.filter(c => (c.change ?? 0) > 0).length;
-  const totalTransactions = Math.floor(commodities.reduce((s, c) => s + (c.volume || 0), 0) / 100);
+  // Market index
+  const avgChange = commodities.length ? commodities.reduce((s, c) => s + (c.change ?? 0), 0) / commodities.length : 0;
+  const totalVol = commodities.reduce((s, c) => s + (c.volume || 0), 0);
+  const isMarketUp = avgChange >= 0;
 
   container.innerHTML = `
     <div class="market-pulse-bar">
@@ -86,18 +86,66 @@ function renderHome(commodities, requests) {
     </div>
     <div class="home-view">
       <div class="view-container">
+        <!-- Greeting -->
         <div class="greeting">
           <h1>${greeting}</h1>
           <p>Pantau pasar komoditas Indonesia secara real-time</p>
         </div>
 
-        <div class="stat-grid">
-          ${renderStatCard({ label: 'Listing Aktif', value: formatNumber(totalListings), change: '+12%', changeDir: 'up', icon: '📊' })}
-          ${renderStatCard({ label: 'Pembeli Aktif', value: formatNumber(activeBuyers), change: '+8%', changeDir: 'up', icon: '🛒' })}
-          ${renderStatCard({ label: 'Penjual Aktif', value: formatNumber(activeSellers), change: '+5%', changeDir: 'up', icon: '🏪' })}
-          ${renderStatCard({ label: 'Transaksi Bulan Ini', value: formatNumber(totalTransactions), change: '-2%', changeDir: 'down', icon: '💰' })}
+        <!-- Market Index Bar -->
+        <div class="market-index-bar">
+          <div class="index-card ${isMarketUp ? 'up' : 'down'}">
+            <div class="index-label">NCE Index</div>
+            <div class="index-value font-mono">${isMarketUp ? '▲' : '▼'} ${avgChange.toFixed(2)}%</div>
+          </div>
+          <div class="index-card">
+            <div class="index-label">Total Volume</div>
+            <div class="index-value font-mono">${formatNumber(totalVol)}</div>
+          </div>
+          <div class="index-card">
+            <div class="index-label">Komoditas</div>
+            <div class="index-value font-mono">${commodities.length}</div>
+          </div>
+          <div class="index-card">
+            <div class="index-label">RFQ Aktif</div>
+            <div class="index-value font-mono">${requests.filter(r => r.status === 'open').length}</div>
+          </div>
         </div>
 
+        <!-- Stat Grid -->
+        <div class="stat-grid">
+          ${renderStatCard({ label: 'Listing Aktif', value: formatNumber(commodities.length), change: '+12%', changeDir: 'up', icon: '📊' })}
+          ${renderStatCard({ label: 'Pembeli Aktif', value: formatNumber(requests.filter(r => r.status === 'open').length), change: '+8%', changeDir: 'up', icon: '🛒' })}
+          ${renderStatCard({ label: 'Penjual Aktif', value: formatNumber(commodities.filter(c => (c.change ?? 0) > 0).length), change: '+5%', changeDir: 'up', icon: '🏪' })}
+          ${renderStatCard({ label: 'Transaksi', value: formatNumber(Math.floor(totalVol / 100)), change: '-2%', changeDir: 'down', icon: '💰' })}
+        </div>
+
+        <!-- Top Movers -->
+        <div class="top-movers">
+          <div class="section-header">
+            <h3>🔥 Top Movers</h3>
+          </div>
+          <div class="movers-grid">
+            ${topMovers.map(c => {
+              const isPositive = (c.change ?? 0) >= 0;
+              const changeColor = isPositive ? 'var(--success)' : 'var(--danger)';
+              return `
+                <div class="mover-card" data-navigate="#/market/${c.id}">
+                  <div class="mover-icon">${c.icon || '📦'}</div>
+                  <div class="mover-info">
+                    <div class="mover-name">${c.name || getCommodityLabel(c.type)}</div>
+                    <div class="mover-price font-mono">${formatRupiah(c.price)}</div>
+                  </div>
+                  <div class="mover-change" style="color:${changeColor};background:${isPositive ? 'var(--success-dim)' : 'var(--danger-dim)'};">
+                    ${isPositive ? '▲' : '▼'} ${formatPercent(c.change)}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Market Board Preview -->
         <div class="market-preview">
           <div class="section-header">
             <h3>📈 Market Board</h3>
@@ -108,6 +156,19 @@ function renderHome(commodities, requests) {
           </div>
         </div>
 
+        <!-- Business Matching -->
+        <div class="business-match-section">
+          <div class="section-header">
+            <h3>🤝 Business Match</h3>
+            <span class="section-link">Saran untuk Anda</span>
+          </div>
+          ${renderMatchSummary(matches)}
+          <div class="match-list">
+            ${matches.slice(0, 3).map(m => renderMatchCard(m)).join('')}
+          </div>
+        </div>
+
+        <!-- RFQ Terbaru -->
         <div class="rfq-preview">
           <div class="section-header">
             <h3>📋 RFQ Terbaru</h3>
@@ -119,6 +180,7 @@ function renderHome(commodities, requests) {
           }
         </div>
 
+        <!-- Quick Actions -->
         <div class="quick-actions">
           <a href="#/rfq" class="btn btn-primary">📝 Buat RFQ</a>
           <a href="#/market" class="btn btn-secondary">📊 Lihat Market</a>
@@ -127,13 +189,7 @@ function renderHome(commodities, requests) {
     </div>
   `;
 
-  // Attach click handlers for navigation
-  container.querySelectorAll('[data-navigate]').forEach(el => {
-    el.addEventListener('click', (e) => {
-      const target = e.currentTarget.dataset.navigate;
-      if (target) window.location.hash = target;
-    });
-  });
+  attachEventListeners();
 }
 
 function renderPulseItems(commodities) {
@@ -177,6 +233,23 @@ function renderMarketPreviewRows(commodities) {
       </div>
     `;
   }).join('');
+}
+
+function attachEventListeners() {
+  container.querySelectorAll('[data-navigate]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const target = e.currentTarget.dataset.navigate;
+      if (target) window.location.hash = target;
+    });
+  });
+
+  container.querySelectorAll('.match-contact-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const { showToast } = await import('../components/toast.js');
+      showToast('Fitur hubungi supplier segera hadir', 'info');
+    });
+  });
 }
 
 export function unmount() {

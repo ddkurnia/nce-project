@@ -14,6 +14,111 @@
   margin-top: 4px;
 }
 
+/* === Market Index Bar === */
+.market-index-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.index-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.index-card .index-label {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.index-card .index-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.index-card.up .index-value {
+  color: var(--success);
+}
+
+.index-card.down .index-value {
+  color: var(--danger);
+}
+
+/* === Top Movers === */
+.top-movers {
+  margin-bottom: 24px;
+}
+
+.movers-grid {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.movers-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.mover-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  min-width: 160px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mover-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-gold);
+}
+
+.mover-card .mover-icon {
+  font-size: 1.5rem;
+}
+
+.mover-card .mover-info {
+  flex: 1;
+}
+
+.mover-card .mover-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mover-card .mover-price {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.mover-card .mover-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  align-self: flex-start;
+}
+
+/* === Stat Grid === */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -110,6 +215,137 @@
 
 .quick-actions .btn {
   flex: 1;
+}
+
+/* === Business Match === */
+.business-match-section {
+  margin-bottom: 24px;
+}
+
+.match-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.match-summary-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+}
+
+.match-summary-val {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.match-summary-lbl {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.match-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  transition: all var(--transition-normal);
+}
+
+.match-card:hover {
+  border-color: var(--border-hover);
+}
+
+.match-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.match-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.match-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.match-verified {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.match-score {
+  border: 2px solid;
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.match-score .score-value {
+  font-size: 1rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  display: block;
+}
+
+.match-score .score-label {
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.match-body {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.match-field .label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.match-field .value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.match-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.match-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 /* === Market View === */
@@ -270,4 +506,48 @@
 
 .commodity-card .card-sparkline {
   margin-top: 12px;
+}
+
+/* === Price Flash Animation === */
+@keyframes flashGreen {
+  0% { background: var(--success-dim); }
+  100% { background: transparent; }
+}
+
+@keyframes flashRed {
+  0% { background: var(--danger-dim); }
+  100% { background: transparent; }
+}
+
+.price-flash-up {
+  animation: flashGreen 1s ease;
+}
+
+.price-flash-down {
+  animation: flashRed 1s ease;
+}
+
+/* === Responsive === */
+@media (max-width: 480px) {
+  .market-index-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .match-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .market-index-bar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .mover-card {
+    min-width: 180px;
+  }
+
+  .match-body {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }

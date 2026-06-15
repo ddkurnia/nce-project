@@ -1,4 +1,5 @@
 import { getState, setState, subscribe } from '../state.js';
+import { initNotificationPanel } from './notifPanel.js';
 
 const HEADER_ICONS = {
   search: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
@@ -8,6 +9,8 @@ const HEADER_ICONS = {
 export function initHeader() {
   const header = document.getElementById('main-header');
   if (!header) return;
+
+  const unreadCount = getState('unreadCount') || 0;
 
   header.innerHTML = `
     <div class="header-left">
@@ -25,7 +28,8 @@ export function initHeader() {
     <div class="header-right">
       <button class="header-btn" id="header-notif-btn" aria-label="Notifikasi">
         ${HEADER_ICONS.bell}
-        <span class="notification-dot" id="notif-dot" style="display:none;"></span>
+        <span class="notification-dot" id="notif-dot" style="display:${unreadCount > 0 ? 'block' : 'none'};"></span>
+        ${unreadCount > 0 ? `<span class="notif-badge" id="notif-badge">${unreadCount > 9 ? '9+' : unreadCount}</span>` : '<span class="notif-badge" id="notif-badge" style="display:none;"></span>'}
       </button>
     </div>
   `;
@@ -46,6 +50,14 @@ export function initHeader() {
       }, 300);
     });
   }
+
+  // Init notification panel
+  initNotificationPanel();
+
+  // Subscribe to unread count changes
+  subscribe('unreadCount', (count) => {
+    updateNotificationBadge(count);
+  });
 }
 
 export function showSearch(show) {
@@ -57,7 +69,12 @@ export function showSearch(show) {
 
 export function updateNotificationBadge(count) {
   const dot = document.getElementById('notif-dot');
+  const badge = document.getElementById('notif-badge');
   if (dot) {
     dot.style.display = count > 0 ? 'block' : 'none';
+  }
+  if (badge) {
+    badge.style.display = count > 0 ? 'flex' : 'none';
+    badge.textContent = count > 9 ? '9+' : count;
   }
 }
