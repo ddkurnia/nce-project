@@ -1,0 +1,209 @@
+/* === Market View — Terminal Board === */
+.market-view .search-bar {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.market-view .search-bar input {
+  padding-left: 36px;
+  padding-right: 12px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.market-view .search-bar .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.view-toggle button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.view-toggle button.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* === Market Table — Terminal Grid (Phase 4) === */
+.market-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.market-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 2;
+}
+
+.market-table th:hover {
+  color: var(--gold);
+}
+
+.market-table th.sorted {
+  color: var(--gold);
+}
+
+.market-table th.sorted::after {
+  content: ' \25BE';
+  font-size: var(--text-2xs);
+}
+
+.market-table th.sorted.asc::after {
+  content: ' \25B4';
+}
+
+.market-table td {
+  padding: 8px 10px;
+  font-size: var(--text-sm);
+  border-bottom: 1px solid var(--grid-line);
+  white-space: nowrap;
+}
+
+.market-table tr {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.market-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.market-table tbody tr:active {
+  background: var(--grid-line-active);
+}
+
+/* === Market Grid === */
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .market-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.commodity-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.commodity-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+.commodity-card .card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.commodity-card .card-header .icon {
+  font-size: 1.1rem;
+}
+
+.commodity-card .card-header .name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.commodity-card .card-price {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.commodity-card .card-change {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+}
+
+.commodity-card .card-sparkline {
+  margin-top: 10px;
+}
+
+/* === Responsive === */
+@media (max-width: 480px) {
+  .market-index-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .match-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .market-index-bar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .mover-card {
+    min-width: 170px;
+  }
+
+  .match-body {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

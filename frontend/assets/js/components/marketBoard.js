@@ -1,6 +1,6 @@
 /**
- * Market Board — Phase 4 Terminal-style trading board
- * Enhanced depth bars, refined table/grid views
+ * Market Board — Native Compact Layout
+ * Compact rows for mobile, full table for desktop
  */
 import { generateSparklineData, getRandomInt } from '../utils/helpers.js';
 import { formatRupiah, formatPercent, formatNumber } from '../utils/formatter.js';
@@ -34,13 +34,10 @@ export function renderMarketPulse(commodities) {
   `;
 }
 
-export function renderMarketBoardTable(commodities, sortKey = 'name', sortAsc = true) {
-  if (!commodities || !commodities.length) {
-    return `<div class="empty-state">
-      <p>Tidak ada data komoditas</p>
-    </div>`;
-  }
-
+/**
+ * Render native compact market list (mobile-first)
+ */
+function renderMarketList(commodities, sortKey, sortAsc) {
   const sorted = [...commodities].sort((a, b) => {
     let va = a[sortKey], vb = b[sortKey];
     if (typeof va === 'string') {
@@ -49,7 +46,62 @@ export function renderMarketBoardTable(commodities, sortKey = 'name', sortAsc = 
     return sortAsc ? va - vb : vb - va;
   });
 
-  // Find max volume for depth bar scaling
+  const nameSorted = sortKey === 'name' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+  const priceSorted = sortKey === 'price' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+  const changeSorted = sortKey === 'change' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+
+  const rows = sorted.map(c => {
+    const isPositive = (c.change ?? 0) >= 0;
+    const changeClass = isPositive ? 'positive' : 'negative';
+    const changeSign = isPositive ? '+' : '';
+
+    return `
+      <div class="market-row" data-id="${c.id}" data-navigate="#/market/${c.id}">
+        <div class="row-left">
+          <span class="row-icon">${c.icon || '📦'}</span>
+          <div class="row-info">
+            <span class="row-name">${c.name}</span>
+            <span class="row-volume">Vol ${formatNumber(c.volume)}</span>
+          </div>
+        </div>
+        <div class="row-chart">
+          ${renderSparklineSVG(c.sparkline || [], 52, 20)}
+        </div>
+        <div class="row-right">
+          <span class="row-price">${formatRupiah(c.price)}</span>
+          <span class="row-change ${changeClass}">${changeSign}${(c.change ?? 0).toFixed(2)}%</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="market-list">
+      <div class="market-list-header">
+        <span class="col-name ${nameSorted}" data-sort="name">Nama</span>
+        <span class="col-chart">Chart</span>
+        <span class="col-price ${priceSorted}" data-sort="price">Harga</span>
+        <span class="col-change ${changeSorted}" data-sort="change">%</span>
+      </div>
+      <div class="market-list-body">
+        ${rows}
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Render full market table (desktop only)
+ */
+function renderMarketTable(commodities, sortKey, sortAsc) {
+  const sorted = [...commodities].sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (typeof va === 'string') {
+      return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    }
+    return sortAsc ? va - vb : vb - va;
+  });
+
   const maxVol = Math.max(...sorted.map(c => c.volume || 0), 1);
 
   const rows = sorted.map(c => {
@@ -94,13 +146,17 @@ export function renderMarketBoardTable(commodities, sortKey = 'name', sortAsc = 
     `;
   }).join('');
 
+  const nameSorted = sortKey === 'name' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+  const priceSorted = sortKey === 'price' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+  const changeSorted = sortKey === 'change' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+
   return `
     <table class="market-table">
       <thead>
         <tr>
-          <th data-sort="name">Nama</th>
-          <th data-sort="price">Harga</th>
-          <th data-sort="change">Perubahan</th>
+          <th class="${nameSorted}" data-sort="name">Nama</th>
+          <th class="${priceSorted}" data-sort="price">Harga</th>
+          <th class="${changeSorted}" data-sort="change">Perubahan</th>
           <th>Chart</th>
           <th>Depth</th>
         </tr>
@@ -108,6 +164,21 @@ export function renderMarketBoardTable(commodities, sortKey = 'name', sortAsc = 
       <tbody>${rows}</tbody>
     </table>
   `;
+}
+
+/**
+ * Main render — renders BOTH list (mobile) and table (desktop)
+ * CSS media queries handle which one is visible
+ */
+export function renderMarketBoardTable(commodities, sortKey = 'name', sortAsc = true) {
+  if (!commodities || !commodities.length) {
+    return `<div class="empty-state"><p>Tidak ada data komoditas</p></div>`;
+  }
+
+  const listHTML = renderMarketList(commodities, sortKey, sortAsc);
+  const tableHTML = renderMarketTable(commodities, sortKey, sortAsc);
+
+  return listHTML + tableHTML;
 }
 
 export function renderMarketBoardGrid(commodities) {
@@ -131,7 +202,7 @@ export function renderMarketBoardGrid(commodities) {
           ${isPositive ? '▲' : '▼'} ${formatPercent(c.change)}
         </div>
         <div class="card-sparkline">
-          ${renderSparklineWithVolume(c.sparkline || [], mockVolumes, 140, 44)}
+          ${renderSparklineWithVolume(c.sparkline || [], mockVolumes, 140, 40)}
         </div>
       </div>
     `;

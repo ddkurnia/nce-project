@@ -1,0 +1,2002 @@
+     1→/*
+     2→ * ============================================================================
+     3→ * Nusantara Commodity Exchange (NCE) — Main Stylesheet
+     4→ * ============================================================================
+     5→ * Dark fintech theme inspired by Binance / Bloomberg Terminal
+     6→ * Designed to work alongside Tailwind CSS utility classes
+     7→ * ============================================================================
+     8→ */
+     9→
+    10→/* ============================================================================
+    11→ * 1. CSS CUSTOM PROPERTIES (VARIABLES)
+    12→ * ============================================================================ */
+    13→
+    14→:root {
+    15→  /* — Navy palette (backgrounds, surfaces) — */
+    16→  --color-navy-900: #0a0e27;
+    17→  --color-navy-800: #111827;
+    18→  --color-navy-700: #1a1f3a;
+    19→  --color-navy-600: #1e293b;
+    20→
+    21→  /* — Accent palette — */
+    22→  --color-emerald-500: #10b981;
+    23→  --color-emerald-600: #059669;
+    24→  --color-emerald-400: #34d399;
+    25→  --color-cyan-500: #06b6d4;
+    26→  --color-cyan-400: #22d3ee;
+    27→  --color-cyan-600: #0891b2;
+    28→
+    29→  /* — Semantic colors — */
+    30→  --color-danger: #ef4444;
+    31→  --color-danger-dark: #dc2626;
+    32→  --color-warning: #f59e0b;
+    33→  --color-warning-dark: #d97706;
+    34→  --color-success: #10b981;
+    35→
+    36→  /* — Text hierarchy — */
+    37→  --text-primary: #e2e8f0;
+    38→  --text-secondary: #94a3b8;
+    39→  --text-muted: #64748b;
+    40→
+    41→  /* — Borders & surfaces — */
+    42→  --border-color: rgba(255, 255, 255, 0.06);
+    43→  --border-color-hover: rgba(255, 255, 255, 0.12);
+    44→  --surface-overlay: rgba(0, 0, 0, 0.5);
+    45→
+    46→  /* — Glow shadows — */
+    47→  --shadow-emerald: 0 0 20px rgba(16, 185, 129, 0.15);
+    48→  --shadow-emerald-lg: 0 0 40px rgba(16, 185, 129, 0.25);
+    49→  --shadow-cyan: 0 0 20px rgba(6, 182, 212, 0.15);
+    50→  --shadow-cyan-lg: 0 0 40px rgba(6, 182, 212, 0.25);
+    51→
+    52→  /* — Spacing scale — */
+    53→  --sidebar-width: 260px;
+    54→  --sidebar-width-collapsed: 72px;
+    55→  --navbar-height: 64px;
+    56→  --ticker-height: 40px;
+    57→
+    58→  /* — Timing — */
+    59→  --transition-fast: 150ms ease;
+    60→  --transition-base: 250ms ease;
+    61→  --transition-slow: 400ms ease;
+    62→
+    63→  /* — Z-index layers — */
+    64→  --z-sidebar: 40;
+    65→  --z-navbar: 50;
+    66→  --z-ticker: 45;
+    67→  --z-modal-overlay: 60;
+    68→  --z-modal: 70;
+    69→  --z-tooltip: 80;
+    70→  --z-whatsapp: 90;
+    71→
+    72→  /* — Border radius — */
+    73→  --radius-sm: 4px;
+    74→  --radius-md: 8px;
+    75→  --radius-lg: 12px;
+    76→  --radius-xl: 16px;
+    77→  --radius-full: 9999px;
+    78→}
+    79→
+    80→/* ============================================================================
+    81→ * 2. GLOBAL STYLES & RESETS
+    82→ * ============================================================================ */
+    83→
+    84→*,
+    85→*::before,
+    86→*::after {
+    87→  box-sizing: border-box;
+    88→  margin: 0;
+    89→  padding: 0;
+    90→}
+    91→
+    92→html {
+    93→  scroll-behavior: smooth;
+    94→  -webkit-text-size-adjust: 100%;
+    95→  -moz-text-size-adjust: 100%;
+    96→  text-size-adjust: 100%;
+    97→  font-size: 16px;
+    98→}
+    99→
+   100→body {
+   101→  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+   102→    Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+   103→    sans-serif;
+   104→  background-color: var(--color-navy-900);
+   105→  color: var(--text-primary);
+   106→  line-height: 1.6;
+   107→  min-height: 100vh;
+   108→  -webkit-font-smoothing: antialiased;
+   109→  -moz-osx-font-smoothing: grayscale;
+   110→  overflow-x: hidden;
+   111→}
+   112→
+   113→/* — Selection — */
+   114→::selection {
+   115→  background-color: rgba(16, 185, 129, 0.3);
+   116→  color: #ffffff;
+   117→}
+   118→
+   119→::-moz-selection {
+   120→  background-color: rgba(16, 185, 129, 0.3);
+   121→  color: #ffffff;
+   122→}
+   123→
+   124→/* — Focus ring — */
+   125→:focus-visible {
+   126→  outline: 2px solid var(--color-emerald-500);
+   127→  outline-offset: 2px;
+   128→}
+   129→
+   130→:focus:not(:focus-visible) {
+   131→  outline: none;
+   132→}
+   133→
+   134→/* — Links — */
+   135→a {
+   136→  color: var(--color-cyan-400);
+   137→  text-decoration: none;
+   138→  transition: color var(--transition-fast);
+   139→}
+   140→
+   141→a:hover {
+   142→  color: var(--color-emerald-400);
+   143→}
+   144→
+   145→/* — Images — */
+   146→img,
+   147→svg {
+   148→  display: block;
+   149→  max-width: 100%;
+   150→}
+   151→
+   152→/* — Custom Scrollbar (Webkit) — */
+   153→::-webkit-scrollbar {
+   154→  width: 6px;
+   155→  height: 6px;
+   156→}
+   157→
+   158→::-webkit-scrollbar-track {
+   159→  background: var(--color-navy-800);
+   160→}
+   161→
+   162→::-webkit-scrollbar-thumb {
+   163→  background: var(--color-navy-600);
+   164→  border-radius: var(--radius-full);
+   165→}
+   166→
+   167→::-webkit-scrollbar-thumb:hover {
+   168→  background: var(--color-emerald-600);
+   169→}
+   170→
+   171→::-webkit-scrollbar-corner {
+   172→  background: var(--color-navy-800);
+   173→}
+   174→
+   175→/* — Custom Scrollbar (Firefox) — */
+   176→* {
+   177→  scrollbar-width: thin;
+   178→  scrollbar-color: var(--color-navy-600) var(--color-navy-800);
+   179→}
+   180→
+   181→/* ============================================================================
+   182→ * 3. COMPONENT STYLES
+   183→ * ============================================================================ */
+   184→
+   185→/* ———————————————————————————————————————————————————————————————
+   186→ * 3.1  .nce-card
+   187→ * ——————————————————————————————————————————————————————————————— */
+   188→
+   189→.nce-card {
+   190→  background: linear-gradient(
+   191→    145deg,
+   192→    var(--color-navy-700),
+   193→    var(--color-navy-800)
+   194→  );
+   195→  border: 1px solid var(--border-color);
+   196→  border-radius: var(--radius-lg);
+   197→  padding: 1.5rem;
+   198→  transition: all var(--transition-base);
+   199→  position: relative;
+   200→  overflow: hidden;
+   201→}
+   202→
+   203→.nce-card::before {
+   204→  content: '';
+   205→  position: absolute;
+   206→  top: 0;
+   207→  left: 0;
+   208→  right: 0;
+   209→  height: 1px;
+   210→  background: linear-gradient(
+   211→    90deg,
+   212→    transparent,
+   213→    rgba(16, 185, 129, 0.3),
+   214→    transparent
+   215→  );
+   216→  opacity: 0;
+   217→  transition: opacity var(--transition-base);
+   218→}
+   219→
+   220→.nce-card:hover {
+   221→  border-color: rgba(16, 185, 129, 0.2);
+   222→  box-shadow: var(--shadow-emerald);
+   223→  transform: translateY(-2px);
+   224→}
+   225→
+   226→.nce-card:hover::before {
+   227→  opacity: 1;
+   228→}
+   229→
+   230→.nce-card__header {
+   231→  display: flex;
+   232→  align-items: center;
+   233→  justify-content: space-between;
+   234→  margin-bottom: 1rem;
+   235→  padding-bottom: 0.75rem;
+   236→  border-bottom: 1px solid var(--border-color);
+   237→}
+   238→
+   239→.nce-card__title {
+   240→  font-size: 1rem;
+   241→  font-weight: 600;
+   242→  color: var(--text-primary);
+   243→  letter-spacing: 0.01em;
+   244→}
+   245→
+   246→.nce-card__body {
+   247→  color: var(--text-secondary);
+   248→}
+   249→
+   250→.nce-card__footer {
+   251→  margin-top: 1rem;
+   252→  padding-top: 0.75rem;
+   253→  border-top: 1px solid var(--border-color);
+   254→}
+   255→
+   256→/* ———————————————————————————————————————————————————————————————
+   257→ * 3.2  .nce-btn-primary
+   258→ * ——————————————————————————————————————————————————————————————— */
+   259→
+   260→.nce-btn {
+   261→  display: inline-flex;
+   262→  align-items: center;
+   263→  justify-content: center;
+   264→  gap: 0.5rem;
+   265→  font-family: inherit;
+   266→  font-weight: 600;
+   267→  font-size: 0.875rem;
+   268→  line-height: 1;
+   269→  padding: 0.625rem 1.25rem;
+   270→  border-radius: var(--radius-md);
+   271→  border: none;
+   272→  cursor: pointer;
+   273→  transition: all var(--transition-fast);
+   274→  text-decoration: none;
+   275→  white-space: nowrap;
+   276→  user-select: none;
+   277→}
+   278→
+   279→.nce-btn:disabled,
+   280→.nce-btn[aria-disabled='true'] {
+   281→  opacity: 0.5;
+   282→  cursor: not-allowed;
+   283→  pointer-events: none;
+   284→}
+   285→
+   286→.nce-btn-primary {
+   287→  background: linear-gradient(135deg, var(--color-emerald-500), var(--color-emerald-600));
+   288→  color: #ffffff;
+   289→  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+   290→}
+   291→
+   292→.nce-btn-primary:hover {
+   293→  background: linear-gradient(135deg, var(--color-emerald-400), var(--color-emerald-500));
+   294→  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+   295→  transform: translateY(-1px);
+   296→}
+   297→
+   298→.nce-btn-primary:active {
+   299→  transform: translateY(0);
+   300→  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.2);
+   301→}
+   302→
+   303→/* ———————————————————————————————————————————————————————————————
+   304→ * 3.3  .nce-btn-secondary
+   305→ * ——————————————————————————————————————————————————————————————— */
+   306→
+   307→.nce-btn-secondary {
+   308→  background: transparent;
+   309→  color: var(--color-cyan-400);
+   310→  border: 1px solid var(--color-cyan-500);
+   311→  box-shadow: none;
+   312→}
+   313→
+   314→.nce-btn-secondary:hover {
+   315→  background: rgba(6, 182, 212, 0.1);
+   316→  border-color: var(--color-cyan-400);
+   317→  box-shadow: var(--shadow-cyan);
+   318→  transform: translateY(-1px);
+   319→}
+   320→
+   321→.nce-btn-secondary:active {
+   322→  transform: translateY(0);
+   323→  background: rgba(6, 182, 212, 0.15);
+   324→}
+   325→
+   326→/* ———————————————————————————————————————————————————————————————
+   327→ * 3.4  .nce-btn-danger
+   328→ * ——————————————————————————————————————————————————————————————— */
+   329→
+   330→.nce-btn-danger {
+   331→  background: linear-gradient(135deg, var(--color-danger), var(--color-danger-dark));
+   332→  color: #ffffff;
+   333→  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+   334→}
+   335→
+   336→.nce-btn-danger:hover {
+   337→  background: linear-gradient(135deg, #f87171, var(--color-danger));
+   338→  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+   339→  transform: translateY(-1px);
+   340→}
+   341→
+   342→.nce-btn-danger:active {
+   343→  transform: translateY(0);
+   344→  box-shadow: 0 1px 4px rgba(239, 68, 68, 0.2);
+   345→}
+   346→
+   347→/* — Button size variants — */
+   348→
+   349→.nce-btn--sm {
+   350→  font-size: 0.75rem;
+   351→  padding: 0.375rem 0.75rem;
+   352→  border-radius: var(--radius-sm);
+   353→}
+   354→
+   355→.nce-btn--lg {
+   356→  font-size: 1rem;
+   357→  padding: 0.75rem 1.75rem;
+   358→  border-radius: var(--radius-lg);
+   359→}
+   360→
+   361→.nce-btn--xl {
+   362→  font-size: 1.125rem;
+   363→  padding: 1rem 2.5rem;
+   364→  border-radius: var(--radius-lg);
+   365→}
+   366→
+   367→.nce-btn--icon {
+   368→  padding: 0.625rem;
+   369→  border-radius: var(--radius-md);
+   370→}
+   371→
+   372→.nce-btn--full {
+   373→  width: 100%;
+   374→}
+   375→
+   376→/* ———————————————————————————————————————————————————————————————
+   377→ * 3.5  .nce-badge
+   378→ * ——————————————————————————————————————————————————————————————— */
+   379→
+   380→.nce-badge {
+   381→  display: inline-flex;
+   382→  align-items: center;
+   383→  gap: 0.25rem;
+   384→  font-size: 0.6875rem;
+   385→  font-weight: 600;
+   386→  letter-spacing: 0.04em;
+   387→  text-transform: uppercase;
+   388→  padding: 0.2rem 0.6rem;
+   389→  border-radius: var(--radius-full);
+   390→  white-space: nowrap;
+   391→  line-height: 1.4;
+   392→}
+   393→
+   394→.nce-badge--verified {
+   395→  background: rgba(16, 185, 129, 0.15);
+   396→  color: var(--color-emerald-400);
+   397→  border: 1px solid rgba(16, 185, 129, 0.3);
+   398→  box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+   399→}
+   400→
+   401→.nce-badge--active {
+   402→  background: rgba(6, 182, 212, 0.15);
+   403→  color: var(--color-cyan-400);
+   404→  border: 1px solid rgba(6, 182, 212, 0.3);
+   405→}
+   406→
+   407→.nce-badge--pending {
+   408→  background: rgba(245, 158, 11, 0.15);
+   409→  color: var(--color-warning);
+   410→  border: 1px solid rgba(245, 158, 11, 0.3);
+   411→}
+   412→
+   413→.nce-badge--rejected {
+   414→  background: rgba(239, 68, 68, 0.15);
+   415→  color: var(--color-danger);
+   416→  border: 1px solid rgba(239, 68, 68, 0.3);
+   417→}
+   418→
+   419→.nce-badge--dot::before {
+   420→  content: '';
+   421→  width: 6px;
+   422→  height: 6px;
+   423→  border-radius: 50%;
+   424→  background: currentColor;
+   425→  flex-shrink: 0;
+   426→}
+   427→
+   428→/* ———————————————————————————————————————————————————————————————
+   429→ * 3.6  .nce-input
+   430→ * ——————————————————————————————————————————————————————————————— */
+   431→
+   432→.nce-input {
+   433→  width: 100%;
+   434→  padding: 0.625rem 0.875rem;
+   435→  font-family: inherit;
+   436→  font-size: 0.875rem;
+   437→  line-height: 1.5;
+   438→  color: var(--text-primary);
+   439→  background-color: var(--color-navy-800);
+   440→  border: 1px solid var(--border-color);
+   441→  border-radius: var(--radius-md);
+   442→  transition: all var(--transition-fast);
+   443→  appearance: none;
+   444→  -webkit-appearance: none;
+   445→}
+   446→
+   447→.nce-input::placeholder {
+   448→  color: var(--text-muted);
+   449→  opacity: 1;
+   450→}
+   451→
+   452→.nce-input:hover {
+   453→  border-color: var(--border-color-hover);
+   454→}
+   455→
+   456→.nce-input:focus {
+   457→  outline: none;
+   458→  border-color: var(--color-emerald-500);
+   459→  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+   460→  background-color: var(--color-navy-700);
+   461→}
+   462→
+   463→.nce-input:disabled,
+   464→.nce-input[readonly] {
+   465→  opacity: 0.6;
+   466→  cursor: not-allowed;
+   467→  background-color: var(--color-navy-900);
+   468→}
+   469→
+   470→.nce-input--error {
+   471→  border-color: var(--color-danger);
+   472→}
+   473→
+   474→.nce-input--error:focus {
+   475→  border-color: var(--color-danger);
+   476→  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+   477→}
+   478→
+   479→.nce-input--success {
+   480→  border-color: var(--color-emerald-500);
+   481→}
+   482→
+   483→.nce-input--success:focus {
+   484→  border-color: var(--color-emerald-500);
+   485→  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+   486→}
+   487→
+   488→.nce-input__wrapper {
+   489→  position: relative;
+   490→  display: flex;
+   491→  align-items: center;
+   492→}
+   493→
+   494→.nce-input__wrapper .nce-input {
+   495→  padding-right: 2.5rem;
+   496→}
+   497→
+   498→.nce-input__icon {
+   499→  position: absolute;
+   500→  right: 0.75rem;
+   501→  color: var(--text-muted);
+   502→  pointer-events: none;
+   503→  display: flex;
+   504→  align-items: center;
+   505→}
+   506→
+   507→.nce-input__label {
+   508→  display: block;
+   509→  font-size: 0.8125rem;
+   510→  font-weight: 500;
+   511→  color: var(--text-secondary);
+   512→  margin-bottom: 0.375rem;
+   513→}
+   514→
+   515→.nce-input__helper {
+   516→  font-size: 0.75rem;
+   517→  color: var(--text-muted);
+   518→  margin-top: 0.25rem;
+   519→}
+   520→
+   521→.nce-input__error {
+   522→  font-size: 0.75rem;
+   523→  color: var(--color-danger);
+   524→  margin-top: 0.25rem;
+   525→}
+   526→
+   527→/* — Textarea — */
+   528→
+   529→textarea.nce-input {
+   530→  min-height: 100px;
+   531→  resize: vertical;
+   532→}
+   533→
+   534→/* ———————————————————————————————————————————————————————————————
+   535→ * 3.7  .nce-select
+   536→ * ——————————————————————————————————————————————————————————————— */
+   537→
+   538→.nce-select {
+   539→  width: 100%;
+   540→  padding: 0.625rem 2.5rem 0.625rem 0.875rem;
+   541→  font-family: inherit;
+   542→  font-size: 0.875rem;
+   543→  line-height: 1.5;
+   544→  color: var(--text-primary);
+   545→  background-color: var(--color-navy-800);
+   546→  border: 1px solid var(--border-color);
+   547→  border-radius: var(--radius-md);
+   548→  transition: all var(--transition-fast);
+   549→  appearance: none;
+   550→  -webkit-appearance: none;
+   551→  cursor: pointer;
+   552→  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+   553→  background-repeat: no-repeat;
+   554→  background-position: right 0.75rem center;
+   555→  background-size: 16px;
+   556→}
+   557→
+   558→.nce-select:hover {
+   559→  border-color: var(--border-color-hover);
+   560→}
+   561→
+   562→.nce-select:focus {
+   563→  outline: none;
+   564→  border-color: var(--color-emerald-500);
+   565→  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+   566→  background-color: var(--color-navy-700);
+   567→}
+   568→
+   569→.nce-select:disabled {
+   570→  opacity: 0.6;
+   571→  cursor: not-allowed;
+   572→}
+   573→
+   574→.nce-select option {
+   575→  background-color: var(--color-navy-800);
+   576→  color: var(--text-primary);
+   577→}
+   578→
+   579→.nce-select optgroup {
+   580→  background-color: var(--color-navy-700);
+   581→  color: var(--text-secondary);
+   582→  font-weight: 600;
+   583→}
+   584→
+   585→/* ———————————————————————————————————————————————————————————————
+   586→ * 3.8  .nce-table
+   587→ * ——————————————————————————————————————————————————————————————— */
+   588→
+   589→.nce-table-wrapper {
+   590→  width: 100%;
+   591→  overflow-x: auto;
+   592→  border: 1px solid var(--border-color);
+   593→  border-radius: var(--radius-lg);
+   594→  background: var(--color-navy-800);
+   595→}
+   596→
+   597→.nce-table {
+   598→  width: 100%;
+   599→  border-collapse: collapse;
+   600→  font-size: 0.875rem;
+   601→}
+   602→
+   603→.nce-table thead {
+   604→  background: var(--color-navy-900);
+   605→}
+   606→
+   607→.nce-table th {
+   608→  padding: 0.75rem 1rem;
+   609→  font-weight: 600;
+   610→  font-size: 0.75rem;
+   611→  text-transform: uppercase;
+   612→  letter-spacing: 0.06em;
+   613→  color: var(--text-muted);
+   614→  text-align: left;
+   615→  white-space: nowrap;
+   616→  border-bottom: 1px solid var(--border-color);
+   617→  user-select: none;
+   618→}
+   619→
+   620→.nce-table th[data-sortable] {
+   621→  cursor: pointer;
+   622→}
+   623→
+   624→.nce-table th[data-sortable]:hover {
+   625→  color: var(--color-cyan-400);
+   626→}
+   627→
+   628→.nce-table td {
+   629→  padding: 0.75rem 1rem;
+   630→  color: var(--text-secondary);
+   631→  border-bottom: 1px solid var(--border-color);
+   632→  white-space: nowrap;
+   633→}
+   634→
+   635→.nce-table tbody tr {
+   636→  transition: background-color var(--transition-fast);
+   637→}
+   638→
+   639→.nce-table tbody tr:hover {
+   640→  background-color: rgba(16, 185, 129, 0.04);
+   641→}
+   642→
+   643→.nce-table tbody tr:hover td {
+   644→  color: var(--text-primary);
+   645→}
+   646→
+   647→.nce-table tbody tr:last-child td {
+   648→  border-bottom: none;
+   649→}
+   650→
+   651→/* — Table row highlights — */
+   652→.nce-table tr.nce-table__row--up td {
+   653→  color: var(--color-emerald-400);
+   654→}
+   655→
+   656→.nce-table tr.nce-table__row--down td {
+   657→  color: var(--color-danger);
+   658→}
+   659→
+   660→.nce-table tr.nce-table__row--selected {
+   661→  background-color: rgba(16, 185, 129, 0.08);
+   662→}
+   663→
+   664→/* — Striped variant — */
+   665→.nce-table--striped tbody tr:nth-child(even) {
+   666→  background-color: rgba(255, 255, 255, 0.015);
+   667→}
+   668→
+   669→.nce-table--striped tbody tr:nth-child(even):hover {
+   670→  background-color: rgba(16, 185, 129, 0.04);
+   671→}
+   672→
+   673→/* — Compact variant — */
+   674→.nce-table--compact th,
+   675→.nce-table--compact td {
+   676→  padding: 0.5rem 0.75rem;
+   677→  font-size: 0.8125rem;
+   678→}
+   679→
+   680→/* ———————————————————————————————————————————————————————————————
+   681→ * 3.9  .nce-sidebar
+   682→ * ——————————————————————————————————————————————————————————————— */
+   683→
+   684→.nce-sidebar {
+   685→  position: fixed;
+   686→  top: 0;
+   687→  left: 0;
+   688→  bottom: 0;
+   689→  width: var(--sidebar-width);
+   690→  background: linear-gradient(
+   691→    180deg,
+   692→    var(--color-navy-800) 0%,
+   693→    var(--color-navy-900) 100%
+   694→  );
+   695→  border-right: 1px solid var(--border-color);
+   696→  z-index: var(--z-sidebar);
+   697→  overflow-y: auto;
+   698→  overflow-x: hidden;
+   699→  transition: width var(--transition-base), transform var(--transition-base);
+   700→  display: flex;
+   701→  flex-direction: column;
+   702→}
+   703→
+   704→.nce-sidebar__logo {
+   705→  display: flex;
+   706→  align-items: center;
+   707→  gap: 0.75rem;
+   708→  padding: 1.25rem 1.5rem;
+   709→  border-bottom: 1px solid var(--border-color);
+   710→  text-decoration: none;
+   711→  min-height: var(--navbar-height);
+   712→}
+   713→
+   714→.nce-sidebar__logo-icon {
+   715→  width: 36px;
+   716→  height: 36px;
+   717→  flex-shrink: 0;
+   718→}
+   719→
+   720→.nce-sidebar__logo-text {
+   721→  font-size: 1.125rem;
+   722→  font-weight: 700;
+   723→  color: var(--text-primary);
+   724→  letter-spacing: -0.01em;
+   725→}
+   726→
+   727→.nce-sidebar__logo-text span {
+   728→  color: var(--color-emerald-500);
+   729→}
+   730→
+   731→.nce-sidebar__nav {
+   732→  flex: 1;
+   733→  padding: 0.75rem 0;
+   734→}
+   735→
+   736→.nce-sidebar__section {
+   737→  padding: 0 0.75rem;
+   738→  margin-bottom: 0.5rem;
+   739→}
+   740→
+   741→.nce-sidebar__section-title {
+   742→  font-size: 0.6875rem;
+   743→  font-weight: 600;
+   744→  text-transform: uppercase;
+   745→  letter-spacing: 0.08em;
+   746→  color: var(--text-muted);
+   747→  padding: 0.5rem 0.75rem 0.375rem;
+   748→}
+   749→
+   750→.nce-sidebar__link {
+   751→  display: flex;
+   752→  align-items: center;
+   753→  gap: 0.75rem;
+   754→  padding: 0.625rem 0.75rem;
+   755→  border-radius: var(--radius-md);
+   756→  color: var(--text-secondary);
+   757→  font-size: 0.875rem;
+   758→  font-weight: 500;
+   759→  text-decoration: none;
+   760→  transition: all var(--transition-fast);
+   761→  position: relative;
+   762→}
+   763→
+   764→.nce-sidebar__link:hover {
+   765→  background-color: rgba(255, 255, 255, 0.05);
+   766→  color: var(--text-primary);
+   767→}
+   768→
+   769→.nce-sidebar__link--active {
+   770→  background: rgba(16, 185, 129, 0.1);
+   771→  color: var(--color-emerald-400);
+   772→}
+   773→
+   774→.nce-sidebar__link--active::before {
+   775→  content: '';
+   776→  position: absolute;
+   777→  left: -0.75rem;
+   778→  top: 50%;
+   779→  transform: translateY(-50%);
+   780→  width: 3px;
+   781→  height: 60%;
+   782→  background: var(--color-emerald-500);
+   783→  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+   784→}
+   785→
+   786→.nce-sidebar__link-icon {
+   787→  width: 20px;
+   788→  height: 20px;
+   789→  flex-shrink: 0;
+   790→  opacity: 0.7;
+   791→}
+   792→
+   793→.nce-sidebar__link--active .nce-sidebar__link-icon {
+   794→  opacity: 1;
+   795→}
+   796→
+   797→.nce-sidebar__link-badge {
+   798→  margin-left: auto;
+   799→  background: var(--color-danger);
+   800→  color: #ffffff;
+   801→  font-size: 0.625rem;
+   802→  font-weight: 700;
+   803→  padding: 0.1rem 0.4rem;
+   804→  border-radius: var(--radius-full);
+   805→  min-width: 18px;
+   806→  text-align: center;
+   807→}
+   808→
+   809→.nce-sidebar__footer {
+   810→  padding: 1rem 1.25rem;
+   811→  border-top: 1px solid var(--border-color);
+   812→}
+   813→
+   814→/* ———————————————————————————————————————————————————————————————
+   815→ * 3.10  .nce-navbar
+   816→ * ——————————————————————————————————————————————————————————————— */
+   817→
+   818→.nce-navbar {
+   819→  position: fixed;
+   820→  top: 0;
+   821→  left: var(--sidebar-width);
+   822→  right: 0;
+   823→  height: var(--navbar-height);
+   824→  background: rgba(10, 14, 39, 0.8);
+   825→  backdrop-filter: blur(16px) saturate(180%);
+   826→  -webkit-backdrop-filter: blur(16px) saturate(180%);
+   827→  border-bottom: 1px solid var(--border-color);
+   828→  z-index: var(--z-navbar);
+   829→  display: flex;
+   830→  align-items: center;
+   831→  justify-content: space-between;
+   832→  padding: 0 1.5rem;
+   833→  transition: left var(--transition-base);
+   834→}
+   835→
+   836→.nce-navbar__left,
+   837→.nce-navbar__right {
+   838→  display: flex;
+   839→  align-items: center;
+   840→  gap: 1rem;
+   841→}
+   842→
+   843→.nce-navbar__search {
+   844→  position: relative;
+   845→  width: 320px;
+   846→}
+   847→
+   848→.nce-navbar__search .nce-input {
+   849→  padding-left: 2.5rem;
+   850→  background: var(--color-navy-700);
+   851→  border-color: transparent;
+   852→  border-radius: var(--radius-full);
+   853→  font-size: 0.8125rem;
+   854→  height: 38px;
+   855→}
+   856→
+   857→.nce-navbar__search .nce-input:focus {
+   858→  background: var(--color-navy-600);
+   859→  border-color: var(--color-emerald-500);
+   860→}
+   861→
+   862→.nce-navbar__search-icon {
+   863→  position: absolute;
+   864→  left: 0.875rem;
+   865→  top: 50%;
+   866→  transform: translateY(-50%);
+   867→  color: var(--text-muted);
+   868→  pointer-events: none;
+   869→}
+   870→
+   871→.nce-navbar__user {
+   872→  display: flex;
+   873→  align-items: center;
+   874→  gap: 0.5rem;
+   875→  cursor: pointer;
+   876→  padding: 0.25rem 0.5rem;
+   877→  border-radius: var(--radius-md);
+   878→  transition: background-color var(--transition-fast);
+   879→}
+   880→
+   881→.nce-navbar__user:hover {
+   882→  background-color: rgba(255, 255, 255, 0.05);
+   883→}
+   884→
+   885→.nce-navbar__avatar {
+   886→  width: 32px;
+   887→  height: 32px;
+   888→  border-radius: 50%;
+   889→  border: 2px solid var(--color-emerald-500);
+   890→  object-fit: cover;
+   891→}
+   892→
+   893→.nce-navbar__username {
+   894→  font-size: 0.8125rem;
+   895→  font-weight: 500;
+   896→  color: var(--text-primary);
+   897→}
+   898→
+   899→/* ———————————————————————————————————————————————————————————————
+   900→ * 3.11  .nce-stat-card
+   901→ * ——————————————————————————————————————————————————————————————— */
+   902→
+   903→.nce-stat-card {
+   904→  background: linear-gradient(
+   905→    145deg,
+   906→    var(--color-navy-700),
+   907→    var(--color-navy-800)
+   908→  );
+   909→  border: 1px solid var(--border-color);
+   910→  border-radius: var(--radius-lg);
+   911→  padding: 1.25rem;
+   912→  display: flex;
+   913→  align-items: flex-start;
+   914→  gap: 1rem;
+   915→  transition: all var(--transition-base);
+   916→}
+   917→
+   918→.nce-stat-card:hover {
+   919→  border-color: rgba(16, 185, 129, 0.2);
+   920→  box-shadow: var(--shadow-emerald);
+   921→}
+   922→
+   923→.nce-stat-card__icon {
+   924→  width: 44px;
+   925→  height: 44px;
+   926→  border-radius: var(--radius-md);
+   927→  display: flex;
+   928→  align-items: center;
+   929→  justify-content: center;
+   930→  flex-shrink: 0;
+   931→  font-size: 1.25rem;
+   932→}
+   933→
+   934→.nce-stat-card__icon--emerald {
+   935→  background: rgba(16, 185, 129, 0.12);
+   936→  color: var(--color-emerald-400);
+   937→}
+   938→
+   939→.nce-stat-card__icon--cyan {
+   940→  background: rgba(6, 182, 212, 0.12);
+   941→  color: var(--color-cyan-400);
+   942→}
+   943→
+   944→.nce-stat-card__icon--warning {
+   945→  background: rgba(245, 158, 11, 0.12);
+   946→  color: var(--color-warning);
+   947→}
+   948→
+   949→.nce-stat-card__icon--danger {
+   950→  background: rgba(239, 68, 68, 0.12);
+   951→  color: var(--color-danger);
+   952→}
+   953→
+   954→.nce-stat-card__content {
+   955→  flex: 1;
+   956→  min-width: 0;
+   957→}
+   958→
+   959→.nce-stat-card__label {
+   960→  font-size: 0.75rem;
+   961→  font-weight: 500;
+   962→  color: var(--text-muted);
+   963→  text-transform: uppercase;
+   964→  letter-spacing: 0.04em;
+   965→  margin-bottom: 0.25rem;
+   966→}
+   967→
+   968→.nce-stat-card__value {
+   969→  font-size: 1.5rem;
+   970→  font-weight: 700;
+   971→  color: var(--text-primary);
+   972→  line-height: 1.2;
+   973→}
+   974→
+   975→.nce-stat-card__change {
+   976→  font-size: 0.75rem;
+   977→  font-weight: 600;
+   978→  margin-top: 0.25rem;
+   979→}
+   980→
+   981→.nce-stat-card__change--up {
+   982→  color: var(--color-emerald-400);
+   983→}
+   984→
+   985→.nce-stat-card__change--down {
+   986→  color: var(--color-danger);
+   987→}
+   988→
+   989→/* ———————————————————————————————————————————————————————————————
+   990→ * 3.12  .nce-chart-container
+   991→ * ——————————————————————————————————————————————————————————————— */
+   992→
+   993→.nce-chart-container {
+   994→  position: relative;
+   995→  background: linear-gradient(
+   996→    145deg,
+   997→    var(--color-navy-700),
+   998→    var(--color-navy-800)
+   999→  );
+  1000→  border: 1px solid var(--border-color);
+  1001→  border-radius: var(--radius-lg);
+  1002→  padding: 1rem;
+  1003→  min-height: 300px;
+  1004→  overflow: hidden;
+  1005→}
+  1006→
+  1007→.nce-chart-container__header {
+  1008→  display: flex;
+  1009→  align-items: center;
+  1010→  justify-content: space-between;
+  1011→  margin-bottom: 1rem;
+  1012→}
+  1013→
+  1014→.nce-chart-container__title {
+  1015→  font-size: 0.875rem;
+  1016→  font-weight: 600;
+  1017→  color: var(--text-primary);
+  1018→}
+  1019→
+  1020→.nce-chart-container__body {
+  1021→  position: relative;
+  1022→  width: 100%;
+  1023→  height: 250px;
+  1024→}
+  1025→
+  1026→.nce-chart-container__body canvas {
+  1027→  width: 100% !important;
+  1028→  height: 100% !important;
+  1029→}
+  1030→
+  1031→/* ———————————————————————————————————————————————————————————————
+  1032→ * 3.13  .nce-modal-overlay & .nce-modal
+  1033→ * ——————————————————————————————————————————————————————————————— */
+  1034→
+  1035→.nce-modal-overlay {
+  1036→  position: fixed;
+  1037→  inset: 0;
+  1038→  background: rgba(0, 0, 0, 0.7);
+  1039→  backdrop-filter: blur(4px);
+  1040→  -webkit-backdrop-filter: blur(4px);
+  1041→  z-index: var(--z-modal-overlay);
+  1042→  display: flex;
+  1043→  align-items: center;
+  1044→  justify-content: center;
+  1045→  padding: 1rem;
+  1046→  animation: fadeIn var(--transition-base) ease forwards;
+  1047→}
+  1048→
+  1049→.nce-modal-overlay--hidden {
+  1050→  display: none;
+  1051→}
+  1052→
+  1053→.nce-modal {
+  1054→  background: var(--color-navy-800);
+  1055→  border: 1px solid var(--border-color);
+  1056→  border-radius: var(--radius-xl);
+  1057→  width: 100%;
+  1058→  max-width: 520px;
+  1059→  max-height: 90vh;
+  1060→  overflow: hidden;
+  1061→  display: flex;
+  1062→  flex-direction: column;
+  1063→  z-index: var(--z-modal);
+  1064→  animation: slideUp var(--transition-base) ease forwards;
+  1065→  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  1066→}
+  1067→
+  1068→.nce-modal--sm {
+  1069→  max-width: 400px;
+  1070→}
+  1071→
+  1072→.nce-modal--lg {
+  1073→  max-width: 720px;
+  1074→}
+  1075→
+  1076→.nce-modal--xl {
+  1077→  max-width: 960px;
+  1078→}
+  1079→
+  1080→.nce-modal__header {
+  1081→  display: flex;
+  1082→  align-items: center;
+  1083→  justify-content: space-between;
+  1084→  padding: 1.25rem 1.5rem;
+  1085→  border-bottom: 1px solid var(--border-color);
+  1086→}
+  1087→
+  1088→.nce-modal__title {
+  1089→  font-size: 1.125rem;
+  1090→  font-weight: 700;
+  1091→  color: var(--text-primary);
+  1092→}
+  1093→
+  1094→.nce-modal__close {
+  1095→  display: flex;
+  1096→  align-items: center;
+  1097→  justify-content: center;
+  1098→  width: 32px;
+  1099→  height: 32px;
+  1100→  border-radius: var(--radius-md);
+  1101→  border: none;
+  1102→  background: transparent;
+  1103→  color: var(--text-muted);
+  1104→  cursor: pointer;
+  1105→  transition: all var(--transition-fast);
+  1106→  font-size: 1.25rem;
+  1107→}
+  1108→
+  1109→.nce-modal__close:hover {
+  1110→  background: rgba(255, 255, 255, 0.05);
+  1111→  color: var(--text-primary);
+  1112→}
+  1113→
+  1114→.nce-modal__body {
+  1115→  padding: 1.5rem;
+  1116→  overflow-y: auto;
+  1117→  flex: 1;
+  1118→}
+  1119→
+  1120→.nce-modal__footer {
+  1121→  display: flex;
+  1122→  align-items: center;
+  1123→  justify-content: flex-end;
+  1124→  gap: 0.75rem;
+  1125→  padding: 1rem 1.5rem;
+  1126→  border-top: 1px solid var(--border-color);
+  1127→}
+  1128→
+  1129→/* ———————————————————————————————————————————————————————————————
+  1130→ * 3.14  .nce-tooltip
+  1131→ * ——————————————————————————————————————————————————————————————— */
+  1132→
+  1133→.nce-tooltip {
+  1134→  position: relative;
+  1135→  display: inline-flex;
+  1136→}
+  1137→
+  1138→.nce-tooltip::after {
+  1139→  content: attr(data-tooltip);
+  1140→  position: absolute;
+  1141→  bottom: calc(100% + 8px);
+  1142→  left: 50%;
+  1143→  transform: translateX(-50%);
+  1144→  padding: 0.375rem 0.75rem;
+  1145→  font-size: 0.75rem;
+  1146→  font-weight: 500;
+  1147→  color: var(--text-primary);
+  1148→  background: var(--color-navy-600);
+  1149→  border: 1px solid var(--border-color-hover);
+  1150→  border-radius: var(--radius-sm);
+  1151→  white-space: nowrap;
+  1152→  pointer-events: none;
+  1153→  opacity: 0;
+  1154→  transition: opacity var(--transition-fast);
+  1155→  z-index: var(--z-tooltip);
+  1156→  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  1157→}
+  1158→
+  1159→.nce-tooltip:hover::after {
+  1160→  opacity: 1;
+  1161→}
+  1162→
+  1163→.nce-tooltip--bottom::after {
+  1164→  bottom: auto;
+  1165→  top: calc(100% + 8px);
+  1166→}
+  1167→
+  1168→.nce-tooltip--left::after {
+  1169→  bottom: auto;
+  1170→  left: auto;
+  1171→  right: calc(100% + 8px);
+  1172→  transform: none;
+  1173→}
+  1174→
+  1175→.nce-tooltip--right::after {
+  1176→  bottom: auto;
+  1177→  left: calc(100% + 8px);
+  1178→  transform: none;
+  1179→}
+  1180→
+  1181→/* ———————————————————————————————————————————————————————————————
+  1182→ * 3.15  .nce-tab
+  1183→ * ——————————————————————————————————————————————————————————————— */
+  1184→
+  1185→.nce-tab-list {
+  1186→  display: flex;
+  1187→  align-items: center;
+  1188→  gap: 0;
+  1189→  border-bottom: 1px solid var(--border-color);
+  1190→  overflow-x: auto;
+  1191→  -ms-overflow-style: none;
+  1192→  scrollbar-width: none;
+  1193→}
+  1194→
+  1195→.nce-tab-list::-webkit-scrollbar {
+  1196→  display: none;
+  1197→}
+  1198→
+  1199→.nce-tab {
+  1200→  display: inline-flex;
+  1201→  align-items: center;
+  1202→  gap: 0.375rem;
+  1203→  padding: 0.75rem 1.25rem;
+  1204→  font-size: 0.875rem;
+  1205→  font-weight: 500;
+  1206→  color: var(--text-muted);
+  1207→  border: none;
+  1208→  background: transparent;
+  1209→  cursor: pointer;
+  1210→  position: relative;
+  1211→  white-space: nowrap;
+  1212→  transition: color var(--transition-fast);
+  1213→  font-family: inherit;
+  1214→}
+  1215→
+  1216→.nce-tab:hover {
+  1217→  color: var(--text-secondary);
+  1218→}
+  1219→
+  1220→.nce-tab--active {
+  1221→  color: var(--color-emerald-400);
+  1222→}
+  1223→
+  1224→.nce-tab--active::after {
+  1225→  content: '';
+  1226→  position: absolute;
+  1227→  bottom: -1px;
+  1228→  left: 0;
+  1229→  right: 0;
+  1230→  height: 2px;
+  1231→  background: var(--color-emerald-500);
+  1232→  border-radius: 2px 2px 0 0;
+  1233→}
+  1234→
+  1235→.nce-tab__count {
+  1236→  font-size: 0.6875rem;
+  1237→  font-weight: 600;
+  1238→  padding: 0.1rem 0.4rem;
+  1239→  background: rgba(255, 255, 255, 0.06);
+  1240→  border-radius: var(--radius-full);
+  1241→  color: var(--text-muted);
+  1242→}
+  1243→
+  1244→.nce-tab--active .nce-tab__count {
+  1245→  background: rgba(16, 185, 129, 0.15);
+  1246→  color: var(--color-emerald-400);
+  1247→}
+  1248→
+  1249→.nce-tab-panel {
+  1250→  padding: 1.25rem 0;
+  1251→}
+  1252→
+  1253→.nce-tab-panel[hidden] {
+  1254→  display: none;
+  1255→}
+  1256→
+  1257→/* ———————————————————————————————————————————————————————————————
+  1258→ * 3.16  .nce-pagination
+  1259→ * ——————————————————————————————————————————————————————————————— */
+  1260→
+  1261→.nce-pagination {
+  1262→  display: flex;
+  1263→  align-items: center;
+  1264→  gap: 0.25rem;
+  1265→}
+  1266→
+  1267→.nce-pagination__btn {
+  1268→  display: inline-flex;
+  1269→  align-items: center;
+  1270→  justify-content: center;
+  1271→  min-width: 36px;
+  1272→  height: 36px;
+  1273→  padding: 0 0.5rem;
+  1274→  font-family: inherit;
+  1275→  font-size: 0.8125rem;
+  1276→  font-weight: 500;
+  1277→  color: var(--text-secondary);
+  1278→  background: transparent;
+  1279→  border: 1px solid transparent;
+  1280→  border-radius: var(--radius-md);
+  1281→  cursor: pointer;
+  1282→  transition: all var(--transition-fast);
+  1283→}
+  1284→
+  1285→.nce-pagination__btn:hover {
+  1286→  background: rgba(255, 255, 255, 0.05);
+  1287→  border-color: var(--border-color);
+  1288→  color: var(--text-primary);
+  1289→}
+  1290→
+  1291→.nce-pagination__btn--active {
+  1292→  background: rgba(16, 185, 129, 0.12);
+  1293→  border-color: rgba(16, 185, 129, 0.3);
+  1294→  color: var(--color-emerald-400);
+  1295→}
+  1296→
+  1297→.nce-pagination__btn--active:hover {
+  1298→  background: rgba(16, 185, 129, 0.18);
+  1299→}
+  1300→
+  1301→.nce-pagination__btn:disabled {
+  1302→  opacity: 0.35;
+  1303→  cursor: not-allowed;
+  1304→  pointer-events: none;
+  1305→}
+  1306→
+  1307→.nce-pagination__ellipsis {
+  1308→  display: inline-flex;
+  1309→  align-items: center;
+  1310→  justify-content: center;
+  1311→  min-width: 36px;
+  1312→  height: 36px;
+  1313→  font-size: 0.8125rem;
+  1314→  color: var(--text-muted);
+  1315→}
+  1316→
+  1317→.nce-pagination__info {
+  1318→  font-size: 0.8125rem;
+  1319→  color: var(--text-muted);
+  1320→  margin-left: 0.75rem;
+  1321→}
+  1322→
+  1323→/* ———————————————————————————————————————————————————————————————
+  1324→ * 3.17  .nce-whatsapp-btn
+  1325→ * ——————————————————————————————————————————————————————————————— */
+  1326→
+  1327→.nce-whatsapp-btn {
+  1328→  position: fixed;
+  1329→  bottom: 1.5rem;
+  1330→  right: 1.5rem;
+  1331→  width: 56px;
+  1332→  height: 56px;
+  1333→  border-radius: 50%;
+  1334→  background: #25d366;
+  1335→  border: none;
+  1336→  cursor: pointer;
+  1337→  display: flex;
+  1338→  align-items: center;
+  1339→  justify-content: center;
+  1340→  z-index: var(--z-whatsapp);
+  1341→  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  1342→  transition: all var(--transition-base);
+  1343→  color: #ffffff;
+  1344→  font-size: 1.5rem;
+  1345→  text-decoration: none;
+  1346→}
+  1347→
+  1348→.nce-whatsapp-btn:hover {
+  1349→  transform: scale(1.1);
+  1350→  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5);
+  1351→}
+  1352→
+  1353→.nce-whatsapp-btn:active {
+  1354→  transform: scale(0.95);
+  1355→}
+  1356→
+  1357→.nce-whatsapp-btn svg {
+  1358→  width: 28px;
+  1359→  height: 28px;
+  1360→  fill: currentColor;
+  1361→}
+  1362→
+  1363→/* ———————————————————————————————————————————————————————————————
+  1364→ * 3.18  .nce-price-ticker
+  1365→ * ——————————————————————————————————————————————————————————————— */
+  1366→
+  1367→.nce-price-ticker {
+  1368→  width: 100%;
+  1369→  height: var(--ticker-height);
+  1370→  background: var(--color-navy-900);
+  1371→  border-bottom: 1px solid var(--border-color);
+  1372→  overflow: hidden;
+  1373→  position: relative;
+  1374→  z-index: var(--z-ticker);
+  1375→}
+  1376→
+  1377→.nce-price-ticker::before,
+  1378→.nce-price-ticker::after {
+  1379→  content: '';
+  1380→  position: absolute;
+  1381→  top: 0;
+  1382→  bottom: 0;
+  1383→  width: 60px;
+  1384→  z-index: 2;
+  1385→  pointer-events: none;
+  1386→}
+  1387→
+  1388→.nce-price-ticker::before {
+  1389→  left: 0;
+  1390→  background: linear-gradient(to right, var(--color-navy-900), transparent);
+  1391→}
+  1392→
+  1393→.nce-price-ticker::after {
+  1394→  right: 0;
+  1395→  background: linear-gradient(to left, var(--color-navy-900), transparent);
+  1396→}
+  1397→
+  1398→.nce-price-ticker__track {
+  1399→  display: flex;
+  1400→  align-items: center;
+  1401→  height: 100%;
+  1402→  animation: ticker-scroll 60s linear infinite;
+  1403→  width: max-content;
+  1404→}
+  1405→
+  1406→.nce-price-ticker__track:hover {
+  1407→  animation-play-state: paused;
+  1408→}
+  1409→
+  1410→.nce-price-ticker__item {
+  1411→  display: inline-flex;
+  1412→  align-items: center;
+  1413→  gap: 0.375rem;
+  1414→  padding: 0 1.5rem;
+  1415→  font-size: 0.75rem;
+  1416→  white-space: nowrap;
+  1417→}
+  1418→
+  1419→.nce-price-ticker__symbol {
+  1420→  font-weight: 600;
+  1421→  color: var(--text-primary);
+  1422→}
+  1423→
+  1424→.nce-price-ticker__price {
+  1425→  color: var(--text-secondary);
+  1426→  font-variant-numeric: tabular-nums;
+  1427→}
+  1428→
+  1429→.nce-price-ticker__change {
+  1430→  font-weight: 600;
+  1431→  font-variant-numeric: tabular-nums;
+  1432→}
+  1433→
+  1434→.nce-price-ticker__change--up {
+  1435→  color: var(--color-emerald-400);
+  1436→}
+  1437→
+  1438→.nce-price-ticker__change--down {
+  1439→  color: var(--color-danger);
+  1440→}
+  1441→
+  1442→/* ———————————————————————————————————————————————————————————————
+  1443→ * 3.19  .nce-verified-badge
+  1444→ * ——————————————————————————————————————————————————————————————— */
+  1445→
+  1446→.nce-verified-badge {
+  1447→  display: inline-flex;
+  1448→  align-items: center;
+  1449→  gap: 0.375rem;
+  1450→  padding: 0.25rem 0.625rem;
+  1451→  background: rgba(16, 185, 129, 0.1);
+  1452→  border: 1px solid rgba(16, 185, 129, 0.25);
+  1453→  border-radius: var(--radius-full);
+  1454→  font-size: 0.6875rem;
+  1455→  font-weight: 700;
+  1456→  color: var(--color-emerald-400);
+  1457→  text-transform: uppercase;
+  1458→  letter-spacing: 0.06em;
+  1459→  animation: pulse-glow 2.5s ease-in-out infinite;
+  1460→}
+  1461→
+  1462→.nce-verified-badge__icon {
+  1463→  width: 14px;
+  1464→  height: 14px;
+  1465→  fill: currentColor;
+  1466→}
+  1467→
+  1468→/* ============================================================================
+  1469→ * 4. ANIMATIONS
+  1470→ * ============================================================================ */
+  1471→
+  1472→@keyframes fadeIn {
+  1473→  from {
+  1474→    opacity: 0;
+  1475→  }
+  1476→  to {
+  1477→    opacity: 1;
+  1478→  }
+  1479→}
+  1480→
+  1481→@keyframes slideUp {
+  1482→  from {
+  1483→    opacity: 0;
+  1484→    transform: translateY(16px) scale(0.98);
+  1485→  }
+  1486→  to {
+  1487→    opacity: 1;
+  1488→    transform: translateY(0) scale(1);
+  1489→  }
+  1490→}
+  1491→
+  1492→@keyframes pulse-glow {
+  1493→  0%,
+  1494→  100% {
+  1495→    box-shadow: 0 0 4px rgba(16, 185, 129, 0.2);
+  1496→  }
+  1497→  50% {
+  1498→    box-shadow: 0 0 16px rgba(16, 185, 129, 0.5), 0 0 32px rgba(16, 185, 129, 0.15);
+  1499→  }
+  1500→}
+  1501→
+  1502→@keyframes ticker-scroll {
+  1503→  0% {
+  1504→    transform: translateX(0);
+  1505→  }
+  1506→  100% {
+  1507→    transform: translateX(-50%);
+  1508→  }
+  1509→}
+  1510→
+  1511→@keyframes shimmer {
+  1512→  0% {
+  1513→    background-position: -200% 0;
+  1514→  }
+  1515→  100% {
+  1516→    background-position: 200% 0;
+  1517→  }
+  1518→}
+  1519→
+  1520→/* — Additional useful keyframes — */
+  1521→
+  1522→@keyframes spin {
+  1523→  from {
+  1524→    transform: rotate(0deg);
+  1525→  }
+  1526→  to {
+  1527→    transform: rotate(360deg);
+  1528→  }
+  1529→}
+  1530→
+  1531→@keyframes slideDown {
+  1532→  from {
+  1533→    opacity: 0;
+  1534→    transform: translateY(-8px);
+  1535→  }
+  1536→  to {
+  1537→    opacity: 1;
+  1538→    transform: translateY(0);
+  1539→  }
+  1540→}
+  1541→
+  1542→@keyframes scaleIn {
+  1543→  from {
+  1544→    opacity: 0;
+  1545→    transform: scale(0.95);
+  1546→  }
+  1547→  to {
+  1548→    opacity: 1;
+  1549→    transform: scale(1);
+  1550→  }
+  1551→}
+  1552→
+  1553→@keyframes blink {
+  1554→  0%, 100% {
+  1555→    opacity: 1;
+  1556→  }
+  1557→  50% {
+  1558→    opacity: 0.3;
+  1559→  }
+  1560→}
+  1561→
+  1562→/* ============================================================================
+  1563→ * 5. UTILITY CLASSES
+  1564→ * ============================================================================ */
+  1565→
+  1566→/* — Glow effects — */
+  1567→.glow-emerald {
+  1568→  box-shadow: var(--shadow-emerald);
+  1569→}
+  1570→
+  1571→.glow-emerald-lg {
+  1572→  box-shadow: var(--shadow-emerald-lg);
+  1573→}
+  1574→
+  1575→.glow-cyan {
+  1576→  box-shadow: var(--shadow-cyan);
+  1577→}
+  1578→
+  1579→.glow-cyan-lg {
+  1580→  box-shadow: var(--shadow-cyan-lg);
+  1581→}
+  1582→
+  1583→/* — Gradients — */
+  1584→.gradient-emerald {
+  1585→  background: linear-gradient(135deg, var(--color-emerald-500), var(--color-emerald-600));
+  1586→}
+  1587→
+  1588→.gradient-dark {
+  1589→  background: linear-gradient(
+  1590→    145deg,
+  1591→    var(--color-navy-700),
+  1592→    var(--color-navy-900)
+  1593→  );
+  1594→}
+  1595→
+  1596→.gradient-dark-v {
+  1597→  background: linear-gradient(
+  1598→    180deg,
+  1599→    var(--color-navy-800),
+  1600→    var(--color-navy-900)
+  1601→  );
+  1602→}
+  1603→
+  1604→/* — Gradient text — */
+  1605→.text-gradient {
+  1606→  background: linear-gradient(135deg, var(--color-emerald-400), var(--color-cyan-400));
+  1607→  -webkit-background-clip: text;
+  1608→  background-clip: text;
+  1609→  -webkit-text-fill-color: transparent;
+  1610→}
+  1611→
+  1612→.text-gradient-emerald {
+  1613→  background: linear-gradient(135deg, var(--color-emerald-400), var(--color-emerald-600));
+  1614→  -webkit-background-clip: text;
+  1615→  background-clip: text;
+  1616→  -webkit-text-fill-color: transparent;
+  1617→}
+  1618→
+  1619→.text-gradient-cyan {
+  1620→  background: linear-gradient(135deg, var(--color-cyan-400), var(--color-cyan-600));
+  1621→  -webkit-background-clip: text;
+  1622→  background-clip: text;
+  1623→  -webkit-text-fill-color: transparent;
+  1624→}
+  1625→
+  1626→/* — Loading skeleton — */
+  1627→.loading-skeleton {
+  1628→  background: linear-gradient(
+  1629→    90deg,
+  1630→    var(--color-navy-700) 25%,
+  1631→    var(--color-navy-600) 37%,
+  1632→    var(--color-navy-700) 63%
+  1633→  );
+  1634→  background-size: 200% 100%;
+  1635→  animation: shimmer 1.8s ease-in-out infinite;
+  1636→  border-radius: var(--radius-md);
+  1637→}
+  1638→
+  1639→.loading-skeleton--circle {
+  1640→  border-radius: 50%;
+  1641→}
+  1642→
+  1643→.loading-skeleton--text {
+  1644→  height: 0.875rem;
+  1645→  margin-bottom: 0.5rem;
+  1646→  border-radius: var(--radius-sm);
+  1647→}
+  1648→
+  1649→.loading-skeleton--text:last-child {
+  1650→  width: 70%;
+  1651→}
+  1652→
+  1653→.loading-skeleton--title {
+  1654→  height: 1.25rem;
+  1655→  width: 60%;
+  1656→  margin-bottom: 0.75rem;
+  1657→}
+  1658→
+  1659→.loading-skeleton--avatar {
+  1660→  width: 40px;
+  1661→  height: 40px;
+  1662→  border-radius: 50%;
+  1663→}
+  1664→
+  1665→/* — Backdrop blur dark — */
+  1666→.backdrop-blur-dark {
+  1667→  background: rgba(10, 14, 39, 0.8);
+  1668→  backdrop-filter: blur(16px) saturate(180%);
+  1669→  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  1670→}
+  1671→
+  1672→.backdrop-blur-dark--light {
+  1673→  background: rgba(10, 14, 39, 0.6);
+  1674→  backdrop-filter: blur(8px);
+  1675→  -webkit-backdrop-filter: blur(8px);
+  1676→}
+  1677→
+  1678→/* — Additional utility classes — */
+  1679→.animate-fadeIn {
+  1680→  animation: fadeIn var(--transition-base) ease forwards;
+  1681→}
+  1682→
+  1683→.animate-slideUp {
+  1684→  animation: slideUp var(--transition-base) ease forwards;
+  1685→}
+  1686→
+  1687→.animate-spin {
+  1688→  animation: spin 1s linear infinite;
+  1689→}
+  1690→
+  1691→.animate-blink {
+  1692→  animation: blink 1.5s ease-in-out infinite;
+  1693→}
+  1694→
+  1695→.truncate {
+  1696→  overflow: hidden;
+  1697→  text-overflow: ellipsis;
+  1698→  white-space: nowrap;
+  1699→}
+  1700→
+  1701→.tabular-nums {
+  1702→  font-variant-numeric: tabular-nums;
+  1703→}
+  1704→
+  1705→/* — Scrollable containers — */
+  1706→.nce-scroll-x {
+  1707→  overflow-x: auto;
+  1708→  overflow-y: hidden;
+  1709→  -webkit-overflow-scrolling: touch;
+  1710→}
+  1711→
+  1712→.nce-scroll-y {
+  1713→  overflow-y: auto;
+  1714→  overflow-x: hidden;
+  1715→  -webkit-overflow-scrolling: touch;
+  1716→}
+  1717→
+  1718→/* ============================================================================
+  1719→ * 6. DARK MODE FORM ELEMENT OVERRIDES
+  1720→ * ============================================================================ */
+  1721→
+  1722→/* — Checkbox — */
+  1723→.nce-checkbox {
+  1724→  appearance: none;
+  1725→  -webkit-appearance: none;
+  1726→  width: 18px;
+  1727→  height: 18px;
+  1728→  border: 1px solid var(--border-color-hover);
+  1729→  border-radius: var(--radius-sm);
+  1730→  background: var(--color-navy-800);
+  1731→  cursor: pointer;
+  1732→  position: relative;
+  1733→  transition: all var(--transition-fast);
+  1734→  flex-shrink: 0;
+  1735→}
+  1736→
+  1737→.nce-checkbox:checked {
+  1738→  background: var(--color-emerald-500);
+  1739→  border-color: var(--color-emerald-500);
+  1740→}
+  1741→
+  1742→.nce-checkbox:checked::after {
+  1743→  content: '';
+  1744→  position: absolute;
+  1745→  left: 5px;
+  1746→  top: 2px;
+  1747→  width: 5px;
+  1748→  height: 9px;
+  1749→  border: solid #ffffff;
+  1750→  border-width: 0 2px 2px 0;
+  1751→  transform: rotate(45deg);
+  1752→}
+  1753→
+  1754→.nce-checkbox:focus-visible {
+  1755→  outline: 2px solid var(--color-emerald-500);
+  1756→  outline-offset: 2px;
+  1757→}
+  1758→
+  1759→/* — Radio — */
+  1760→.nce-radio {
+  1761→  appearance: none;
+  1762→  -webkit-appearance: none;
+  1763→  width: 18px;
+  1764→  height: 18px;
+  1765→  border: 1px solid var(--border-color-hover);
+  1766→  border-radius: 50%;
+  1767→  background: var(--color-navy-800);
+  1768→  cursor: pointer;
+  1769→  position: relative;
+  1770→  transition: all var(--transition-fast);
+  1771→  flex-shrink: 0;
+  1772→}
+  1773→
+  1774→.nce-radio:checked {
+  1775→  border-color: var(--color-emerald-500);
+  1776→}
+  1777→
+  1778→.nce-radio:checked::after {
+  1779→  content: '';
+  1780→  position: absolute;
+  1781→  top: 50%;
+  1782→  left: 50%;
+  1783→  transform: translate(-50%, -50%);
+  1784→  width: 8px;
+  1785→  height: 8px;
+  1786→  background: var(--color-emerald-500);
+  1787→  border-radius: 50%;
+  1788→}
+  1789→
+  1790→.nce-radio:focus-visible {
+  1791→  outline: 2px solid var(--color-emerald-500);
+  1792→  outline-offset: 2px;
+  1793→}
+  1794→
+  1795→/* — Toggle / Switch — */
+  1796→.nce-toggle {
+  1797→  appearance: none;
+  1798→  -webkit-appearance: none;
+  1799→  width: 40px;
+  1800→  height: 22px;
+  1801→  background: var(--color-navy-600);
+  1802→  border-radius: var(--radius-full);
+  1803→  cursor: pointer;
+  1804→  position: relative;
+  1805→  transition: background-color var(--transition-fast);
+  1806→  flex-shrink: 0;
+  1807→}
+  1808→
+  1809→.nce-toggle::after {
+  1810→  content: '';
+  1811→  position: absolute;
+  1812→  top: 2px;
+  1813→  left: 2px;
+  1814→  width: 18px;
+  1815→  height: 18px;
+  1816→  background: var(--text-muted);
+  1817→  border-radius: 50%;
+  1818→  transition: all var(--transition-fast);
+  1819→}
+  1820→
+  1821→.nce-toggle:checked {
+  1822→  background: var(--color-emerald-500);
+  1823→}
+  1824→
+  1825→.nce-toggle:checked::after {
+  1826→  transform: translateX(18px);
+  1827→  background: #ffffff;
+  1828→}
+  1829→
+  1830→.nce-toggle:focus-visible {
+  1831→  outline: 2px solid var(--color-emerald-500);
+  1832→  outline-offset: 2px;
+  1833→}
+  1834→
+  1835→/* — Range slider — */
+  1836→.nce-range {
+  1837→  -webkit-appearance: none;
+  1838→  appearance: none;
+  1839→  width: 100%;
+  1840→  height: 4px;
+  1841→  background: var(--color-navy-600);
+  1842→  border-radius: var(--radius-full);
+  1843→  outline: none;
+  1844→  cursor: pointer;
+  1845→}
+  1846→
+  1847→.nce-range::-webkit-slider-thumb {
+  1848→  -webkit-appearance: none;
+  1849→  appearance: none;
+  1850→  width: 16px;
+  1851→  height: 16px;
+  1852→  background: var(--color-emerald-500);
+  1853→  border-radius: 50%;
+  1854→  cursor: pointer;
+  1855→  transition: box-shadow var(--transition-fast);
+  1856→}
+  1857→
+  1858→.nce-range::-webkit-slider-thumb:hover {
+  1859→  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  1860→}
+  1861→
+  1862→.nce-range::-moz-range-thumb {
+  1863→  width: 16px;
+  1864→  height: 16px;
+  1865→  background: var(--color-emerald-500);
+  1866→  border: none;
+  1867→  border-radius: 50%;
+  1868→  cursor: pointer;
+  1869→}
+  1870→
+  1871→.nce-range:focus-visible::-webkit-slider-thumb {
+  1872→  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+  1873→}
+  1874→
+  1875→/* ============================================================================
+  1876→ * 7. LAYOUT HELPERS
+  1877→ * ============================================================================ */
+  1878→
+  1879→.nce-layout {
+  1880→  display: flex;
+  1881→  min-height: 100vh;
+  1882→}
+  1883→
+  1884→.nce-layout__main {
+  1885→  flex: 1;
+  1886→  margin-left: var(--sidebar-width);
+  1887→  padding-top: var(--navbar-height);
+  1888→  min-height: 100vh;
+  1889→  transition: margin-left var(--transition-base);
+  1890→}
+  1891→
+  1892→.nce-layout__content {
+  1893→  padding: 1.5rem;
+  1894→  max-width: 1600px;
+  1895→  margin: 0 auto;
+  1896→}
+  1897→
+  1898→.nce-grid {
+  1899→  display: grid;
+  1900→  gap: 1.5rem;
+  1901→}
+  1902→
+  1903→.nce-grid--2 {
+  1904→  grid-template-columns: repeat(2, 1fr);
+  1905→}
+  1906→
+  1907→.nce-grid--3 {
+  1908→  grid-template-columns: repeat(3, 1fr);
+  1909→}
+  1910→
+  1911→.nce-grid--4 {
+  1912→  grid-template-columns: repeat(4, 1fr);
+  1913→}
+  1914→
+  1915→.nce-grid--auto {
+  1916→  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  1917→}
+  1918→
+  1919→/* ============================================================================
+  1920→ * 8. RESPONSIVE BREAKPOINTS (Mobile-First)
+  1921→ * ============================================================================ */
+  1922→
+  1923→/* — Extra small: 0–479px (default / base styles) — */
+  1924→
+  1925→/* — Small: 480px+ — */
+  1926→@media (min-width: 480px) {
+  1927→  .nce-grid--2 {
+  1928→    grid-template-columns: repeat(2, 1fr);
+  1929→  }
+  1930→
+  1931→  .nce-grid--4 {
+  1932→    grid-template-columns: repeat(2, 1fr);
+  1933→  }
+  1934→}
+  1935→
+  1936→/* — Medium: 768px+ — */
+  1937→@media (min-width: 768px) {
+  1938→  .nce-grid--3 {
+  1939→    grid-template-columns: repeat(3, 1fr);
+  1940→  }
+  1941→
+  1942→  .nce-grid--4 {
+  1943→    grid-template-columns: repeat(3, 1fr);
+  1944→  }
+  1945→
+  1946→  .nce-modal {
+  1947→    margin: 0;
+  1948→  }
+  1949→}
+  1950→
+  1951→/* — Large: 1024px+ — */
+  1952→@media (min-width: 1024px) {
+  1953→  .nce-grid--4 {
+  1954→    grid-template-columns: repeat(4, 1fr);
+  1955→  }
+  1956→
+  1957→  .nce-layout__content {
+  1958→    padding: 2rem;
+  1959→  }
+  1960→}
+  1961→
+  1962→/* — Extra large: 1280px+ — */
+  1963→@media (min-width: 1280px) {
+  1964→  .nce-layout__content {
+  1965→    padding: 2.5rem;
+  1966→  }
+  1967→}
+  1968→
+  1969→/* ============================================================================
+  1970→ * 9. RESPONSIVE: MOBILE / TABLET OVERRIDES (max-width)
+  1971→ * ============================================================================ */
+  1972→
+  1973→/* — Tablet and below: < 1024px — */
+  1974→@media (max-width: 1023px) {
+  1975→  .nce-sidebar {
+  1976→    transform: translateX(-100%);
+  1977→  }
+  1978→
+  1979→  .nce-sidebar--open {
+  1980→    transform: translateX(0);
+  1981→  }
+  1982→
+  1983→  .nce-navbar {
+  1984→    left: 0;
+  1985→  }
+  1986→
+  1987→  .nce-layout__main {
+  1988→    margin-left: 0;
+  1989→  }
+  1990→
+  1991→  .nce-grid--3,
+  1992→  .nce-grid--4 {
+  1993→    grid-template-columns: repeat(2, 1fr);
+  1994→  }
+  1995→
+  1996→  .nce-navbar__search {
+  1997→    width: 200px;
+  1998→  }
+  1999→}
+  2000→
+
+[showing lines 1-2000 of 2899; use offset=2001 with limit to continue reading]

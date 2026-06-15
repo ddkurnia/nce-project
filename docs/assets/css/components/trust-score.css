@@ -1,0 +1,92 @@
+/* === Trust Score — Terminal Meter === */
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.trust-icon {
+  font-size: 0.85rem;
+}
+
+.trust-level {
+  font-size: var(--text-xs);
+}
+
+.trust-score {
+  font-size: var(--text-2xs);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.trust-meter {
+  padding: 2px 0;
+}
+
+.trust-meter.compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trust-meter.compact .trust-meter-bar {
+  flex: 1;
+  height: 4px;
+}
+
+.trust-meter.compact .trust-meter-label {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.trust-meter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.trust-meter-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.trust-meter-value {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.trust-meter-bar {
+  height: 6px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.trust-meter-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.trust-meter-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.trust-meter-label {
+  font-size: 0.5rem;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.trust-meter-label.active {
+  color: var(--gold);
+  font-weight: 600;
+}

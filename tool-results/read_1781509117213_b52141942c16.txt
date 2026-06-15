@@ -1,0 +1,529 @@
+     1→<!DOCTYPE html>
+     2→<html lang="id" class="scroll-smooth">
+     3→<head>
+     4→    <meta charset="UTF-8">
+     5→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→    <meta name="theme-color" content="#0a0e27">
+     7→    <meta name="apple-mobile-web-app-capable" content="yes">
+     8→    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     9→    <meta name="format-detection" content="telephone=no">
+    10→    <title>Permintaan Beli - NCE Nusantara Commodity Exchange</title>
+    11→    <!-- PWA Support -->
+    12→    <link rel="manifest" href="./manifest.json">
+    13→    <link rel="apple-touch-icon" href="./assets/images/icons/apple-touch-icon.png">
+    14→    <meta name="apple-mobile-web-app-title" content="NCE">
+    15→    <script src="https://cdn.tailwindcss.com"></script>
+    16→    <script>
+    17→    tailwind.config = {
+    18→        theme: {
+    19→            extend: {
+    20→                colors: {
+    21→                    navy: { 900: '#0a0e27', 800: '#111827', 700: '#1a1f3a' },
+    22→                    emerald: { 500: '#10b981', 600: '#059669' },
+    23→                    cyan: { 500: '#06b6d4', 400: '#22d3ee' }
+    24→                }
+    25→            }
+    26→        }
+    27→    }
+    28→    </script>
+    29→    <style>
+    30→        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    31→        body { font-family: 'Inter', sans-serif; }
+    32→        .gradient-text { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    33→        .card-glow:hover { box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
+    34→        ::-webkit-scrollbar { width: 8px; }
+    35→        ::-webkit-scrollbar-track { background: #0a0e27; }
+    36→        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    37→        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    38→        .modal-backdrop { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); }
+    39→    </style>
+    40→    <link rel="stylesheet" href="./assets/css/main.css">
+    41→</head>
+    42→<body class="bg-navy-900 text-slate-200 min-h-screen flex flex-col">
+    43→
+    44→    <!-- Navigation -->
+    45→    <nav class="fixed top-0 left-0 right-0 z-50 bg-navy-900/90 backdrop-blur-xl border-b border-slate-700/50">
+    46→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    47→            <div class="flex items-center justify-between h-16">
+    48→                <a href="index.html" class="flex items-center gap-3 group">
+    49→                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">N</div>
+    50→                    <div>
+    51→                        <span class="text-lg font-bold text-white tracking-tight">NCE</span>
+    52→                        <span class="hidden sm:inline text-xs text-slate-400 ml-2">Nusantara Commodity Exchange</span>
+    53→                    </div>
+    54→                </a>
+    55→                <div class="hidden md:flex items-center gap-1">
+    56→                    <a href="index.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Beranda</a>
+    57→                    <a href="commodities.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Komoditas</a>
+    58→                    <a href="buy-requests.html" class="px-3 py-2 text-sm font-medium text-emerald-400 bg-emerald-500/10 rounded-lg">Permintaan Beli</a>
+    59→                    <a href="property.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Properti</a>
+    60→                </div>
+    61→                <div class="hidden md:flex items-center gap-3">
+    62→                    <a href="dashboard.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors">Masuk</a>
+    63→                    <a href="profile.html" class="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40">Daftar</a>
+    64→                </div>
+    65→                <button id="mobile-menu-btn" class="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+    66→                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    67→                </button>
+    68→            </div>
+    69→        </div>
+    70→        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-700/50 bg-navy-900/95 backdrop-blur-xl">
+    71→            <div class="px-4 py-3 space-y-1">
+    72→                <a href="index.html" class="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Beranda</a>
+    73→                <a href="commodities.html" class="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Komoditas</a>
+    74→                <a href="buy-requests.html" class="block px-3 py-2 text-sm font-medium text-emerald-400 bg-emerald-500/10 rounded-lg">Permintaan Beli</a>
+    75→                <a href="property.html" class="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Properti</a>
+    76→                <div class="pt-3 border-t border-slate-700/50 flex gap-3">
+    77→                    <a href="dashboard.html" class="flex-1 text-center px-3 py-2 text-sm font-medium text-slate-300 border border-slate-600 rounded-lg">Masuk</a>
+    78→                    <a href="profile.html" class="flex-1 text-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg">Daftar</a>
+    79→                </div>
+    80→            </div>
+    81→        </div>
+    82→    </nav>
+    83→
+    84→    <!-- Main Content -->
+    85→    <main class="main-content flex-1 pt-16">
+    86→        <!-- Page Header -->
+    87→        <div class="bg-navy-800/50 border-b border-slate-700/50">
+    88→            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    89→                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    90→                    <div>
+    91→                        <h1 class="text-2xl md:text-3xl font-bold text-white">Permintaan Beli</h1>
+    92→                        <p class="text-slate-400 text-sm mt-1">Temukan pembeli yang membutuhkan komoditas Anda</p>
+    93→                    </div>
+    94→                    <button id="create-buy-request-btn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40">
+    95→                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    96→                        Buat Permintaan Beli
+    97→                    </button>
+    98→                </div>
+    99→            </div>
+   100→        </div>
+   101→
+   102→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+   103→            <!-- Filters -->
+   104→            <div class="flex flex-col sm:flex-row gap-3 mb-6">
+   105→                <div class="relative flex-1">
+   106→                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+   107→                    <input type="text" placeholder="Cari permintaan beli..." class="w-full pl-10 pr-4 py-2.5 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors">
+   108→                </div>
+   109→                <select class="px-4 py-2.5 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors appearance-none cursor-pointer">
+   110→                    <option value="">Semua Status</option>
+   111→                    <option value="active">Aktif</option>
+   112→                    <option value="negotiating">Dinegosiasi</option>
+   113→                    <option value="completed">Selesai</option>
+   114→                    <option value="cancelled">Dibatalkan</option>
+   115→                </select>
+   116→                <select class="px-4 py-2.5 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors appearance-none cursor-pointer">
+   117→                    <option value="">Semua Komoditas</option>
+   118→                    <option value="pinang">Pinang</option>
+   119→                    <option value="kelapa">Kelapa</option>
+   120→                    <option value="sawit">Sawit</option>
+   121→                    <option value="kakao">Kakao</option>
+   122→                    <option value="kopi">Kopi</option>
+   123→                    <option value="karet">Karet</option>
+   124→                    <option value="sagu">Sagu</option>
+   125→                    <option value="rumput-laut">Rumput Laut</option>
+   126→                </select>
+   127→            </div>
+   128→
+   129→            <!-- Buy Request Cards -->
+   130→            <div class="space-y-4 mb-8">
+   131→                <!-- Card 1 - Active -->
+   132→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300 hover:border-emerald-500/20">
+   133→                    <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+   134→                        <div class="flex-1">
+   135→                            <div class="flex items-start justify-between mb-3">
+   136→                                <div class="flex items-center gap-3">
+   137→                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/20 flex items-center justify-center text-lg">🥥</div>
+   138→                                    <div>
+   139→                                        <h3 class="text-base font-semibold text-white">Pinang Premium Grade A</h3>
+   140→                                        <p class="text-xs text-slate-500">oleh PT Global Trading International</p>
+   141→                                    </div>
+   142→                                </div>
+   143→                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/15 border border-emerald-500/25 rounded-full text-emerald-400 text-xs font-medium whitespace-nowrap">
+   144→                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+   145→                                    Aktif
+   146→                                </span>
+   147→                            </div>
+   148→                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
+   149→                                <div>
+   150→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Volume Dibutuhkan</span>
+   151→                                    <p class="text-sm font-semibold text-white mt-0.5">5.000 kg</p>
+   152→                                </div>
+   153→                                <div>
+   154→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Harga Target</span>
+   155→                                    <p class="text-sm font-semibold text-emerald-400 mt-0.5">Rp 80.000/kg</p>
+   156→                                </div>
+   157→                                <div>
+   158→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Lokasi Pengiriman</span>
+   159→                                    <p class="text-sm font-semibold text-white mt-0.5">Jakarta</p>
+   160→                                </div>
+   161→                                <div>
+   162→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Deadline</span>
+   163→                                    <p class="text-sm font-semibold text-white mt-0.5">15 Apr 2025</p>
+   164→                                </div>
+   165→                            </div>
+   166→                            <p class="text-xs text-slate-400 mb-3">Mencari pinang premium grade A dari Maluku atau Sulawesi. Minimal moisture 12%. Harus disertai sertifikat mutu dan asal usul produk.</p>
+   167→                        </div>
+   168→                        <div class="flex flex-row lg:flex-col items-center gap-3 lg:ml-4 lg:border-l lg:border-slate-700/50 lg:pl-4">
+   169→                            <div class="text-center">
+   170→                                <div class="text-2xl font-bold text-cyan-400">12</div>
+   171→                                <div class="text-[10px] text-slate-500 uppercase tracking-wider">Penawaran</div>
+   172→                            </div>
+   173→                            <button class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/20">
+   174→                                Ajukan Penawaran
+   175→                            </button>
+   176→                        </div>
+   177→                    </div>
+   178→                </div>
+   179→
+   180→                <!-- Card 2 - Negotiating -->
+   181→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300 hover:border-emerald-500/20">
+   182→                    <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+   183→                        <div class="flex-1">
+   184→                            <div class="flex items-start justify-between mb-3">
+   185→                                <div class="flex items-center gap-3">
+   186→                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/20 flex items-center justify-center text-lg">🌿</div>
+   187→                                    <div>
+   188→                                        <h3 class="text-base font-semibold text-white">CPO (Crude Palm Oil)</h3>
+   189→                                        <p class="text-xs text-slate-500">oleh PT Palm Olein Nusantara</p>
+   190→                                    </div>
+   191→                                </div>
+   192→                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/15 border border-amber-500/25 rounded-full text-amber-400 text-xs font-medium whitespace-nowrap">
+   193→                                    <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+   194→                                    Dinegosiasi
+   195→                                </span>
+   196→                            </div>
+   197→                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
+   198→                                <div>
+   199→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Volume Dibutuhkan</span>
+   200→                                    <p class="text-sm font-semibold text-white mt-0.5">50.000 kg</p>
+   201→                                </div>
+   202→                                <div>
+   203→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Harga Target</span>
+   204→                                    <p class="text-sm font-semibold text-emerald-400 mt-0.5">Rp 14.000/kg</p>
+   205→                                </div>
+   206→                                <div>
+   207→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Lokasi Pengiriman</span>
+   208→                                    <p class="text-sm font-semibold text-white mt-0.5">Surabaya</p>
+   209→                                </div>
+   210→                                <div>
+   211→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Deadline</span>
+   212→                                    <p class="text-sm font-semibold text-white mt-0.5">30 Mar 2025</p>
+   213→                                </div>
+   214→                            </div>
+   215→                            <p class="text-xs text-slate-400 mb-3">Dibutuhkan CPO dengan kualitas RBD untuk kebutuhan industri. Harus memenuhi standar SNI dan disertai dokumen karantina.</p>
+   216→                        </div>
+   217→                        <div class="flex flex-row lg:flex-col items-center gap-3 lg:ml-4 lg:border-l lg:border-slate-700/50 lg:pl-4">
+   218→                            <div class="text-center">
+   219→                                <div class="text-2xl font-bold text-cyan-400">8</div>
+   220→                                <div class="text-[10px] text-slate-500 uppercase tracking-wider">Penawaran</div>
+   221→                            </div>
+   222→                            <button class="px-4 py-2 bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg hover:bg-slate-600 transition-all cursor-not-allowed">
+   223→                                Dinegosiasi
+   224→                            </button>
+   225→                        </div>
+   226→                    </div>
+   227→                </div>
+   228→
+   229→                <!-- Card 3 - Active -->
+   230→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300 hover:border-emerald-500/20">
+   231→                    <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+   232→                        <div class="flex-1">
+   233→                            <div class="flex items-start justify-between mb-3">
+   234→                                <div class="flex items-center gap-3">
+   235→                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-stone-500/20 to-amber-500/20 border border-stone-500/20 flex items-center justify-center text-lg">☕</div>
+   236→                                    <div>
+   237→                                        <h3 class="text-base font-semibold text-white">Kopi Arabika Green Bean</h3>
+   238→                                        <p class="text-xs text-slate-500">oleh CV Kopi Nusantara Export</p>
+   239→                                    </div>
+   240→                                </div>
+   241→                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/15 border border-emerald-500/25 rounded-full text-emerald-400 text-xs font-medium whitespace-nowrap">
+   242→                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+   243→                                    Aktif
+   244→                                </span>
+   245→                            </div>
+   246→                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
+   247→                                <div>
+   248→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Volume Dibutuhkan</span>
+   249→                                    <p class="text-sm font-semibold text-white mt-0.5">2.000 kg</p>
+   250→                                </div>
+   251→                                <div>
+   252→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Harga Target</span>
+   253→                                    <p class="text-sm font-semibold text-emerald-400 mt-0.5">Rp 150.000/kg</p>
+   254→                                </div>
+   255→                                <div>
+   256→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Lokasi Pengiriman</span>
+   257→                                    <p class="text-sm font-semibold text-white mt-0.5">Medan</p>
+   258→                                </div>
+   259→                                <div>
+   260→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Deadline</span>
+   261→                                    <p class="text-sm font-semibold text-white mt-0.5">20 Apr 2025</p>
+   262→                                </div>
+   263→                            </div>
+   264→                            <p class="text-xs text-slate-400 mb-3">Mencari kopi arabika green bean specialty grade. Minimum score 80 SCA. Preferensi dari Gayo, Toraja, atau Kintamani.</p>
+   265→                        </div>
+   266→                        <div class="flex flex-row lg:flex-col items-center gap-3 lg:ml-4 lg:border-l lg:border-slate-700/50 lg:pl-4">
+   267→                            <div class="text-center">
+   268→                                <div class="text-2xl font-bold text-cyan-400">6</div>
+   269→                                <div class="text-[10px] text-slate-500 uppercase tracking-wider">Penawaran</div>
+   270→                            </div>
+   271→                            <button class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/20">
+   272→                                Ajukan Penawaran
+   273→                            </button>
+   274→                        </div>
+   275→                    </div>
+   276→                </div>
+   277→
+   278→                <!-- Card 4 - Active -->
+   279→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300 hover:border-emerald-500/20">
+   280→                    <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+   281→                        <div class="flex-1">
+   282→                            <div class="flex items-start justify-between mb-3">
+   283→                                <div class="flex items-center gap-3">
+   284→                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500/20 to-cyan-500/20 border border-teal-500/20 flex items-center justify-center text-lg">🌊</div>
+   285→                                    <div>
+   286→                                        <h3 class="text-base font-semibold text-white">Rumput Laut Kering Eucheuma</h3>
+   287→                                        <p class="text-xs text-slate-500">oleh PT Sea Harvest Indonesia</p>
+   288→                                    </div>
+   289→                                </div>
+   290→                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/15 border border-emerald-500/25 rounded-full text-emerald-400 text-xs font-medium whitespace-nowrap">
+   291→                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+   292→                                    Aktif
+   293→                                </span>
+   294→                            </div>
+   295→                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
+   296→                                <div>
+   297→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Volume Dibutuhkan</span>
+   298→                                    <p class="text-sm font-semibold text-white mt-0.5">10.000 kg</p>
+   299→                                </div>
+   300→                                <div>
+   301→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Harga Target</span>
+   302→                                    <p class="text-sm font-semibold text-emerald-400 mt-0.5">Rp 32.000/kg</p>
+   303→                                </div>
+   304→                                <div>
+   305→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Lokasi Pengiriman</span>
+   306→                                    <p class="text-sm font-semibold text-white mt-0.5">Makassar</p>
+   307→                                </div>
+   308→                                <div>
+   309→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Deadline</span>
+   310→                                    <p class="text-sm font-semibold text-white mt-0.5">10 Mei 2025</p>
+   311→                                </div>
+   312→                            </div>
+   313→                            <p class="text-xs text-slate-400 mb-3">Dibutuhkan rumput laut kering type Eucheuma cottonii. Moisture max 20%, sand content max 3%. Untuk kebutuhan ekspor ke Filipina.</p>
+   314→                        </div>
+   315→                        <div class="flex flex-row lg:flex-col items-center gap-3 lg:ml-4 lg:border-l lg:border-slate-700/50 lg:pl-4">
+   316→                            <div class="text-center">
+   317→                                <div class="text-2xl font-bold text-cyan-400">3</div>
+   318→                                <div class="text-[10px] text-slate-500 uppercase tracking-wider">Penawaran</div>
+   319→                            </div>
+   320→                            <button class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/20">
+   321→                                Ajukan Penawaran
+   322→                            </button>
+   323→                        </div>
+   324→                    </div>
+   325→                </div>
+   326→
+   327→                <!-- Card 5 - Completed -->
+   328→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300 hover:border-emerald-500/20 opacity-70">
+   329→                    <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+   330→                        <div class="flex-1">
+   331→                            <div class="flex items-start justify-between mb-3">
+   332→                                <div class="flex items-center gap-3">
+   333→                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500/20 to-amber-500/20 border border-yellow-500/20 flex items-center justify-center text-lg">🫘</div>
+   334→                                    <div>
+   335→                                        <h3 class="text-base font-semibold text-white">Kakao Fermentasi</h3>
+   336→                                        <p class="text-xs text-slate-500">oleh PT Choco Nusantara</p>
+   337→                                    </div>
+   338→                                </div>
+   339→                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-500/15 border border-slate-500/25 rounded-full text-slate-400 text-xs font-medium whitespace-nowrap">
+   340→                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+   341→                                    Selesai
+   342→                                </span>
+   343→                            </div>
+   344→                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
+   345→                                <div>
+   346→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Volume Dibutuhkan</span>
+   347→                                    <p class="text-sm font-semibold text-white mt-0.5">3.000 kg</p>
+   348→                                </div>
+   349→                                <div>
+   350→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Harga Target</span>
+   351→                                    <p class="text-sm font-semibold text-emerald-400 mt-0.5">Rp 58.000/kg</p>
+   352→                                </div>
+   353→                                <div>
+   354→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Lokasi Pengiriman</span>
+   355→                                    <p class="text-sm font-semibold text-white mt-0.5">Bandung</p>
+   356→                                </div>
+   357→                                <div>
+   358→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Deadline</span>
+   359→                                    <p class="text-sm font-semibold text-white mt-0.5">28 Feb 2025</p>
+   360→                                </div>
+   361→                            </div>
+   362→                            <p class="text-xs text-slate-400 mb-3">Permintaan kakao fermentasi untuk produksi chocolate artisan. Transaksi telah selesai dengan PT Kakao Sulawesi.</p>
+   363→                        </div>
+   364→                        <div class="flex flex-row lg:flex-col items-center gap-3 lg:ml-4 lg:border-l lg:border-slate-700/50 lg:pl-4">
+   365→                            <div class="text-center">
+   366→                                <div class="text-2xl font-bold text-slate-500">15</div>
+   367→                                <div class="text-[10px] text-slate-500 uppercase tracking-wider">Penawaran</div>
+   368→                            </div>
+   369→                            <button class="px-4 py-2 bg-slate-700 text-slate-400 text-xs font-semibold rounded-lg cursor-not-allowed">
+   370→                                Selesai
+   371→                            </button>
+   372→                        </div>
+   373→                    </div>
+   374→                </div>
+   375→
+   376→                <!-- Card 6 - Active -->
+   377→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300 hover:border-emerald-500/20">
+   378→                    <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+   379→                        <div class="flex-1">
+   380→                            <div class="flex items-start justify-between mb-3">
+   381→                                <div class="flex items-center gap-3">
+   382→                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-500/20 to-slate-500/20 border border-gray-500/20 flex items-center justify-center text-lg">🌳</div>
+   383→                                    <div>
+   384→                                        <h3 class="text-base font-semibold text-white">Karet SIR 20</h3>
+   385→                                        <p class="text-xs text-slate-500">oleh PT Rubber Industries Indonesia</p>
+   386→                                    </div>
+   387→                                </div>
+   388→                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/15 border border-emerald-500/25 rounded-full text-emerald-400 text-xs font-medium whitespace-nowrap">
+   389→                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+   390→                                    Aktif
+   391→                                </span>
+   392→                            </div>
+   393→                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
+   394→                                <div>
+   395→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Volume Dibutuhkan</span>
+   396→                                    <p class="text-sm font-semibold text-white mt-0.5">20.000 kg</p>
+   397→                                </div>
+   398→                                <div>
+   399→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Harga Target</span>
+   400→                                    <p class="text-sm font-semibold text-emerald-400 mt-0.5">Rp 17.500/kg</p>
+   401→                                </div>
+   402→                                <div>
+   403→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Lokasi Pengiriman</span>
+   404→                                    <p class="text-sm font-semibold text-white mt-0.5">Semarang</p>
+   405→                                </div>
+   406→                                <div>
+   407→                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Deadline</span>
+   408→                                    <p class="text-sm font-semibold text-white mt-0.5">25 Apr 2025</p>
+   409→                                </div>
+   410→                            </div>
+   411→                            <p class="text-xs text-slate-400 mb-3">Dibutuhkan karet SIR 20 untuk industri otomotif. Kualitas standar ekspor dengan sertifikat SGS atau surveyor sejenis.</p>
+   412→                        </div>
+   413→                        <div class="flex flex-row lg:flex-col items-center gap-3 lg:ml-4 lg:border-l lg:border-slate-700/50 lg:pl-4">
+   414→                            <div class="text-center">
+   415→                                <div class="text-2xl font-bold text-cyan-400">9</div>
+   416→                                <div class="text-[10px] text-slate-500 uppercase tracking-wider">Penawaran</div>
+   417→                            </div>
+   418→                            <button class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/20">
+   419→                                Ajukan Penawaran
+   420→                            </button>
+   421→                        </div>
+   422→                    </div>
+   423→                </div>
+   424→            </div>
+   425→
+   426→            <!-- Pagination -->
+   427→            <div class="flex items-center justify-center gap-2 py-4">
+   428→                <button class="px-3 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-400 hover:text-white hover:border-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+   429→                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+   430→                </button>
+   431→                <button class="px-3.5 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-sm font-medium text-emerald-400">1</button>
+   432→                <button class="px-3.5 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">2</button>
+   433→                <button class="px-3.5 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">3</button>
+   434→                <button class="px-3 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">
+   435→                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+   436→                </button>
+   437→            </div>
+   438→        </div>
+   439→    </main>
+   440→
+   441→    <!-- Create Buy Request Modal -->
+   442→    <div id="create-request-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 modal-backdrop">
+   443→        <div class="bg-navy-800 border border-slate-700/50 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+   444→            <!-- Modal Header -->
+   445→            <div class="flex items-center justify-between p-5 border-b border-slate-700/50">
+   446→                <h2 class="text-lg font-bold text-white">Buat Permintaan Beli</h2>
+   447→                <button id="close-modal-btn" class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+   448→                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+   449→                </button>
+   450→            </div>
+   451→            <!-- Modal Body -->
+   452→            <div class="p-5 space-y-4">
+   453→                <div>
+   454→                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Jenis Komoditas</label>
+   455→                    <select class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors appearance-none cursor-pointer">
+   456→                        <option value="">Pilih Komoditas</option>
+   457→                        <option value="pinang">Pinang</option>
+   458→                        <option value="kelapa">Kelapa</option>
+   459→                        <option value="sawit">Sawit</option>
+   460→                        <option value="kakao">Kakao</option>
+   461→                        <option value="kopi">Kopi</option>
+   462→                        <option value="karet">Karet</option>
+   463→                        <option value="sagu">Sagu</option>
+   464→                        <option value="rumput-laut">Rumput Laut</option>
+   465→                    </select>
+   466→                </div>
+   467→                <div class="grid grid-cols-2 gap-4">
+   468→                    <div>
+   469→                        <label class="block text-sm font-medium text-slate-300 mb-1.5">Volume (kg)</label>
+   470→                        <input type="number" placeholder="Contoh: 5000" class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors">
+   471→                    </div>
+   472→                    <div>
+   473→                        <label class="block text-sm font-medium text-slate-300 mb-1.5">Harga Target (/kg)</label>
+   474→                        <input type="number" placeholder="Contoh: 80000" class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors">
+   475→                    </div>
+   476→                </div>
+   477→                <div>
+   478→                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Lokasi Pengiriman</label>
+   479→                    <input type="text" placeholder="Contoh: Jakarta, Surabaya, Medan" class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors">
+   480→                </div>
+   481→                <div>
+   482→                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Deadline Pengiriman</label>
+   483→                    <input type="date" class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors">
+   484→                </div>
+   485→                <div>
+   486→                    <label class="block text-sm font-medium text-slate-300 mb-1.5">Deskripsi & Spesifikasi</label>
+   487→                    <textarea rows="3" placeholder="Jelaskan spesifikasi yang Anda butuhkan, kualitas, sertifikasi, dll." class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors resize-none"></textarea>
+   488→                </div>
+   489→            </div>
+   490→            <!-- Modal Footer -->
+   491→            <div class="flex items-center gap-3 p-5 border-t border-slate-700/50">
+   492→                <button id="cancel-modal-btn" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-300 border border-slate-600 rounded-lg hover:bg-slate-700 transition-colors">Batal</button>
+   493→                <button class="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/20">Kirim Permintaan</button>
+   494→            </div>
+   495→        </div>
+   496→    </div>
+   497→
+   498→    <!-- Footer -->
+   499→    <footer class="bg-black/40 border-t border-slate-700/50 mt-auto">
+   500→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+   501→            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+   502→                <div class="flex items-center gap-3">
+   503→                    <div class="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-white text-xs">N</div>
+   504→                    <span class="text-sm text-slate-400">&copy; 2025 Nusantara Commodity Exchange. All rights reserved.</span>
+   505→                </div>
+   506→                <div class="flex items-center gap-4 text-sm text-slate-500">
+   507→                    <a href="#" class="hover:text-emerald-400 transition-colors">Syarat & Ketentuan</a>
+   508→                    <a href="#" class="hover:text-emerald-400 transition-colors">Kebijakan Privasi</a>
+   509→                    <a href="#" class="hover:text-emerald-400 transition-colors">Bantuan</a>
+   510→                </div>
+   511→            </div>
+   512→        </div>
+   513→    </footer>
+   514→
+   515→    <!-- WhatsApp Float Button -->
+   516→    <a href="https://wa.me/6281234567890" target="_blank" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 hover:shadow-emerald-500/50 hover:scale-110 transition-all" aria-label="Chat WhatsApp">
+   517→        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+   518→    </a>
+   519→
+   520→    <script type="module" src="./assets/js/modules/buy-requests/index.js"></script>
+   521→
+   522→    <!-- NCE Mobile App Support -->
+   523→    <div id="mobile-drawer-container"></div>
+   524→    <script type="module" src="./assets/js/modules/mobile/index.js"></script>
+   525→
+   526→    <!-- PWA Registration -->
+   527→    <script type="module" src="./assets/js/modules/pwa/index.js"></script>
+   528→</body>
+   529→</html>

@@ -51,6 +51,7 @@
       "purpose": "any maskable"
     }
   ],
+  "gcm_sender_id": "833507323759",
   "categories": ["business", "finance"],
   "lang": "id",
   "dir": "ltr"

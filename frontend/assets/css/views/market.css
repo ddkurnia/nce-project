@@ -1,0 +1,470 @@
+/* === Market View — Native Compact Layout === */
+
+.market-view .search-bar {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.market-view .search-bar input {
+  padding-left: 36px;
+  padding-right: 12px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.market-view .search-bar .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+/* === Filter Tabs — Compact Horizontal Scroll === */
+.filter-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  margin-bottom: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.view-toggle button {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.view-toggle button.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* === Market List — Native Compact Rows === */
+.market-list {
+  width: 100%;
+}
+
+.market-list-header {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 4px;
+}
+
+.market-list-header .col-name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  padding-left: 0;
+}
+
+.market-list-header .col-name.sorted {
+  color: var(--gold);
+}
+
+.market-list-header .col-name.sorted::after {
+  content: ' \25BE';
+  font-size: var(--text-2xs);
+}
+
+.market-list-header .col-name.sorted.asc::after {
+  content: ' \25B4';
+}
+
+.market-list-header .col-chart {
+  width: 56px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.market-list-header .col-price {
+  width: 80px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.market-list-header .col-price.sorted {
+  color: var(--gold);
+}
+
+.market-list-header .col-price.sorted::after {
+  content: ' \25BE';
+  font-size: var(--text-2xs);
+}
+
+.market-list-header .col-price.sorted.asc::after {
+  content: ' \25B4';
+}
+
+.market-list-header .col-change {
+  width: 56px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.market-list-header .col-change.sorted {
+  color: var(--gold);
+}
+
+.market-list-header .col-change.sorted::after {
+  content: ' \25BE';
+  font-size: var(--text-2xs);
+}
+
+.market-list-header .col-change.sorted.asc::after {
+  content: ' \25B4';
+}
+
+/* === Market Row — Native Style === */
+.market-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  gap: 4px;
+  border-bottom: 1px solid var(--grid-line);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.market-row:hover {
+  background: var(--bg-hover);
+}
+
+.market-row:active {
+  background: var(--grid-line-active);
+}
+
+.market-row:last-child {
+  border-bottom: none;
+}
+
+/* Row Left — Icon + Name + Volume */
+.row-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+.row-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.row-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+.row-volume {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+/* Row Chart — Mini Sparkline */
+.row-chart {
+  width: 56px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.row-chart svg {
+  display: block;
+}
+
+/* Row Right — Price + Change */
+.row-right {
+  width: 136px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.row-price {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.row-change {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.row-change.positive {
+  color: var(--success);
+}
+
+.row-change.negative {
+  color: var(--danger);
+}
+
+/* === Market Table — Legacy (hidden on mobile IN MARKET VIEW ONLY, used for wider screens) === */
+.market-view .market-table {
+  display: none;
+}
+
+/* === Market Grid — Compact Cards === */
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+@media (min-width: 640px) {
+  .market-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.commodity-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.commodity-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.commodity-card:active {
+  background: var(--bg-hover);
+  transform: scale(0.98);
+}
+
+.commodity-card .card-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.commodity-card .card-header .icon {
+  font-size: 1rem;
+}
+
+.commodity-card .card-header .name {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.commodity-card .card-price {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.commodity-card .card-change {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  margin-top: 1px;
+  font-family: var(--font-mono);
+}
+
+.commodity-card .card-sparkline {
+  margin-top: 6px;
+}
+
+/* === Responsive === */
+@media (min-width: 480px) {
+  .row-name {
+    max-width: 140px;
+  }
+
+  .row-right {
+    width: 150px;
+  }
+
+  .market-list-header .col-price,
+  .market-list-header .col-change {
+    width: 64px;
+  }
+}
+
+@media (min-width: 768px) {
+  .row-name {
+    max-width: 180px;
+  }
+
+  .market-index-bar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .mover-card {
+    min-width: 170px;
+  }
+
+  .match-body {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Show full table on desktop IN MARKET VIEW */
+  .market-view .market-list {
+    display: none;
+  }
+
+  .market-view .market-table {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .market-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 2;
+  }
+
+  .market-table th:hover {
+    color: var(--gold);
+  }
+
+  .market-table th.sorted {
+    color: var(--gold);
+  }
+
+  .market-table th.sorted::after {
+    content: ' \25BE';
+    font-size: var(--text-2xs);
+  }
+
+  .market-table th.sorted.asc::after {
+    content: ' \25B4';
+  }
+
+  .market-table td {
+    padding: 8px 10px;
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--grid-line);
+    white-space: nowrap;
+  }
+
+  .market-table tr {
+    cursor: pointer;
+    transition: background var(--transition-fast);
+  }
+
+  .market-table tbody tr:hover {
+    background: var(--bg-hover);
+  }
+
+  .market-table tbody tr:active {
+    background: var(--grid-line-active);
+  }
+}
+
+@media (max-width: 479px) {
+  .market-index-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .match-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

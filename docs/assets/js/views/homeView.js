@@ -6,7 +6,7 @@ import { getState, setState, subscribe } from '../state.js';
 import { renderStatCard, renderRequestCard } from '../components/cards.js';
 import { renderSparklineSVG } from '../components/sparkline.js';
 import { renderStatGridSkeleton, renderMarketTableSkeleton } from '../components/loading.js';
-import { renderMatchCard, renderMatchSummary, generateMockMatches } from '../components/businessMatch.js';
+import { renderMatchCard, renderMatchSummary } from '../components/businessMatch.js';
 import { renderTrustMeter } from '../components/trustScore.js';
 import { generateMockCommodities, generateMockRequests, timeAgo, getRandomInt } from '../utils/helpers.js';
 import { formatRupiah, formatPercent, formatNumber } from '../utils/formatter.js';
@@ -15,6 +15,8 @@ import { showSearch } from '../components/header.js';
 import { commodityService } from '../services/commodityService.js';
 import { requestService } from '../services/requestService.js';
 import { initNotifications } from '../services/notificationService.js';
+import { getMatches, submitMatchFeedback } from '../services/matchingService.js';
+import { startAlertMonitoring, checkPriceAlerts } from '../services/intelligenceService.js';
 
 let container = null;
 
@@ -44,10 +46,22 @@ export async function mount(el) {
     initNotifications();
     setState('commodities', commodities);
     setState('requests', requests);
-    renderHome(commodities, requests);
+
+    // Start price alert monitoring
+    startAlertMonitoring();
+    checkPriceAlerts(commodities);
+
+    // Fetch business matches
+    let matches = [];
+    try {
+      matches = await getMatches(5);
+    } catch {
+      matches = [];
+    }
+    renderHome(commodities, requests, matches);
   } catch (err) {
     console.error('Home view error:', err);
-    renderHome(generateMockCommodities(), generateMockRequests());
+    renderHome(generateMockCommodities(), generateMockRequests(), []);
   }
 }
 
@@ -62,7 +76,7 @@ function renderLoadingState() {
   `;
 }
 
-function renderHome(commodities, requests) {
+function renderHome(commodities, requests, matches) {
   if (!container) return;
 
   const user = getState('user');
@@ -71,8 +85,6 @@ function renderHome(commodities, requests) {
   const topCommodities = commodities.slice(0, 5);
   const topMovers = [...commodities].sort((a, b) => Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0)).slice(0, 3);
   const recentRequests = requests.slice(0, 3);
-  const matches = generateMockMatches();
-
   // Market index calculations
   const avgChange = commodities.length ? commodities.reduce((s, c) => s + (c.change ?? 0), 0) / commodities.length : 0;
   const totalVol = commodities.reduce((s, c) => s + (c.volume || 0), 0);
@@ -256,8 +268,12 @@ function attachEventListeners() {
   container.querySelectorAll('.match-contact-btn').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
+      const matchId = btn.dataset.id;
+      // Submit feedback for matching algorithm improvement
+      submitMatchFeedback(matchId, 'contact');
       const { showToast } = await import('../components/toast.js');
-      showToast('Fitur hubungi supplier segera hadir', 'info');
+      showToast('Menghubungi supplier...', 'info');
+      // TODO: Navigate to messages or open chat
     });
   });
 }

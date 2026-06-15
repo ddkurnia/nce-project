@@ -1,0 +1,101 @@
+/* === RFQ Card Styles === */
+.rfq-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.rfq-card:hover {
+  border-color: var(--border-hover);
+}
+
+.rfq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.rfq-commodity {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.rfq-body {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.rfq-field .label {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rfq-field .value {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.rfq-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--grid-line);
+}
+
+.rfq-meta {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.rfq-tabs, .rfq-filters {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.rfq-tab {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.rfq-tab.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.filter-chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-chip.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold);
+}

@@ -4,34 +4,50 @@ import { showSearch } from '../components/header.js';
 import { showLoginModal } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
 import { renderTrustMeter, renderVerificationProgress, TRUST_LEVELS, getTrustLevel } from '../components/trustScore.js';
+import { getTrustScoreData } from '../services/trustScoreService.js';
 
 let container = null;
 
 export async function mount(el) {
   container = el;
   showSearch(false);
-  render();
+  await render();
 }
 
-function render() {
+async function render() {
   if (!container) return;
 
   const user = getState('user') || getStoredUser();
   const loggedIn = isAuthenticated();
 
   if (loggedIn && user) {
-    renderLoggedIn(user);
+    await renderLoggedIn(user);
   } else {
     renderGuest();
   }
 }
 
-function renderLoggedIn(user) {
+async function renderLoggedIn(user) {
   const initial = (user.displayName || user.email || 'U')[0].toUpperCase();
-  const trustScore = 65; // Mock — would come from user data
+
+  // Fetch real trust score from service
+  let trustData;
+  try {
+    trustData = await getTrustScoreData();
+  } catch {
+    trustData = { score: 0, verification: { email: false, phone: false, identity: false, business: false } };
+  }
+  const trustScore = trustData.score || 0;
   const level = getTrustLevel(trustScore);
 
-  // Mock activity data
+  // Build verification steps from trust data
+  const verificationSteps = [
+    { key: 'email', label: 'Email', icon: '\uD83D\uDCE7', done: trustData.verification?.email || false },
+    { key: 'phone', label: 'Telepon', icon: '\uD83D\uDCF1', done: trustData.verification?.phone || false },
+    { key: 'identity', label: 'KTP', icon: '\uD83E\uDEAA', done: trustData.verification?.identity || false },
+    { key: 'business', label: 'NIB/SIUP', icon: '\uD83C\uDFE2', done: trustData.verification?.business || false },
+  ];
+  // Activity data
   const activities = [
     { icon: '📝', text: 'Membuat RFQ untuk 2 ton Kopi Arabika', time: '2 jam lalu' },
     { icon: '💰', text: 'Menerima penawaran dari PT Sawit Jaya', time: '5 jam lalu' },
@@ -80,7 +96,7 @@ function renderLoggedIn(user) {
 
         <!-- Verification Progress -->
         <div class="card" style="margin-bottom:16px;">
-          ${renderVerificationProgress()}
+          ${renderVerificationProgress(verificationSteps)}
         </div>
 
         <!-- Recent Activity -->
@@ -138,7 +154,7 @@ function renderLoggedIn(user) {
         </div>
 
         <p style="text-align:center;font-size:0.7rem;color:var(--text-muted);">
-          NCE v3.0 — Indonesia's Digital Trading Floor
+          NCE v4.0 — Indonesia's Digital Trading Floor
         </p>
       </div>
     </div>
@@ -184,7 +200,7 @@ function renderGuest() {
         </div>
 
         <p style="text-align:center;font-size:0.7rem;color:var(--text-muted);">
-          NCE v3.0 — Indonesia's Digital Trading Floor
+          NCE v4.0 — Indonesia's Digital Trading Floor
         </p>
       </div>
     </div>

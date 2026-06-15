@@ -3,6 +3,7 @@ import { initBottomNav } from './components/bottomNav.js';
 import { initAuth } from './auth.js';
 import { initRouter, registerRoute } from './router.js';
 import { setState, subscribe } from './state.js';
+import { initMessaging, requestNotificationPermission } from './services/messagingService.js';
 
 // Import views
 import { mount as homeMount, unmount as homeUnmount } from './views/homeView.js';
@@ -33,6 +34,19 @@ async function initApp() {
 
     // Init auth
     await initAuth();
+
+    // Init FCM messaging (non-blocking)
+    initMessaging().catch(() => {});
+
+    // Request notification permission if not yet decided
+    if ('Notification' in window && Notification.permission === 'default') {
+      // Delay permission request until user interacts
+      const requestOnInteraction = () => {
+        requestNotificationPermission();
+        document.removeEventListener('click', requestOnInteraction);
+      };
+      document.addEventListener('click', requestOnInteraction, { once: true });
+    }
 
     // Init router (this triggers initial view render)
     initRouter();

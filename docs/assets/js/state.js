@@ -4,7 +4,7 @@ const state = {
   requests: [],
   currentView: null,
   currentRoute: '/',
-  notifications: 0,
+  notifications: [],
   loading: false,
 };
 

@@ -1,0 +1,126 @@
+/* === Buttons — Terminal Style (Phase 4 Refined) === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.btn:hover::after {
+  opacity: 1;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--bg-primary);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.btn-primary:hover {
+  background: var(--gold-bright);
+  box-shadow: var(--shadow-gold), 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-hover);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-dim);
+}
+
+.btn-outline:hover {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #ff3333;
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: var(--text-xs);
+}
+
+.btn-lg {
+  padding: 12px 24px;
+  font-size: var(--text-base);
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+}
+
+/* === Floating Action Button === */
+.fab {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 16px);
+  right: 16px;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background: var(--gold);
+  color: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg), var(--shadow-gold);
+  z-index: 30;
+  transition: all var(--transition-fast);
+}
+
+.fab:hover {
+  transform: scale(1.06);
+  box-shadow: var(--shadow-lg), 0 0 32px rgba(212, 175, 55, 0.25);
+}
+
+.fab:active {
+  transform: scale(0.96);
+}
+
+.fab svg {
+  width: 22px;
+  height: 22px;
+}
