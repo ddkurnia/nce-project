@@ -1,0 +1,103 @@
+/* ============================================================================
+ * NCE — CSS Custom Properties (Design Tokens)
+ * Bloomberg Terminal / TradingView inspired palette
+ * ============================================================================ */
+:root {
+  /* — Primary Background — */
+  --bg-primary: #081120;
+  --bg-secondary: #0F172A;
+  --bg-card: #0D1424;
+  --bg-card-hover: #111B2E;
+  --bg-input: #0A0F1E;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+
+  /* — Gold Accent — */
+  --gold: #D4AF37;
+  --gold-light: #E8C94A;
+  --gold-dark: #B8962E;
+  --gold-glow: rgba(212, 175, 55, 0.15);
+  --gold-glow-strong: rgba(212, 175, 55, 0.3);
+
+  /* — Text — */
+  --text-primary: #FFFFFF;
+  --text-secondary: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-faint: #64748B;
+
+  /* — Semantic — */
+  --success: #22C55E;
+  --success-bg: rgba(34, 197, 94, 0.1);
+  --danger: #EF4444;
+  --danger-bg: rgba(239, 68, 68, 0.1);
+  --warning: #F59E0B;
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --info: #3B82F6;
+  --info-bg: rgba(59, 130, 246, 0.1);
+
+  /* — Border — */
+  --border: #1E293B;
+  --border-light: #2D3B50;
+  --border-gold: rgba(212, 175, 55, 0.3);
+
+  /* — Shadows — */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-gold: 0 0 20px var(--gold-glow);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  /* — Spacing — */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+  --space-4xl: 48px;
+
+  /* — Radii — */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* — Typography — */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+
+  --text-xs: 0.6875rem;   /* 11px */
+  --text-sm: 0.75rem;     /* 12px */
+  --text-base: 0.875rem;  /* 14px */
+  --text-md: 1rem;        /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+
+  /* — Transitions — */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+
+  /* — Z-Index — */
+  --z-base: 1;
+  --z-header: 100;
+  --z-bottom-nav: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+  --z-ticker: 50;
+
+  /* — Safe Area — */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* — Layout — */
+  --header-height: 56px;
+  --bottom-nav-height: 64px;
+  --ticker-height: 40px;
+  --max-width: 480px;
+}

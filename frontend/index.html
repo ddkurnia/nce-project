@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta name="theme-color" content="#0a0e27">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NCE">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-TileColor" content="#0a0e27">
+  <meta name="msapplication-navbutton-color" content="#0a0e27">
+  <meta name="application-name" content="NCE">
+  <meta name="chrome-mobile-web-app-capable" content="yes">
+  <meta name="chrome-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./assets/images/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./assets/images/icons/favicon-16x16.png">
+  <link rel="shortcut icon" href="./assets/images/icons/favicon-32x32.png">
+  <title>NCE - Nusantara Commodity Exchange</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== CORE RESET ===== */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    html, body {
+      height:100%; width:100%; overflow:hidden;
+      background:#0a0e27; color:#e2e8f0;
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+      overscroll-behavior:none; -webkit-overflow-scrolling:touch;
+      user-select:none; -webkit-user-select:none;
+      touch-action:manipulation;
+    }
+    ::-webkit-scrollbar{width:0;height:0}
+    *{scrollbar-width:none}
+    img{-webkit-user-drag:none;user-select:none}
+    a{text-decoration:none;color:inherit}
+    button{border:none;outline:none;background:none;cursor:pointer;font-family:inherit;color:inherit}
+    input,select,textarea{outline:none;border:none;font-family:inherit;color:inherit}
+
+    /* ===== APP SHELL ===== */
+    #app-shell {
+      display:flex; flex-direction:column;
+      height:100vh; height:100dvh; width:100vw;
+      position:relative; overflow:hidden;
+    }
+
+    /* ===== STATUS BAR SPACER ===== */
+    .status-bar-spacer {
+      height:env(safe-area-inset-top, 0px);
+      background:#0a0e27; flex-shrink:0;
+    }
+
+    /* ===== APP HEADER ===== */
+    .app-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px; background:#0a0e27;
+      border-bottom:1px solid #1e293b; flex-shrink:0;
+      position:relative; z-index:100;
+    }
+    .app-header-left { display:flex; align-items:center; gap:10px; }
+    .app-header-logo { width:32px; height:32px; border-radius:8px; object-fit:contain; }
+    .app-header-title { font-size:18px; font-weight:700; letter-spacing:-0.3px; }
+    .app-header-title span { color:#10b981; }
+    .app-header-right { display:flex; align-items:center; gap:16px; }
+    .header-icon-btn {
+      width:36px; height:36px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      background:#111827; color:#94a3b8; font-size:18px;
+      transition:background .2s, color .2s; position:relative;
+    }
+    .header-icon-btn:active { background:#1e293b; color:#e2e8f0; }
+    .notif-badge {
+      position:absolute; top:4px; right:4px; width:8px; height:8px;
+      background:#ef4444; border-radius:50%; border:2px solid #0a0e27;
+    }
+
+    /* ===== CONTENT AREA ===== */
+    .content-area {
+      flex:1; overflow-y:auto; overflow-x:hidden;
+      -webkit-overflow-scrolling:touch;
+      scroll-behavior:smooth;
+      padding-bottom:0;
+    }
+
+    /* ===== VIEWS ===== */
+    .view { display:none; min-height:100%; }
+    .view.active { display:block; animation:viewFadeIn .25s ease; }
+    @keyframes viewFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      display:flex; align-items:stretch;
+      background:#0d1121; border-top:1px solid #1e293b;
+      padding-bottom:env(safe-area-inset-bottom, 0px);
+      flex-shrink:0; position:relative; z-index:100;
+    }
+    .nav-item {
+      flex:1; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; padding:8px 0 6px; gap:2px;
+      color:#64748b; transition:color .2s; min-height:56px;
+      position:relative;
+    }
+    .nav-item.active { color:#10b981; }
+    .nav-item.active::before {
+      content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:24px; height:3px; background:#10b981; border-radius:0 0 3px 3px;
+    }
+    .nav-item svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:all .2s; }
+    .nav-item span { font-size:10px; font-weight:500; letter-spacing:0.2px; }
+    .nav-item:active { background:#111827; }
+
+    /* ===== SECTION STYLES ===== */
+    .section { padding:16px; }
+    .section-title {
+      font-size:15px; font-weight:700; color:#e2e8f0;
+      margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .section-title .see-all { font-size:12px; color:#10b981; font-weight:500; }
+
+    /* ===== CARDS ===== */
+    .card {
+      background:#111827; border-radius:14px; padding:16px;
+      border:1px solid #1e293b; position:relative; overflow:hidden;
+    }
+    .card:active { background:#162033; }
+    .card-glow { box-shadow:0 0 40px rgba(16,185,129,0.06); }
+
+    /* ===== HOME VIEW ===== */
+    .greeting { padding:16px 16px 0; }
+    .greeting-text { font-size:13px; color:#64748b; margin-bottom:2px; }
+    .greeting-name { font-size:20px; font-weight:700; }
+
+    .balance-card {
+      margin:12px 16px; padding:20px;
+      background:linear-gradient(135deg,#0f2027,#1a3a2a,#10b98120);
+      border-radius:16px; border:1px solid #10b98130;
+      position:relative; overflow:hidden;
+    }
+    .balance-card::after {
+      content:''; position:absolute; top:-30px; right:-30px;
+      width:120px; height:120px; border-radius:50%;
+      background:radial-gradient(circle,#10b98115,transparent);
+    }
+    .balance-label { font-size:12px; color:#94a3b8; margin-bottom:4px; }
+    .balance-amount { font-size:28px; font-weight:800; letter-spacing:-0.5px; }
+    .balance-amount .currency { font-size:16px; font-weight:500; color:#94a3b8; margin-right:4px; }
+    .balance-change { display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:12px; font-weight:600; color:#10b981; background:#10b98118; padding:3px 8px; border-radius:6px; }
+
+    /* Quick Actions */
+    .quick-actions {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+      padding:0 16px; margin-bottom:16px;
+    }
+    .quick-action {
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      padding:14px 8px; background:#111827; border-radius:14px;
+      border:1px solid #1e293b; transition:all .2s;
+    }
+    .quick-action:active { background:#1a2234; transform:scale(0.96); }
+    .quick-action-icon {
+      width:40px; height:40px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px;
+    }
+    .quick-action-icon.buy { background:#10b98120; color:#10b981; }
+    .quick-action-icon.sell { background:#ef444420; color:#ef4444; }
+    .quick-action-icon.request { background:#06b6d420; color:#06b6d4; }
+    .quick-action-icon.property { background:#f59e0b20; color:#f59e0b; }
+    .quick-action span { font-size:11px; font-weight:500; color:#94a3b8; }
+
+    /* Ticker Scroll */
+    .ticker-scroll {
+      display:flex; gap:10px; overflow-x:auto; padding:0 16px 16px;
+      scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+    }
+    .ticker-item {
+      flex-shrink:0; width:140px; padding:12px;
+      background:#111827; border-radius:12px; border:1px solid #1e293b;
+      scroll-snap-align:start;
+    }
+    .ticker-name { font-size:12px; color:#94a3b8; margin-bottom:2px; }
+    .ticker-symbol { font-size:13px; font-weight:600; }
+    .ticker-price { font-size:16px; font-weight:700; margin-top:6px; }
+    .ticker-change { font-size:11px; font-weight:600; margin-top:2px; }
+    .ticker-change.up { color:#10b981; }
+    .ticker-change.down { color:#ef4444; }
+
+    /* Commodity List Item */
+    .commodity-item {
+      display:flex; align-items:center; gap:12px;
+      padding:14px 16px; border-bottom:1px solid #1e293b10;
+      transition:background .15s;
+    }
+    .commodity-item:active { background:#111827; }
+    .commodity-icon {
+      width:42px; height:42px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; flex-shrink:0;
+    }
+    .commodity-info { flex:1; min-width:0; }
+    .commodity-name { font-size:14px; font-weight:600; }
+    .commodity-origin { font-size:11px; color:#64748b; margin-top:1px; }
+    .commodity-price-col { text-align:right; flex-shrink:0; }
+    .commodity-price { font-size:14px; font-weight:700; }
+    .commodity-change { font-size:11px; font-weight:600; }
+    .commodity-change.up { color:#10b981; }
+    .commodity-change.down { color:#ef4444; }
+
+    /* Mini chart placeholder */
+    .mini-chart { width:48px; height:24px; flex-shrink:0; margin-right:8px; }
+
+    /* ===== MARKET VIEW ===== */
+    .search-bar {
+      margin:12px 16px; position:relative;
+    }
+    .search-bar input {
+      width:100%; padding:12px 16px 12px 42px;
+      background:#111827; border:1px solid #1e293b; border-radius:12px;
+      color:#e2e8f0; font-size:14px;
+    }
+    .search-bar input::placeholder { color:#475569; }
+    .search-bar input:focus { border-color:#10b981; }
+    .search-bar svg {
+      position:absolute; left:14px; top:50%; transform:translateY(-50%);
+      width:18px; height:18px; fill:#475569;
+    }
+
+    .filter-tabs {
+      display:flex; gap:8px; padding:0 16px 12px;
+      overflow-x:auto; -webkit-overflow-scrolling:touch;
+    }
+    .filter-tab {
+      flex-shrink:0; padding:8px 16px; border-radius:20px;
+      font-size:13px; font-weight:500; color:#64748b;
+      background:#111827; border:1px solid #1e293b;
+      transition:all .2s; white-space:nowrap;
+    }
+    .filter-tab.active { background:#10b981; color:#fff; border-color:#10b981; }
+    .filter-tab:active { transform:scale(0.95); }
+
+    /* ===== ORDERS VIEW ===== */
+    .order-tabs {
+      display:flex; margin:12px 16px; background:#111827; border-radius:12px; padding:4px;
+      border:1px solid #1e293b;
+    }
+    .order-tab {
+      flex:1; padding:10px; text-align:center; font-size:13px; font-weight:600;
+      border-radius:10px; color:#64748b; transition:all .2s;
+    }
+    .order-tab.active { background:#10b981; color:#fff; }
+
+    .order-card {
+      margin:0 16px 10px; padding:16px; background:#111827;
+      border-radius:14px; border:1px solid #1e293b;
+    }
+    .order-card:active { background:#162033; }
+    .order-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .order-type { font-size:13px; font-weight:600; }
+    .order-status { font-size:11px; font-weight:600; padding:3px 10px; border-radius:6px; }
+    .order-status.active { background:#10b98120; color:#10b981; }
+    .order-status.completed { background:#06b6d420; color:#06b6d4; }
+    .order-status.cancelled { background:#ef444420; color:#ef4444; }
+    .order-status.pending { background:#f59e0b20; color:#f59e0b; }
+    .order-detail { display:flex; justify-content:space-between; padding:4px 0; }
+    .order-detail-label { font-size:12px; color:#64748b; }
+    .order-detail-value { font-size:12px; font-weight:500; }
+
+    /* FAB */
+    .fab {
+      position:fixed; bottom:80px; right:20px;
+      width:56px; height:56px; border-radius:16px;
+      background:linear-gradient(135deg,#10b981,#059669);
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font-size:28px; font-weight:300;
+      box-shadow:0 8px 24px #10b98140;
+      z-index:90; transition:transform .2s, box-shadow .2s;
+    }
+    .fab:active { transform:scale(0.92); box-shadow:0 4px 16px #10b98130; }
+
+    /* ===== PROPERTY VIEW ===== */
+    .property-banner-scroll {
+      display:flex; gap:12px; padding:12px 16px;
+      overflow-x:auto; -webkit-overflow-scrolling:touch;
+      scroll-snap-type:x mandatory;
+    }
+    .property-banner {
+      flex-shrink:0; width:calc(100vw - 48px); height:160px;
+      border-radius:16px; overflow:hidden; position:relative;
+      scroll-snap-align:start;
+    }
+    .property-banner-bg {
+      width:100%; height:100%; object-fit:cover;
+    }
+    .property-banner-overlay {
+      position:absolute; bottom:0; left:0; right:0; padding:16px;
+      background:linear-gradient(transparent,rgba(10,14,39,0.95));
+    }
+    .property-banner-title { font-size:16px; font-weight:700; }
+    .property-banner-price { font-size:13px; color:#10b981; font-weight:600; margin-top:2px; }
+
+    .property-card {
+      margin:0 16px 12px; padding:0; background:#111827;
+      border-radius:14px; border:1px solid #1e293b; overflow:hidden;
+    }
+    .property-card:active { background:#162033; }
+    .property-card-img { width:100%; height:140px; object-fit:cover; }
+    .property-card-body { padding:14px; }
+    .property-card-title { font-size:14px; font-weight:600; margin-bottom:4px; }
+    .property-card-location { font-size:12px; color:#64748b; display:flex; align-items:center; gap:4px; margin-bottom:8px; }
+    .property-card-footer { display:flex; justify-content:space-between; align-items:center; }
+    .property-card-price { font-size:16px; font-weight:700; color:#10b981; }
+    .property-card-tag { font-size:10px; font-weight:600; padding:3px 8px; border-radius:6px; background:#06b6d420; color:#06b6d4; }
+
+    /* ===== PROFILE VIEW ===== */
+    .profile-header {
+      display:flex; flex-direction:column; align-items:center;
+      padding:24px 16px; position:relative;
+    }
+    .profile-avatar {
+      width:72px; height:72px; border-radius:20px; border:3px solid #10b981;
+      object-fit:contain; background:#111827; padding:4px;
+    }
+    .profile-name { font-size:18px; font-weight:700; margin-top:12px; }
+    .profile-role { font-size:13px; color:#10b981; font-weight:500; margin-top:2px; }
+    .profile-stats {
+      display:flex; gap:0; margin-top:16px; background:#111827; border-radius:14px;
+      border:1px solid #1e293b; width:100%; overflow:hidden;
+    }
+    .profile-stat {
+      flex:1; text-align:center; padding:14px 8px;
+      border-right:1px solid #1e293b;
+    }
+    .profile-stat:last-child { border-right:none; }
+    .profile-stat-value { font-size:16px; font-weight:700; color:#10b981; }
+    .profile-stat-label { font-size:10px; color:#64748b; margin-top:2px; }
+
+    .settings-group { padding:0 16px; margin-bottom:16px; }
+    .settings-group-title { font-size:12px; color:#64748b; font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+    .settings-list { background:#111827; border-radius:14px; border:1px solid #1e293b; overflow:hidden; }
+    .settings-item {
+      display:flex; align-items:center; gap:12px;
+      padding:14px 16px; border-bottom:1px solid #1e293b20;
+      transition:background .15s;
+    }
+    .settings-item:last-child { border-bottom:none; }
+    .settings-item:active { background:#162033; }
+    .settings-item-icon {
+      width:36px; height:36px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; flex-shrink:0;
+    }
+    .settings-item-icon.green { background:#10b98120; color:#10b981; }
+    .settings-item-icon.blue { background:#06b6d420; color:#06b6d4; }
+    .settings-item-icon.yellow { background:#f59e0b20; color:#f59e0b; }
+    .settings-item-icon.red { background:#ef444420; color:#ef4444; }
+    .settings-item-icon.purple { background:#8b5cf620; color:#8b5cf6; }
+    .settings-item-text { flex:1; }
+    .settings-item-label { font-size:14px; font-weight:500; }
+    .settings-item-desc { font-size:11px; color:#64748b; margin-top:1px; }
+    .settings-item-arrow { color:#475569; font-size:14px; }
+
+    /* ===== MODAL / BOTTOM SHEET ===== */
+    .modal-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+      z-index:200; justify-content:flex-end; flex-direction:column;
+    }
+    .modal-overlay.show { display:flex; animation:fadeIn .2s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .bottom-sheet {
+      background:#0d1121; border-radius:20px 20px 0 0;
+      padding:8px 0 env(safe-area-inset-bottom, 20px);
+      max-height:85vh; overflow-y:auto;
+      animation:slideUp .3s cubic-bezier(.32,.72,0,1);
+    }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .bottom-sheet-handle {
+      width:36px; height:4px; background:#334155; border-radius:2px;
+      margin:4px auto 12px;
+    }
+    .bottom-sheet-title {
+      font-size:17px; font-weight:700; padding:0 20px 16px;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position:fixed; top:60px; left:16px; right:16px;
+      padding:14px 16px; background:#111827; border:1px solid #1e293b;
+      border-radius:14px; z-index:300;
+      display:flex; align-items:center; gap:10px;
+      transform:translateY(-100px); opacity:0;
+      transition:all .3s cubic-bezier(.32,.72,0,1);
+    }
+    .toast.show { transform:translateY(0); opacity:1; }
+    .toast-icon { font-size:20px; }
+    .toast-text { font-size:13px; font-weight:500; }
+
+    /* ===== PULL TO REFRESH ===== */
+    .pull-indicator {
+      text-align:center; padding:8px; font-size:12px; color:#64748b;
+      display:none;
+    }
+    .pull-indicator.visible { display:block; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; padding:48px 24px; text-align:center;
+    }
+    .empty-state-icon { font-size:48px; margin-bottom:12px; opacity:0.5; }
+    .empty-state-title { font-size:16px; font-weight:600; margin-bottom:4px; }
+    .empty-state-desc { font-size:13px; color:#64748b; }
+
+    /* ===== CHART PLACEHOLDER ===== */
+    .chart-area {
+      height:180px; padding:0 16px; margin-bottom:12px;
+    }
+    .chart-canvas { width:100%; height:100%; }
+
+    /* ===== LIVE DOT ===== */
+    .live-dot {
+      display:inline-block; width:6px; height:6px; border-radius:50%;
+      background:#10b981; margin-right:4px;
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ===== LOADING SKELETON ===== */
+    .skeleton {
+      background:linear-gradient(90deg,#111827 25%,#1a2234 50%,#111827 75%);
+      background-size:200% 100%; border-radius:8px;
+      animation:shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  </style>
+</head>
+<body>
+  <div id="app-shell">
+    <!-- Status Bar Spacer -->
+    <div class="status-bar-spacer"></div>
+
+    <!-- App Header -->
+    <header class="app-header">
+      <div class="app-header-left">
+        <img src="./assets/images/nce-logo.png" alt="NCE" class="app-header-logo">
+        <div class="app-header-title"><span>NCE</span> Exchange</div>
+      </div>
+      <div class="app-header-right">
+        <button class="header-icon-btn" onclick="showToast('search','Fitur pencarian segera hadir')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button class="header-icon-btn" onclick="showToast('notif','Tidak ada notifikasi baru')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-badge"></span>
+        </button>
+        <button class="header-icon-btn" onclick="showToast('scan','QR Scan segera hadir')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="content-area" id="contentArea">
+
+      <!-- ===== HOME VIEW ===== -->
+      <div class="view active" id="view-home">
+        <div class="greeting">
+          <div class="greeting-text">Selamat datang 👋</div>
+          <div class="greeting-name">NCE Trading</div>
+        </div>
+
+        <!-- Balance Card -->
+        <div class="balance-card card-glow">
+          <div class="balance-label">Total Portofolio</div>
+          <div class="balance-amount"><span class="currency">IDR</span>2,847,350,000</div>
+          <div class="balance-change">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 12H4z"/></svg>
+            +12.4% bulan ini
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <button class="quick-action" onclick="switchTab(1)">
+            <div class="quick-action-icon buy">📊</div>
+            <span>Beli</span>
+          </button>
+          <button class="quick-action" onclick="showToast('sell','Fitur jual segera hadir')">
+            <div class="quick-action-icon sell">📉</div>
+            <span>Jual</span>
+          </button>
+          <button class="quick-action" onclick="switchTab(2)">
+            <div class="quick-action-icon request">📝</div>
+            <span>Permintaan</span>
+          </button>
+          <button class="quick-action" onclick="switchTab(3)">
+            <div class="quick-action-icon property">🏠</div>
+            <span>Properti</span>
+          </button>
+        </div>
+
+        <!-- Live Tickers -->
+        <div class="section">
+          <div class="section-title">
+            <span><span class="live-dot"></span>Harga Live</span>
+            <span class="see-all" onclick="switchTab(1)">Lihat Semua →</span>
+          </div>
+        </div>
+        <div class="ticker-scroll" id="tickerScroll">
+          <div class="ticker-item">
+            <div class="ticker-name">Sawit CPO</div>
+            <div class="ticker-symbol">CPO</div>
+            <div class="ticker-price">14,250</div>
+            <div class="ticker-change up">+2.3%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Kopi Arabika</div>
+            <div class="ticker-symbol">KPI</div>
+            <div class="ticker-price">68,500</div>
+            <div class="ticker-change up">+1.8%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Nikel</div>
+            <div class="ticker-symbol">NKL</div>
+            <div class="ticker-price">182,300</div>
+            <div class="ticker-change down">-0.9%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Tembaga</div>
+            <div class="ticker-symbol">TMB</div>
+            <div class="ticker-price">95,800</div>
+            <div class="ticker-change up">+3.1%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Timah</div>
+            <div class="ticker-symbol">TMH</div>
+            <div class="ticker-price">278,500</div>
+            <div class="ticker-change up">+0.5%</div>
+          </div>
+          <div class="ticker-item">
+            <div class="ticker-name">Batu Bara</div>
+            <div class="ticker-symbol">BBA</div>
+            <div class="ticker-price">2,845</div>
+            <div class="ticker-change down">-1.2%</div>
+          </div>
+        </div>
+
+        <!-- Market Overview Chart -->
+        <div class="section" style="padding-top:0">
+          <div class="section-title">Grafik Pasar</div>
+          <div class="chart-area">
+            <canvas id="homeChart" class="chart-canvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Trending Commodities -->
+        <div class="section" style="padding-top:0">
+          <div class="section-title">
+            <span>Komoditas Populer</span>
+            <span class="see-all" onclick="switchTab(1)">Lihat Semua →</span>
+          </div>
+          <div id="homeCommodityList">
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#10b98120">🌴</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Kelapa Sawit CPO</div>
+                <div class="commodity-origin">Riau, Sumatera</div>
+              </div>
+              <canvas class="mini-chart" id="miniChart1"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">14,250/kg</div>
+                <div class="commodity-change up">+2.3%</div>
+              </div>
+            </div>
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#8b5cf620">☕</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Kopi Arabika</div>
+                <div class="commodity-origin">Aceh, Sumatera</div>
+              </div>
+              <canvas class="mini-chart" id="miniChart2"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">68,500/kg</div>
+                <div class="commodity-change up">+1.8%</div>
+              </div>
+            </div>
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#06b6d420">⛏️</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Nikel</div>
+                <div class="commodity-origin">Sulawesi Tengah</div>
+              </div>
+              <canvas class="mini-chart" id="miniChart3"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">182,300/kg</div>
+                <div class="commodity-change down">-0.9%</div>
+              </div>
+            </div>
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#f59e0b20">🪙</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Tembaga</div>
+                <div class="commodity-origin">Papua</div>
+              </div>
+              <canvas class="mini-chart" id="miniChart4"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">95,800/kg</div>
+                <div class="commodity-change up">+3.1%</div>
+              </div>
+            </div>
+            <div class="commodity-item" onclick="switchTab(1)">
+              <div class="commodity-icon" style="background:#ef444420">🔥</div>
+              <div class="commodity-info">
+                <div class="commodity-name">Batu Bara</div>
+                <div class="commodity-origin">Kalimantan Timur</div>
+              </div>
+              <canvas class="mini-chart" id="miniChart5"></canvas>
+              <div class="commodity-price-col">
+                <div class="commodity-price">2,845/kg</div>
+                <div class="commodity-change down">-1.2%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="section" style="padding-top:0; padding-bottom:24px;">
+          <div class="section-title">Aktivitas Terakhir</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="card" style="padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Beli CPO - 50 Ton</div>
+                  <div style="font-size:11px;color:#64748b;margin-top:2px;">Hari ini, 14:32</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:13px;font-weight:600;color:#10b981;">+Rp 712.5M</div>
+                  <div style="font-size:10px;color:#64748b;">Selesai</div>
+                </div>
+              </div>
+            </div>
+            <div class="card" style="padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Jual Nikel - 20 Ton</div>
+                  <div style="font-size:11px;color:#64748b;margin-top:2px;">Kemarin, 09:15</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:13px;font-weight:600;color:#10b981;">+Rp 3.64M</div>
+                  <div style="font-size:10px;color:#64748b;">Selesai</div>
+                </div>
+              </div>
+            </div>
+            <div class="card" style="padding:14px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Permintaan Kopi</div>
+                  <div style="font-size:11px;color:#64748b;margin-top:2px;">2 hari lalu, 16:45</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:13px;font-weight:600;color:#f59e0b;">Pending</div>
+                  <div style="font-size:10px;color:#64748b;">Menunggu</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MARKET VIEW ===== -->
+      <div class="view" id="view-market">
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" placeholder="Cari komoditas..." id="marketSearch" oninput="filterMarket()">
+        </div>
+
+        <div class="filter-tabs" id="marketFilters">
+          <button class="filter-tab active" onclick="setMarketFilter(this,'all')">Semua</button>
+          <button class="filter-tab" onclick="setMarketFilter(this,'agri')">🌾 Pertanian</button>
+          <button class="filter-tab" onclick="setMarketFilter(this,'mining')">⛏️ Pertambangan</button>
+          <button class="filter-tab" onclick="setMarketFilter(this,'forest')">🌲 Kehutanan</button>
+          <button class="filter-tab" onclick="setMarketFilter(this,'marine')">🐟 Perikanan</button>
+        </div>
+
+        <!-- Market Stats -->
+        <div style="display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto;">
+          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+            <div style="font-size:10px;color:#64748b;">Volume 24h</div>
+            <div style="font-size:14px;font-weight:700;color:#10b981;">2.4T</div>
+          </div>
+          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+            <div style="font-size:10px;color:#64748b;">Transaksi</div>
+            <div style="font-size:14px;font-weight:700;">12,847</div>
+          </div>
+          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+            <div style="font-size:10px;color:#64748b;">Komoditas</div>
+            <div style="font-size:14px;font-weight:700;">256</div>
+          </div>
+          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+            <div style="font-size:10px;color:#64748b;">Produsen</div>
+            <div style="font-size:14px;font-weight:700;">1,423</div>
+          </div>
+        </div>
+
+        <div id="marketList">
+          <!-- Agriculture -->
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Kelapa Sawit CPO')">
+            <div class="commodity-icon" style="background:#10b98120">🌴</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Kelapa Sawit CPO</div>
+              <div class="commodity-origin">Riau · Vol: 2.4M ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">14,250/kg</div>
+              <div class="commodity-change up">+2.3%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Kopi Arabika')">
+            <div class="commodity-icon" style="background:#8b5cf620">☕</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Kopi Arabika</div>
+              <div class="commodity-origin">Aceh · Vol: 890K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">68,500/kg</div>
+              <div class="commodity-change up">+1.8%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Kakao')">
+            <div class="commodity-icon" style="background:#a1620720">🍫</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Kakao</div>
+              <div class="commodity-origin">Sulawesi · Vol: 620K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">52,800/kg</div>
+              <div class="commodity-change up">+4.1%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Karet')">
+            <div class="commodity-icon" style="background:#eab30820">🟤</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Karet SIR20</div>
+              <div class="commodity-origin">Jambi · Vol: 340K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">16,200/kg</div>
+              <div class="commodity-change down">-0.8%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Beras')">
+            <div class="commodity-icon" style="background:#22c55e20">🌾</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Beras Premium</div>
+              <div class="commodity-origin">Jawa Barat · Vol: 1.2M ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">12,800/kg</div>
+              <div class="commodity-change up">+0.5%</div>
+            </div>
+          </div>
+          <!-- Mining -->
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Nikel')">
+            <div class="commodity-icon" style="background:#06b6d420">⛏️</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Nikel</div>
+              <div class="commodity-origin">Sulawesi Tengah · Vol: 1.6M ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">182,300/kg</div>
+              <div class="commodity-change down">-0.9%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Tembaga')">
+            <div class="commodity-icon" style="background:#f59e0b20">🪙</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Tembaga</div>
+              <div class="commodity-origin">Papua · Vol: 980K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">95,800/kg</div>
+              <div class="commodity-change up">+3.1%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Timah')">
+            <div class="commodity-icon" style="background:#94a3b820">💎</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Timah</div>
+              <div class="commodity-origin">Bangka Belitung · Vol: 75K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">278,500/kg</div>
+              <div class="commodity-change up">+0.5%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Batu Bara')">
+            <div class="commodity-icon" style="background:#ef444420">🔥</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Batu Bara</div>
+              <div class="commodity-origin">Kalimantan Timur · Vol: 6.2M ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">2,845/kg</div>
+              <div class="commodity-change down">-1.2%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Emas')">
+            <div class="commodity-icon" style="background:#eab30820">🥇</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Emas</div>
+              <div class="commodity-origin">Nusa Tenggara · Vol: 120K oz</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">1,185,000/g</div>
+              <div class="commodity-change up">+1.9%</div>
+            </div>
+          </div>
+          <!-- Forest -->
+          <div class="commodity-item market-item" data-cat="forest" onclick="openCommodityDetail('Kayu Merbau')">
+            <div class="commodity-icon" style="background:#16a34a20">🪵</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Kayu Merbau</div>
+              <div class="commodity-origin">Papua · Vol: 45K m3</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">8,500,000/m3</div>
+              <div class="commodity-change up">+2.7%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="forest" onclick="openCommodityDetail('Rotan')">
+            <div class="commodity-icon" style="background:#65a30d20">🌿</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Rotan</div>
+              <div class="commodity-origin">Kalimantan · Vol: 28K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">25,000/kg</div>
+              <div class="commodity-change down">-0.3%</div>
+            </div>
+          </div>
+          <!-- Marine -->
+          <div class="commodity-item market-item" data-cat="marine" onclick="openCommodityDetail('Udang')">
+            <div class="commodity-icon" style="background:#06b6d420">🦐</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Udang Windu</div>
+              <div class="commodity-origin">Sulawesi Selatan · Vol: 180K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">145,000/kg</div>
+              <div class="commodity-change up">+5.2%</div>
+            </div>
+          </div>
+          <div class="commodity-item market-item" data-cat="marine" onclick="openCommodityDetail('Tuna')">
+            <div class="commodity-icon" style="background:#3b82f620">🐟</div>
+            <div class="commodity-info">
+              <div class="commodity-name">Tuna Sashimi</div>
+              <div class="commodity-origin">Maluku · Vol: 95K ton</div>
+            </div>
+            <div class="commodity-price-col">
+              <div class="commodity-price">285,000/kg</div>
+              <div class="commodity-change up">+1.4%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ORDERS VIEW ===== -->
+      <div class="view" id="view-orders">
+        <div style="padding:16px 16px 0;">
+          <div style="font-size:20px;font-weight:700;margin-bottom:4px;">Permintaan Beli</div>
+          <div style="font-size:13px;color:#64748b;">Kelola permintaan pembelian komoditas</div>
+        </div>
+
+        <div class="order-tabs">
+          <button class="order-tab active" onclick="setOrderTab(this,'active')">Aktif</button>
+          <button class="order-tab" onclick="setOrderTab(this,'completed')">Selesai</button>
+          <button class="order-tab" onclick="setOrderTab(this,'pending')">Pending</button>
+          <button class="order-tab" onclick="setOrderTab(this,'cancelled')">Batal</button>
+        </div>
+
+        <div id="ordersList">
+          <!-- Active Orders -->
+          <div class="order-card order-item" data-status="active">
+            <div class="order-header">
+              <div class="order-type">🌾 CPO - 500 Ton</div>
+              <span class="order-status active">Aktif</span>
+            </div>
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 14,250/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 7.125M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Sawit Nusantara</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">12 Jun 2026</span></div>
+          </div>
+          <div class="order-card order-item" data-status="active">
+            <div class="order-header">
+              <div class="order-type">☕ Kopi Arabika - 200 Ton</div>
+              <span class="order-status active">Aktif</span>
+            </div>
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 68,500/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 13.7M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">CV Kopi Gayo</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">10 Jun 2026</span></div>
+          </div>
+          <!-- Completed Orders -->
+          <div class="order-card order-item" data-status="completed">
+            <div class="order-header">
+              <div class="order-type">⛏️ Nikel - 1000 Ton</div>
+              <span class="order-status completed">Selesai</span>
+            </div>
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 182,300/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 182.3M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Vale Indonesia</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">5 Jun 2026</span></div>
+          </div>
+          <!-- Pending Orders -->
+          <div class="order-card order-item" data-status="pending">
+            <div class="order-header">
+              <div class="order-type">🪙 Tembaga - 300 Ton</div>
+              <span class="order-status pending">Pending</span>
+            </div>
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 95,800/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 28.74M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Freeport</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">14 Jun 2026</span></div>
+          </div>
+          <!-- Cancelled -->
+          <div class="order-card order-item" data-status="cancelled">
+            <div class="order-header">
+              <div class="order-type">🔥 Batu Bara - 5000 Ton</div>
+              <span class="order-status cancelled">Dibatalkan</span>
+            </div>
+            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 2,845/kg</span></div>
+            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 14.225M</span></div>
+            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Bumi Resources</span></div>
+            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">1 Jun 2026</span></div>
+          </div>
+        </div>
+
+        <!-- FAB -->
+        <button class="fab" onclick="openNewRequestSheet()">+</button>
+      </div>
+
+      <!-- ===== PROPERTY VIEW ===== -->
+      <div class="view" id="view-property">
+        <div style="padding:16px 16px 0;">
+          <div style="font-size:20px;font-weight:700;margin-bottom:4px;">Property Exchange</div>
+          <div style="font-size:13px;color:#64748b;">Investasi properti Nusantara</div>
+        </div>
+
+        <!-- Featured Banners -->
+        <div class="property-banner-scroll">
+          <div class="property-banner">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027,#1a3a2a,#10b98140);display:flex;align-items:flex-end;">
+              <div class="property-banner-overlay">
+                <div class="property-banner-title">🌱 Sawit Plantation</div>
+                <div class="property-banner-price">Mulai Rp 2.5M / hektar</div>
+              </div>
+            </div>
+          </div>
+          <div class="property-banner">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027,#1a2a3a,#06b6d440);display:flex;align-items:flex-end;">
+              <div class="property-banner-overlay">
+                <div class="property-banner-title">🏗️ Industrial Zone</div>
+                <div class="property-banner-price">Mulai Rp 15M / m2</div>
+              </div>
+            </div>
+          </div>
+          <div class="property-banner">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027,#2a1a3a,#8b5cf640);display:flex;align-items:flex-end;">
+              <div class="property-banner-overlay">
+                <div class="property-banner-title">🏝️ Resort & Tourism</div>
+                <div class="property-banner-price">Mulai Rp 500M / unit</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property Category Filters -->
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="setPropertyFilter(this,'all')">Semua</button>
+          <button class="filter-tab" onclick="setPropertyFilter(this,'plantation')">Perkebunan</button>
+          <button class="filter-tab" onclick="setPropertyFilter(this,'industrial')">Industri</button>
+          <button class="filter-tab" onclick="setPropertyFilter(this,'commercial')">Komersial</button>
+          <button class="filter-tab" onclick="setPropertyFilter(this,'residential')">Residensial</button>
+        </div>
+
+        <div id="propertyList">
+          <div class="property-card property-item" data-type="plantation" onclick="openPropertyDetail('Perkebunan Sawit Riau')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#10b98130,#06b6d420);display:flex;align-items:center;justify-content:center;font-size:48px;">🌴</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Perkebunan Sawit Riau</div>
+              <div class="property-card-location">📍 Riau, Sumatera · 500 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 1.25T</div>
+                <span class="property-card-tag">Perkebunan</span>
+              </div>
+            </div>
+          </div>
+          <div class="property-card property-item" data-type="industrial" onclick="openPropertyDetail('Kawasan Industri Morowali')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#06b6d430,#3b82f620);display:flex;align-items:center;justify-content:center;font-size:48px;">🏭</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Kawasan Industri Morowali</div>
+              <div class="property-card-location">📍 Sulawesi Tengah · 200 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 3.8T</div>
+                <span class="property-card-tag">Industri</span>
+              </div>
+            </div>
+          </div>
+          <div class="property-card property-item" data-type="commercial" onclick="openPropertyDetail('Pusat Perdagangan Makassar')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#8b5cf630,#ec489920);display:flex;align-items:center;justify-content:center;font-size:48px;">🏢</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Pusat Perdagangan Makassar</div>
+              <div class="property-card-location">📍 Makassar, Sulawesi · 5 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 850M</div>
+                <span class="property-card-tag">Komersial</span>
+              </div>
+            </div>
+          </div>
+          <div class="property-card property-item" data-type="residential" onclick="openPropertyDetail('Residensial Premium Bali')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#f59e0b30,#ef444420);display:flex;align-items:center;justify-content:center;font-size:48px;">🏡</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Residensial Premium Bali</div>
+              <div class="property-card-location">📍 Badung, Bali · 2 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 1.5T</div>
+                <span class="property-card-tag">Residensial</span>
+              </div>
+            </div>
+          </div>
+          <div class="property-card property-item" data-type="plantation" onclick="openPropertyDetail('Kebun Kopi Aceh')">
+            <div class="property-card-img" style="background:linear-gradient(135deg,#8b5cf630,#10b98120);display:flex;align-items:center;justify-content:center;font-size:48px;">☕</div>
+            <div class="property-card-body">
+              <div class="property-card-title">Kebun Kopi Aceh</div>
+              <div class="property-card-location">📍 Aceh Besar · 150 Ha</div>
+              <div class="property-card-footer">
+                <div class="property-card-price">Rp 420M</div>
+                <span class="property-card-tag">Perkebunan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PROFILE VIEW ===== -->
+      <div class="view" id="view-profile">
+        <div class="profile-header">
+          <img src="./assets/images/nce-logo.png" alt="NCE" class="profile-avatar">
+          <div class="profile-name">PT Nusantara Trading</div>
+          <div class="profile-role">Premium Trader</div>
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <div class="profile-stat-value">247</div>
+              <div class="profile-stat-label">Transaksi</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value">4.8</div>
+              <div class="profile-stat-label">Rating</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value">3yr</div>
+              <div class="profile-stat-label">Member</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallet Summary -->
+        <div style="padding:0 16px 16px;">
+          <div class="card card-glow" style="background:linear-gradient(135deg,#111827,#1a2234);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <span style="font-size:13px;color:#64748b;">Saldo Dompet</span>
+              <span style="font-size:12px;color:#10b981;font-weight:600;">Lihat Detail →</span>
+            </div>
+            <div style="font-size:24px;font-weight:800;">Rp 847.5M</div>
+            <div style="display:flex;gap:10px;margin-top:14px;">
+              <button style="flex:1;padding:10px;background:#10b981;color:#fff;border-radius:10px;font-size:13px;font-weight:600;">Deposit</button>
+              <button style="flex:1;padding:10px;background:#1e293b;color:#e2e8f0;border-radius:10px;font-size:13px;font-weight:600;">Tarik</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification Status -->
+        <div style="padding:0 16px 16px;">
+          <div class="card" style="display:flex;align-items:center;gap:12px;padding:14px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:#10b98120;display:flex;align-items:center;justify-content:center;font-size:20px;">✅</div>
+            <div style="flex:1;">
+              <div style="font-size:13px;font-weight:600;">Terverifikasi</div>
+              <div style="font-size:11px;color:#64748b;">KYC & AML Complete</div>
+            </div>
+            <span style="font-size:11px;color:#10b981;font-weight:600;">Level 3</span>
+          </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="settings-group">
+          <div class="settings-group-title">Akun</div>
+          <div class="settings-list">
+            <div class="settings-item" onclick="showToast('profile','Profil segera hadir')">
+              <div class="settings-item-icon green">👤</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Profil Perusahaan</div>
+                <div class="settings-item-desc">Data perusahaan & dokumen</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('security','Keamanan segera hadir')">
+              <div class="settings-item-icon blue">🔒</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Keamanan</div>
+                <div class="settings-item-desc">Password, 2FA, biometrik</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('kyc','KYC segera hadir')">
+              <div class="settings-item-icon purple">📋</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Verifikasi KYC</div>
+                <div class="settings-item-desc">Identitas & dokumen legal</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group-title">Preferensi</div>
+          <div class="settings-list">
+            <div class="settings-item" onclick="showToast('notif','Notifikasi segera hadir')">
+              <div class="settings-item-icon yellow">🔔</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Notifikasi</div>
+                <div class="settings-item-desc">Push, email, SMS</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('lang','Bahasa segera hadir')">
+              <div class="settings-item-icon blue">🌐</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Bahasa</div>
+                <div class="settings-item-desc">Indonesia</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('theme','Tema segera hadir')">
+              <div class="settings-item-icon green">🎨</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Tampilan</div>
+                <div class="settings-item-desc">Dark mode</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group-title">Lainnya</div>
+          <div class="settings-list">
+            <div class="settings-item" onclick="showToast('help','Pusat bantuan segera hadir')">
+              <div class="settings-item-icon blue">❓</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Pusat Bantuan</div>
+                <div class="settings-item-desc">FAQ & dukungan</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('terms','Syarat segera hadir')">
+              <div class="settings-item-icon purple">📄</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Syarat & Ketentuan</div>
+                <div class="settings-item-desc">Kebijakan privasi</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="showToast('logout','Logout segera hadir')">
+              <div class="settings-item-icon red">🚪</div>
+              <div class="settings-item-text">
+                <div class="settings-item-label">Keluar</div>
+                <div class="settings-item-desc">Logout dari akun</div>
+              </div>
+              <span class="settings-item-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;padding:16px 16px 32px;">
+          <div style="font-size:11px;color:#475569;">NCE v2.0.0 · Nusantara Commodity Exchange</div>
+          <div style="font-size:11px;color:#475569;margin-top:2px;">© 2026 PT NCE Indonesia</div>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="switchTab(0)" data-tab="0">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-item" onclick="switchTab(1)" data-tab="1">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Market</span>
+      </button>
+      <button class="nav-item" onclick="switchTab(2)" data-tab="2">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        <span>Orders</span>
+      </button>
+      <button class="nav-item" onclick="switchTab(3)" data-tab="3">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <span>Property</span>
+      </button>
+      <button class="nav-item" onclick="switchTab(4)" data-tab="4">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profil</span>
+      </button>
+    </nav>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+      <div class="bottom-sheet" id="bottomSheet" onclick="event.stopPropagation()">
+        <div class="bottom-sheet-handle"></div>
+        <div id="bottomSheetContent"></div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+      <span class="toast-icon" id="toastIcon">ℹ️</span>
+      <span class="toast-text" id="toastText"></span>
+    </div>
+  </div>
+
+  <script>
+    // ===== TAB SWITCHING =====
+    const views = ['view-home','view-market','view-orders','view-property','view-profile'];
+    const navItems = document.querySelectorAll('.nav-item');
+    let currentTab = 0;
+
+    function switchTab(index) {
+      if (index === currentTab) {
+        // Scroll to top if same tab
+        document.getElementById('contentArea').scrollTop = 0;
+        return;
+      }
+      currentTab = index;
+      views.forEach((v, i) => {
+        const el = document.getElementById(v);
+        el.classList.toggle('active', i === index);
+      });
+      navItems.forEach((n, i) => {
+        n.classList.toggle('active', i === index);
+      });
+      document.getElementById('contentArea').scrollTop = 0;
+
+      // Update header title based on tab
+      const titles = ['NCE Exchange', 'Pasar Komoditas', 'Permintaan Beli', 'Property Exchange', 'Profil'];
+      document.querySelector('.app-header-title').innerHTML = index === 0
+        ? '<span>NCE</span> Exchange'
+        : titles[index];
+    }
+
+    // ===== TOAST =====
+    let toastTimer;
+    function showToast(icon, text) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastIcon').textContent = icon === 'notif' ? '🔔' : icon === 'search' ? '🔍' : icon === 'scan' ? '📷' : icon === 'sell' ? '📉' : icon === 'profile' ? '👤' : icon === 'security' ? '🔒' : icon === 'kyc' ? '📋' : icon === 'notif_set' ? '🔔' : icon === 'lang' ? '🌐' : icon === 'theme' ? '🎨' : icon === 'help' ? '❓' : icon === 'terms' ? '📄' : icon === 'logout' ? '🚪' : 'ℹ️';
+      document.getElementById('toastText').textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ===== MARKET FILTER =====
+    function setMarketFilter(btn, cat) {
+      document.querySelectorAll('#marketFilters .filter-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.market-item').forEach(item => {
+        if (cat === 'all' || item.dataset.cat === cat) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    function filterMarket() {
+      const q = document.getElementById('marketSearch').value.toLowerCase();
+      document.querySelectorAll('.market-item').forEach(item => {
+        const name = item.querySelector('.commodity-name').textContent.toLowerCase();
+        item.style.display = name.includes(q) ? 'flex' : 'none';
+      });
+    }
+
+    // ===== ORDER TABS =====
+    function setOrderTab(btn, status) {
+      document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.order-item').forEach(item => {
+        if (status === 'active' || item.dataset.status === status) {
+          item.style.display = item.dataset.status === 'active' || item.dataset.status === status ? 'block' : 'none';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      // Show all matching
+      document.querySelectorAll('.order-item').forEach(item => {
+        item.style.display = item.dataset.status === status ? 'block' : 'none';
+      });
+    }
+
+    // ===== PROPERTY FILTER =====
+    function setPropertyFilter(btn, type) {
+      document.querySelectorAll('#view-property .filter-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.property-item').forEach(item => {
+        if (type === 'all' || item.dataset.type === type) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // ===== COMMODITY DETAIL BOTTOM SHEET =====
+    function openCommodityDetail(name) {
+      const content = `
+        <div class="bottom-sheet-title">${name}</div>
+        <div style="padding:0 20px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+              <div style="font-size:28px;font-weight:800;">14,250</div>
+              <div style="font-size:13px;color:#10b981;font-weight:600;">+2.3% hari ini</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px;color:#64748b;">24h Volume</div>
+              <div style="font-size:14px;font-weight:600;">2.4M ton</div>
+            </div>
+          </div>
+          <div style="height:120px;background:#111827;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:13px;">Chart Area</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Harga Buka</div>
+              <div style="font-size:14px;font-weight:600;">13,980</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Harga Tutup</div>
+              <div style="font-size:14px;font-weight:600;">14,250</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Tertinggi</div>
+              <div style="font-size:14px;font-weight:600;">14,500</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Terendah</div>
+              <div style="font-size:14px;font-weight:600;">13,750</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button style="flex:1;padding:14px;background:#10b981;color:#fff;border-radius:12px;font-size:15px;font-weight:700;">Beli</button>
+            <button style="flex:1;padding:14px;background:#ef4444;color:#fff;border-radius:12px;font-size:15px;font-weight:700;">Jual</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('bottomSheetContent').innerHTML = content;
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    // ===== NEW REQUEST SHEET =====
+    function openNewRequestSheet() {
+      const content = `
+        <div class="bottom-sheet-title">Buat Permintaan Beli</div>
+        <div style="padding:0 20px 20px;">
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Komoditas</label>
+            <select style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;">
+              <option>Pilih Komoditas</option>
+              <option>Kelapa Sawit CPO</option>
+              <option>Kopi Arabika</option>
+              <option>Nikel</option>
+              <option>Tembaga</option>
+            </select>
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Jumlah (Ton)</label>
+            <input type="number" placeholder="Masukkan jumlah" style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Harga Maks (Rp/kg)</label>
+            <input type="number" placeholder="Masukkan harga" style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Catatan</label>
+            <textarea placeholder="Catatan tambahan..." rows="3" style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;resize:none;"></textarea>
+          </div>
+          <button style="width:100%;padding:14px;background:#10b981;color:#fff;border-radius:12px;font-size:15px;font-weight:700;" onclick="closeModal();showToast('✅','Permintaan berhasil dibuat')">Kirim Permintaan</button>
+        </div>
+      `;
+      document.getElementById('bottomSheetContent').innerHTML = content;
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    // ===== PROPERTY DETAIL =====
+    function openPropertyDetail(name) {
+      const content = `
+        <div class="bottom-sheet-title">${name}</div>
+        <div style="padding:0 20px 20px;">
+          <div style="height:140px;background:linear-gradient(135deg,#111827,#1a2234);border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:48px;">🌴</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Luas</div>
+              <div style="font-size:14px;font-weight:600;">500 Ha</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Harga/m2</div>
+              <div style="font-size:14px;font-weight:600;">Rp 250K</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">ROI</div>
+              <div style="font-size:14px;font-weight:600;color:#10b981;">18.5%/yr</div>
+            </div>
+            <div style="padding:10px;background:#111827;border-radius:10px;">
+              <div style="font-size:11px;color:#64748b;">Status</div>
+              <div style="font-size:14px;font-weight:600;color:#06b6d4;">Tersedia</div>
+            </div>
+          </div>
+          <button style="width:100%;padding:14px;background:#10b981;color:#fff;border-radius:12px;font-size:15px;font-weight:700;" onclick="closeModal();showToast('✅','Investasi berhasil diajukan')">Investasi Sekarang</button>
+        </div>
+      `;
+      document.getElementById('bottomSheetContent').innerHTML = content;
+      document.getElementById('modalOverlay').classList.add('show');
+    }
+
+    // ===== CLOSE MODAL =====
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+    // ===== MINI CHARTS =====
+    function drawMiniChart(canvasId, up) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = 48, h = 24;
+      canvas.width = w * 2; canvas.height = h * 2;
+      ctx.scale(2, 2);
+      const points = [];
+      let y = h / 2;
+      for (let i = 0; i < 8; i++) {
+        y += (Math.random() - (up ? 0.35 : 0.65)) * 5;
+        y = Math.max(3, Math.min(h - 3, y));
+        points.push({ x: (i / 7) * w, y });
+      }
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        const cp1x = (points[i - 1].x + points[i].x) / 2;
+        ctx.bezierCurveTo(cp1x, points[i - 1].y, cp1x, points[i].y, points[i].x, points[i].y);
+      }
+      ctx.strokeStyle = up ? '#10b981' : '#ef4444';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // ===== HOME CHART =====
+    function drawHomeChart() {
+      const canvas = document.getElementById('homeChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width * 2;
+      canvas.height = rect.height * 2;
+      ctx.scale(2, 2);
+      const w = rect.width, h = rect.height;
+
+      // Grid lines
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < 5; i++) {
+        const y = (h / 4) * i;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // Main line
+      const points = [];
+      let y = h * 0.6;
+      for (let i = 0; i < 30; i++) {
+        y += (Math.random() - 0.4) * (h * 0.06);
+        y = Math.max(h * 0.1, Math.min(h * 0.85, y));
+        points.push({ x: (i / 29) * w, y });
+      }
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        const cp1x = (points[i - 1].x + points[i].x) / 2;
+        ctx.bezierCurveTo(cp1x, points[i - 1].y, cp1x, points[i].y, points[i].x, points[i].y);
+      }
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Gradient fill
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, 'rgba(16,185,129,0.15)');
+      grad.addColorStop(1, 'rgba(16,185,129,0)');
+      ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', () => {
+      // Draw charts
+      drawMiniChart('miniChart1', true);
+      drawMiniChart('miniChart2', true);
+      drawMiniChart('miniChart3', false);
+      drawMiniChart('miniChart4', true);
+      drawMiniChart('miniChart5', false);
+      setTimeout(drawHomeChart, 100);
+
+      // Register SW
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+
+      // Prevent pull-to-refresh
+      document.body.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 1) e.preventDefault();
+      }, { passive: false });
+
+      // Handle back button
+      window.addEventListener('popstate', () => {
+        if (currentTab !== 0) switchTab(0);
+      });
+    });
+
+    // Resize chart on orientation change
+    window.addEventListener('resize', () => setTimeout(drawHomeChart, 200));
+  </script>
+</body>
+</html>

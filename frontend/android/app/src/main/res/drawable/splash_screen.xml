@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Navy background -->
+    <item>
+        <color android:color="#0a0e27"/>
+    </item>
+
+    <!-- Centered NCE logo -->
+    <item
+        android:width="240dp"
+        android:height="240dp"
+        android:drawable="@drawable/nce_logo"
+        android:gravity="center"/>
+</layer-list>

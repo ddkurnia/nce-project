@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NCE</string>
+    <string name="title_activity_main">NCE</string>
+    <string name="package_name">com.nce.app</string>
+    <string name="custom_url_scheme">com.nce.app</string>
+</resources>
