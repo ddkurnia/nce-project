@@ -1,6 +1,6 @@
 /**
- * Sparkline — Terminal-style mini chart with area fill
- * Renders SVG sparklines with gradient fills for market data
+ * Sparkline — Phase 4 Terminal-style mini chart
+ * Enhanced with glow effect and smoother gradients
  */
 
 let gradientId = 0;
@@ -15,7 +15,7 @@ export function renderSparklineSVG(data, width = 60, height = 24) {
 
   const isUpTrend = data[data.length - 1] >= data[0];
   const lineColor = isUpTrend ? 'var(--success)' : 'var(--danger)';
-  const fillTop = isUpTrend ? 'rgba(0,230,118,0.12)' : 'rgba(255,82,82,0.12)';
+  const fillTop = isUpTrend ? 'rgba(0,230,118,0.10)' : 'rgba(255,82,82,0.10)';
   const fillBot = isUpTrend ? 'rgba(0,230,118,0)' : 'rgba(255,82,82,0)';
 
   const points = data.map((val, i) => {
@@ -44,16 +44,17 @@ export function renderSparklineSVG(data, width = 60, height = 24) {
         stroke-linecap="round"
         stroke-linejoin="round"
       />
-      ${renderLastPoint(data, width, height, min, range, lineColor)}
+      ${renderLastPoint(data, width, height, min, range, lineColor, isUpTrend)}
     </svg>
   `;
 }
 
-function renderLastPoint(data, width, height, min, range, color) {
+function renderLastPoint(data, width, height, min, range, color, isUpTrend) {
   const lastVal = data[data.length - 1];
   const x = width;
   const y = height - ((lastVal - min) / range) * (height - 4) - 2;
-  return `<circle cx="${x}" cy="${y}" r="2" fill="${color}" opacity="0.8"/>`;
+  return `<circle cx="${x}" cy="${y}" r="2" fill="${color}" opacity="0.9"/>
+          <circle cx="${x}" cy="${y}" r="4" fill="${isUpTrend ? 'rgba(0,230,118,0.15)' : 'rgba(255,82,82,0.15)'}"/>`;
 }
 
 /**
@@ -88,7 +89,7 @@ export function renderSparklineWithVolume(data, volumes, width = 120, height = 4
     const barH = (vol / maxVol) * volH;
     const isBuy = i === 0 || data[i] >= data[i - 1];
     return `<rect x="${x}" y="${height - barH}" width="${Math.max(barW, 1)}" height="${barH}" 
-                  fill="${isBuy ? 'var(--success-dim)' : 'var(--danger-dim)'}" rx="1"/>`;
+                  fill="${isBuy ? 'var(--chart-volume-up)' : 'var(--chart-volume-down)'}" rx="1"/>`;
   }).join('');
 
   return `
@@ -96,7 +97,7 @@ export function renderSparklineWithVolume(data, volumes, width = 120, height = 4
          xmlns="http://www.w3.org/2000/svg" style="display:block;">
       <defs>
         <linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${isUpTrend ? 'rgba(0,230,118,0.12)' : 'rgba(255,82,82,0.12)'}"/>
+          <stop offset="0%" stop-color="${isUpTrend ? 'rgba(0,230,118,0.10)' : 'rgba(255,82,82,0.10)'}"/>
           <stop offset="100%" stop-color="${isUpTrend ? 'rgba(0,230,118,0)' : 'rgba(255,82,82,0)'}"/>
         </linearGradient>
       </defs>

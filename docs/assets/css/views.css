@@ -14,7 +14,7 @@
   margin-top: 2px;
 }
 
-/* === Market Index Bar — Terminal Status === */
+/* === Market Index Bar — Terminal Status (Phase 4) === */
 .market-index-bar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -29,6 +29,31 @@
   padding: 8px 10px;
   text-align: center;
   position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.index-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  transition: opacity var(--transition-normal);
+  opacity: 0.5;
+}
+
+.index-card.up::after {
+  background: var(--success);
+}
+
+.index-card.down::after {
+  background: var(--danger);
+}
+
+.index-card:hover {
+  border-color: var(--border-hover);
 }
 
 .index-card .index-label {
@@ -54,7 +79,7 @@
   color: var(--danger);
 }
 
-/* === Top Movers — Terminal Heat === */
+/* === Top Movers — Terminal Heat (Phase 4) === */
 .top-movers {
   margin-bottom: 20px;
 }
@@ -84,11 +109,28 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mover-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  opacity: 0.6;
 }
 
 .mover-card:hover {
   border-color: var(--border-hover);
-  box-shadow: var(--shadow-gold);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+.mover-card:hover::after {
+  opacity: 1;
 }
 
 .mover-card .mover-icon {
@@ -153,7 +195,7 @@
   margin-bottom: 20px;
 }
 
-/* === Commodity Row — Terminal Order Book Row === */
+/* === Commodity Row — Terminal Order Book Row (Phase 4) === */
 .commodity-row {
   display: flex;
   align-items: center;
@@ -161,12 +203,16 @@
   padding: 10px 12px;
   border-bottom: 1px solid var(--grid-line);
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
   position: relative;
 }
 
 .commodity-row:hover {
   background: var(--bg-hover);
+}
+
+.commodity-row:active {
+  background: var(--grid-line-active);
 }
 
 .commodity-row:last-child {
@@ -419,7 +465,7 @@
   color: var(--gold);
 }
 
-/* === Market Table — Terminal Grid === */
+/* === Market Table — Terminal Grid (Phase 4) === */
 .market-table {
   width: 100%;
   border-collapse: collapse;
@@ -438,6 +484,10 @@
   user-select: none;
   white-space: nowrap;
   font-family: var(--font-mono);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 2;
 }
 
 .market-table th:hover {
@@ -451,6 +501,10 @@
 .market-table th.sorted::after {
   content: ' ▾';
   font-size: var(--text-2xs);
+}
+
+.market-table th.sorted.asc::after {
+  content: ' ▴';
 }
 
 .market-table td {
@@ -467,6 +521,10 @@
 
 .market-table tbody tr:hover {
   background: var(--bg-hover);
+}
+
+.market-table tbody tr:active {
+  background: var(--grid-line-active);
 }
 
 /* === Market Grid === */
@@ -495,7 +553,8 @@
 
 .commodity-card:hover {
   border-color: var(--border-hover);
-  box-shadow: var(--shadow-gold);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
 }
 
 .commodity-card .card-header {

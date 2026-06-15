@@ -1,6 +1,6 @@
 /**
- * Home View — Bloomberg Terminal Dashboard
- * Market index, top movers, board preview, business match, recent RFQs
+ * Home View — Phase 4 Bloomberg Terminal Dashboard
+ * Market status, stagger animations, refined index cards
  */
 import { getState, setState, subscribe } from '../state.js';
 import { renderStatCard, renderRequestCard } from '../components/cards.js';
@@ -88,30 +88,36 @@ function renderHome(commodities, requests) {
       </div>
     </div>
     <div class="home-view">
-      <div class="view-container">
-        <!-- Greeting -->
-        <div class="greeting">
-          <h1>${greeting}</h1>
-          <p>Pantau pasar komoditas Indonesia secara real-time</p>
+      <div class="view-container stagger-children">
+        <!-- Greeting + Market Status -->
+        <div class="greeting" style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <h1>${greeting}</h1>
+            <p>Pantau pasar komoditas Indonesia secara real-time</p>
+          </div>
+          <span class="market-status open">
+            <span class="market-status-dot"></span>
+            OPEN
+          </span>
         </div>
 
-        <!-- Market Index Bar — Terminal Status -->
-        <div class="market-index-bar">
+        <!-- Market Index Bar -->
+        <div class="market-index-bar stagger-children">
           <div class="index-card ${isMarketUp ? 'up' : 'down'}">
             <div class="index-label">NCE Index</div>
-            <div class="index-value">${isMarketUp ? '▲' : '▼'} ${avgChange.toFixed(2)}%</div>
+            <div class="index-value font-mono">${isMarketUp ? '▲' : '▼'} ${avgChange.toFixed(2)}%</div>
           </div>
           <div class="index-card">
             <div class="index-label">Volume</div>
-            <div class="index-value">${formatNumber(totalVol)}</div>
+            <div class="index-value font-mono">${formatNumber(totalVol)}</div>
           </div>
-          <div class="index-card">
+          <div class="index-card up">
             <div class="index-label">Gainers</div>
-            <div class="index-value" style="color:var(--success);">${gainers}</div>
+            <div class="index-value font-mono" style="color:var(--success);">${gainers}</div>
           </div>
-          <div class="index-card">
+          <div class="index-card down">
             <div class="index-label">Losers</div>
-            <div class="index-value" style="color:var(--danger);">${losers}</div>
+            <div class="index-value font-mono" style="color:var(--danger);">${losers}</div>
           </div>
         </div>
 
@@ -149,11 +155,11 @@ function renderHome(commodities, requests) {
           </div>
         </div>
 
-        <!-- Market Board Preview — Terminal Table -->
+        <!-- Market Board Preview -->
         <div class="market-preview">
           <div class="section-header">
             <h3>📈 Market Board</h3>
-            <a href="#/market" class="section-link">Lihat Semua →</a>
+            <a href="#/market" class="section-link" style="display:flex;align-items:center;gap:2px;">Lihat Semua <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></a>
           </div>
           <div class="card" style="padding:0;overflow:hidden;">
             ${renderMarketPreviewRows(topCommodities)}
@@ -176,7 +182,7 @@ function renderHome(commodities, requests) {
         <div class="rfq-preview">
           <div class="section-header">
             <h3>📋 RFQ Terbaru</h3>
-            <a href="#/rfq" class="section-link">Lihat Semua →</a>
+            <a href="#/rfq" class="section-link" style="display:flex;align-items:center;gap:2px;">Lihat Semua <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></a>
           </div>
           ${recentRequests.length > 0 ?
             recentRequests.map(r => renderRequestCard(r)).join('') :

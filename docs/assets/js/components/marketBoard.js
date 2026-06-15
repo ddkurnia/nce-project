@@ -1,6 +1,6 @@
 /**
- * Market Board — Terminal-style trading board with depth bars
- * Renders table and grid views for commodity market data
+ * Market Board — Phase 4 Terminal-style trading board
+ * Enhanced depth bars, refined table/grid views
  */
 import { generateSparklineData, getRandomInt } from '../utils/helpers.js';
 import { formatRupiah, formatPercent, formatNumber } from '../utils/formatter.js';
@@ -56,7 +56,9 @@ export function renderMarketBoardTable(commodities, sortKey = 'name', sortAsc = 
     const isPositive = (c.change ?? 0) >= 0;
     const changeColor = isPositive ? 'var(--success)' : 'var(--danger)';
     const depthPct = Math.round(((c.volume || 0) / maxVol) * 100);
-    const depthFill = isPositive ? 'var(--depth-buy)' : 'var(--depth-sell)';
+    const depthFill = isPositive
+      ? 'linear-gradient(to right, var(--depth-buy), var(--depth-buy-strong))'
+      : 'linear-gradient(to left, var(--depth-sell), var(--depth-sell-strong))';
 
     return `
       <tr data-id="${c.id}" data-navigate="#/market/${c.id}">
