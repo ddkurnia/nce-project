@@ -1,59 +1,41 @@
-/* ============================================================================
- * NCE — User Service
- * ============================================================================ */
+import { get, put } from '../api.js';
 
-import Api from '../api.js';
-import Config from '../config.js';
-import State from '../state.js';
-
-const UserService = {
-  /**
-   * Fetch user profile
-   */
-  async fetchProfile(uid) {
-    try {
-      const result = await Api.get(`/users/${uid}`);
-      return result.data || result.user || result;
-    } catch (e) {
-      console.error('Failed to fetch user:', e);
-      return null;
-    }
-  },
-
-  /**
-   * Fetch dashboard stats — requires auth
-   */
-  async fetchDashboardStats() {
-    try {
-      const result = await Api.get('/users/dashboard/stats');
-      return result.data || result.stats || result;
-    } catch (e) {
-      console.error('Failed to fetch dashboard stats:', e);
-      return null;
-    }
-  },
-
-  /**
-   * Update profile — requires auth
-   */
-  async updateProfile(data) {
-    const result = await Api.patch('/users/profile', data);
-    // Update stored user data
-    if (result.user || result.data) {
-      const updated = result.user || result.data;
-      localStorage.setItem(Config.AUTH_USER_KEY, JSON.stringify(updated));
-      State.set('user', updated);
-    }
-    return result;
-  },
-
-  /**
-   * Get simulated trust score
-   */
-  getTrustScore(user) {
-    if (user?.trustScore) return user.trustScore;
-    return Math.floor(80 + Math.random() * 19);
+class UserService {
+  async getProfile() {
+    return await get('/users/profile');
   }
-};
 
-export default UserService;
+  async updateProfile(data) {
+    return await put('/users/profile', data);
+  }
+
+  async getDashboard() {
+    return await get('/users/dashboard');
+  }
+
+  async getRecentActivity(limit = 10) {
+    return await get('/users/dashboard/activity', { limit });
+  }
+
+  getStoredUser() {
+    try {
+      const raw = localStorage.getItem('nce_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  isAuthenticated() {
+    try {
+      const raw = localStorage.getItem('nce_user');
+      if (!raw) return false;
+      const user = JSON.parse(raw);
+      return !!(user && user.token);
+    } catch {
+      return false;
+    }
+  }
+}
+
+export const userService = new UserService();

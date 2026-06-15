@@ -1,505 +1,582 @@
-# NCE Audit Report — Phase 1
+# NCE AUDIT REPORT — Phase 1
+## Nusantara Commodity Exchange → Digital Trading Floor Restructuring
 
-**Project**: Nusantara Commodity Exchange (NCE)  
-**Date**: 2026-06-15  
-**Auditor**: Super Z  
-**Scope**: Full frontend source code (`/frontend/` and `/docs/`)
-
----
-
-## Executive Summary
-
-The NCE frontend currently exists as **two divergent codebases**:
-
-1. **`/frontend/`** — Multi-page architecture (6 separate HTML files, each with full page reload). Uses Tailwind CDN, inline styles/scripts, and ES module imports with Firebase SDK. This is the older "Digital Marketplace" version.
-
-2. **`/docs/`** — Single-page application (SPA) with hash-based router, modular CSS, view components, and simulated market data. This is the newer "Digital Trading Floor" prototype (deployed to GitHub Pages).
-
-**Neither codebase is production-ready for the "Digital Trading Floor" vision.** The multi-page version is bloated with duplicated code; the SPA version is a shallow prototype with hardcoded data and no Firebase integration. Both need to be unified into a single, clean, trading-floor-grade SPA.
+**Tanggal Audit**: 2026-06-15  
+**Branch**: `feature/digital-trading-floor`  
+**Auditor**: Automated Analysis  
+**Scope**: Seluruh source code `frontend/` + referensi `docs/` (deployed version)
 
 ---
 
-## 1. Files Terlalu Besar (>300 lines)
+## RINGKASAN EKSEKUTIF
 
-| File | Lines | Severity | Recommendation |
-|------|-------|----------|----------------|
-| `assets/css/main.css` | 2,898 | 🔴 Critical | Split into `variables.css`, `base.css`, `components.css`, `views.css`, `utilities.css` |
-| `index.html` | 1,541 | 🔴 Critical | Extract inline CSS (413 lines) and inline JS (306 lines) into separate files |
-| `assets/js/components/modal.js` | 1,270 | 🔴 Critical | Split into `modalCore.js` (render/show/close), `authModal.js`, `commodityModal.js`, `offerModal.js` |
-| `assets/js/components/charts.js` | 818 | 🟡 High | Split into `sparkline.js`, `areaChart.js`, `barChart.js`, `donutChart.js` |
-| `assets/js/components/cards.js` | 739 | 🟡 High | Split into `commodityCard.js`, `requestCard.js`, `propertyCard.js`, `statCard.js`, `offerCard.js` |
-| `commodities.html` | 659 | 🟡 High | Full-page HTML with inline everything — convert to SPA view module |
-| `assets/js/components/navbar.js` | 624 | 🟡 High | Split into `navbarDesktop.js`, `navbarMobile.js`, `userDropdown.js` |
-| `assets/js/modules/profile/index.js` | 622 | 🟡 High | Split into `profileView.js`, `profileEdit.js`, `profileStats.js` |
-| `assets/js/utils/helpers.js` | 605 | 🟠 Medium | Already well-structured, minor splits possible |
-| `buy-requests.html` | 528 | 🟡 High | Convert to SPA view module |
-| `assets/js/modules/property/index.js` | 485 | 🟡 High | Split into smaller sub-modules |
-| `assets/js/components/sidebar.js` | 483 | 🟡 High | **Will be removed** — replaced by bottom nav in Digital Trading Floor |
-| `assets/js/modules/commodities/index.js` | 456 | 🟡 High | Split into `marketBoardView.js`, `commodityDetail.js` |
-| `dashboard.html` | 452 | 🟡 High | Convert to SPA view module |
-| `assets/js/modules/buy-requests/index.js` | 452 | 🟡 High | Split into `rfqListView.js`, `rfqCreate.js` |
-| `profile.html` | 432 | 🟡 High | Convert to SPA view module |
-| `assets/js/modules/dashboard/index.js` | 431 | 🟡 High | Split into `homeView.js`, `marketOverview.js` |
-| `assets/js/utils/formatter.js` | 428 | 🟠 Medium | Well-structured, acceptable |
-| `property.html` | 422 | 🟡 High | Convert to SPA view module |
-| `assets/js/services/httpService.js` | 422 | 🟠 Medium | Well-structured, acceptable |
-| `assets/js/services/authService.js` | 420 | 🟠 Medium | Well-structured, acceptable |
-| `assets/js/utils/validator.js` | 411 | 🟠 Medium | Well-structured, acceptable |
-| `assets/js/services/requestService.js` | 314 | 🟢 OK | Just over limit, acceptable |
+Audit ini menganalisis **40 file source code** dengan total **~17,200 baris** JavaScript, **2,898 baris** CSS, dan **~4,034 baris** HTML. Temuan utama mencakup:
 
-**Total files > 300 lines: 23**  
-**Total files > 500 lines: 9**  
-**Total files > 1000 lines: 3**
+- **18+ fungsi/konstanta yang diimpor tapi TIDAK ADA di source** — akan menyebabkan **runtime crash** pada semua halaman
+- **6 duplikasi kode kritis** — `formatIDR`, `formatCompact`, `timeAgo`, `getInitials`, `generateAvatarColor`, `getStatusColor` diimplementasikan ulang di beberapa file
+- **20 file melebihi batas 300 baris** — file terbesar `modal.js` (1,270 baris) dan `main.css` (2,898 baris)
+- **3 sistem styling independen** — `main.css`, komponen inject CSS, dan Tailwind CDN — menciptakan inkonsistensi visual
+- **2 arsitektur berbeda** — `frontend/` (Multi-Page App) vs `docs/` (Single-Page App dengan router)
 
 ---
 
-## 2. Duplicate Code
+## 1. STRUKTUR DIREKTORI
 
-### 2.1 Format Functions Duplicated (cards.js vs formatter.js)
-
-| Function | Location A | Location B | Lines Wasted |
-|----------|-----------|-----------|-------------|
-| `formatIDR()` | `cards.js` (line 13) | `formatter.js` as `formatCurrency()` | ~8 lines |
-| `formatCompact()` | `cards.js` (line 24) | `formatter.js` as `formatCompactNumber()` | ~10 lines |
-| `timeAgo()` | `cards.js` (line 37) | `formatter.js` as `formatRelativeTime()` | ~17 lines |
-| `getStatusConfig()` | `cards.js` (line 61) | `helpers.js` as `getStatusColor()` | ~15 lines |
-
-**Impact**: 4 duplicated utility functions, ~50 lines wasted. `cards.js` reimplements formatting logic that already exists in `utils/formatter.js`.
-
-### 2.2 Avatar/Initials Logic Duplicated Across 4 Files
-
-| Pattern | Files |
-|---------|-------|
-| `getInitials()` | `navbar.js`, `sidebar.js`, `mobileDrawer.js`, `cards.js` (inline) |
-| `generateAvatarColor()` | `navbar.js`, `sidebar.js` (identical hash-based color generation) |
-
-**Impact**: Same algorithm copied 4+ times. Any color palette change requires editing all files.
-
-### 2.3 SVG Icons Duplicated Across Components
-
-Each component file defines its own SVG icons inline:
-- `navbar.js` → 10 SVG icons
-- `sidebar.js` → 7 SVG icons (some identical to navbar)
-- `mobileDrawer.js` → 9 SVG icons (some identical to navbar/sidebar)
-- `bottomNav.js` → 5 SVG icons (some identical to above)
-- `cards.js` → 9 SVG icons
-- `modal.js` → 6 SVG icons
-- `loadingScreen.js` → uses config
-
-**Impact**: ~46 SVG definitions, many duplicated. A single `icons.js` module would reduce this by ~60%.
-
-### 2.4 Tailwind Config Duplicated in Every HTML
-
-Every HTML page (5 files) includes identical Tailwind CDN config:
-```html
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-    theme: { extend: { colors: { navy: {...}, emerald: {...}, cyan: {...} } } }
-}
-</script>
+```
+frontend/
+├── index.html                    (1,541 lines — Landing page)
+├── dashboard.html                (452 lines)
+├── commodities.html              (659 lines)
+├── property.html                 (422 lines)
+├── profile.html                  (432 lines)
+├── buy-requests.html             (528 lines)
+├── sw.js                         (48 lines — Service Worker)
+├── package.json                  (34 lines)
+├── manifest.json                 (78 lines)
+├── capacitor.config.json         (42 lines)
+├── AUDIT_REPORT.md               (this file)
+├── .well-known/
+│   └── assetlinks.json           (Digital Asset Links for TWA)
+├── assets/
+│   ├── css/
+│   │   └── main.css              (2,898 lines — Landing page only)
+│   ├── images/
+│   │   ├── nce-logo.png
+│   │   ├── nce-icon.svg
+│   │   ├── nce-splash.svg
+│   │   └── icons/                (PWA icons: 72px–512px, 10 files)
+│   └── js/
+│       ├── config/
+│       │   ├── firebase.js       (64 lines)
+│       │   └── mobile-config.js  (83 lines)
+│       ├── utils/
+│       │   ├── helpers.js        (605 lines)
+│       │   ├── formatter.js      (428 lines)
+│       │   └── validator.js      (411 lines)
+│       ├── services/
+│       │   ├── authService.js    (420 lines)
+│       │   ├── httpService.js    (422 lines)
+│       │   ├── userService.js    (264 lines)
+│       │   ├── commodityService.js (255 lines)
+│       │   ├── propertyService.js  (242 lines)
+│       │   ├── requestService.js   (314 lines)
+│       │   ├── deviceService.js    (289 lines)
+│       │   └── notificationService.js (237 lines)
+│       ├── components/
+│       │   ├── navbar.js         (624 lines)
+│       │   ├── sidebar.js        (483 lines)
+│       │   ├── cards.js          (739 lines)
+│       │   ├── charts.js         (818 lines)
+│       │   ├── modal.js          (1,270 lines)
+│       │   ├── loadingScreen.js  (184 lines)
+│       │   ├── mobileDrawer.js   (181 lines)
+│       │   └── bottomNav.js      (117 lines)
+│       └── modules/
+│           ├── landing/index.js     (83 lines)
+│           ├── dashboard/index.js   (431 lines)
+│           ├── commodities/index.js (456 lines)
+│           ├── property/index.js    (485 lines)
+│           ├── buy-requests/index.js (452 lines)
+│           ├── profile/index.js     (622 lines)
+│           ├── pwa/index.js         (31 lines)
+│           └── mobile/index.js      (33 lines)
+├── android/                      (Capacitor project — UNUSED)
+└── twa-project/                  (TWA project — UNUSED, replaced by nce-webview-app/)
 ```
 
-**Impact**: 5x Tailwind CDN loads (300KB+ each), identical config repeated 5 times.
+### Versi Deployed (docs/) — Arsitektur Berbeda
 
-### 2.5 Google Fonts Import Duplicated
+```
+docs/                             (GitHub Pages deployed version)
+├── index.html                    (50 lines — SPA shell)
+├── assets/
+│   ├── css/
+│   │   ├── variables.css         (108 lines)
+│   │   ├── base.css              (210 lines)
+│   │   ├── components.css        (328 lines)
+│   │   └── views.css             (244 lines)
+│   └── js/
+│       ├── app.js                (166 lines — SPA bootstrap)
+│       ├── router.js             (143 lines — Client-side router)
+│       ├── config.js             (89 lines)
+│       ├── auth.js               (128 lines)
+│       ├── state.js              (82 lines — Shared state)
+│       ├── api.js                (128 lines)
+│       ├── components/
+│       │   ├── header.js         (84 lines)
+│       │   ├── marketBoard.js    (144 lines)
+│       │   ├── marketPulse.js    (81 lines)
+│       │   ├── sparkline.js      (70 lines)
+│       │   └── toast.js          (53 lines)
+│       ├── views/
+│       │   ├── homeView.js       (280 lines)
+│       │   ├── marketView.js     (220 lines)
+│       │   ├── rfqView.js        (377 lines)
+│       │   ├── messagesView.js   (235 lines)
+│       │   └── profileView.js    (236 lines)
+│       ├── services/             (same as frontend/)
+│       └── utils/                (same as frontend/)
+```
 
-Inter font imported 6 different ways across files:
-- 5 HTML files: `@import url('https://fonts.googleapis.com/css2?family=Inter...')`
-- 1 HTML file: `<link href="https://fonts.googleapis.com/css2?family=Inter...">`
-- `main.css`: Also imports Inter
-
-**Impact**: Multiple font requests, some blocking CSS `@import` instead of `<link>`.
-
-### 2.6 Two Completely Separate HTTP Service Implementations
-
-| Feature | `frontend/` httpService.js | `docs/` api.js |
-|---------|---------------------------|----------------|
-| Lines | 422 | 128 |
-| Error handling | Custom `NCEApiError` class | Simple `Error` |
-| Interceptors | Request + Response | None |
-| Auto-logout on 401 | Yes | No |
-| FormData support | Yes | No |
-| Token refresh | Cached + Firebase fallback | Simple localStorage read |
-
-**Impact**: Two incompatible API layers. The SPA version is simpler but less robust.
-
-### 2.7 Two Different Auth Implementations
-
-| Feature | `frontend/` authService.js | `docs/` auth.js |
-|---------|---------------------------|-----------------|
-| Firebase Auth | Direct SDK import | Via API backend only |
-| Token management | Firebase ID token + Backend JWT | Backend JWT only |
-| Auth state observer | Firebase `onAuthStateChanged` | localStorage check |
-| Lines | 420 | 128 |
-
-**Impact**: The frontend/ version is more complete but Firebase SDK adds significant bundle size.
-
----
-
-## 3. UI yang Tidak Reusable
-
-### 3.1 Monolithic Components
-
-Each "component" renders its own styles via `injectStyles()` injection:
-- `cards.js` → 456 lines of CSS injected into `<head>`
-- `charts.js` → ~200 lines of CSS injected
-- `navbar.js` → ~320 lines of CSS injected
-- `sidebar.js` → ~230 lines of CSS injected
-- `modal.js` → ~400+ lines of CSS injected
-- `bottomNav.js` → ~47 lines of CSS injected
-- `loadingScreen.js` → ~58 lines of CSS injected
-- `mobileDrawer.js` → ~15 lines of CSS injected
-
-**Total inline CSS in JS: ~1,700+ lines** — should be in CSS files.
-
-### 3.2 No Shared Design Token System
-
-Colors are hardcoded as hex values throughout JS and CSS:
-- Primary green: `#10B981`, `#10b981`, `#059669` (inconsistent casing)
-- Background: `#0a0e27`, `#0A0E27`, `#111827`
-- Cyan accent: `#06B6D4`, `#06b6d4`
-- Text colors: `#E2E8F0`, `#CBD5E1`, `#94A3B8`, `#64748B`
-
-**Impact**: No single source of truth for colors. New gold palette (#D4AF37) will require updating 100+ locations.
-
-### 3.3 No Shared UI Primitives
-
-Common UI patterns are re-implemented per component:
-- Buttons (accept/reject, login/register, submit)
-- Badges (status, type, verified)
-- Avatars (initials + color hash)
-- Loading states (spinners, skeletons)
-- Cards (commodity, property, request, offer, stat)
-
-**Impact**: Each component has its own button/badge/avatar CSS and HTML. A shared component library would reduce ~40% of component code.
+**Masalah Kritis**: `frontend/` dan `docs/` memiliki **arsitektur yang sama sekali berbeda**. Frontend menggunakan Multi-Page App (setiap halaman file HTML terpisah), sedangkan docs menggunakan Single-Page App dengan client-side router. Kedua codebase harus disatukan.
 
 ---
 
-## 4. Firebase Calls yang Tidak Melalui Service Layer
+## 2. FILE YANG MELEBIHI BATAS 300 BARIS
 
-### 4.1 Direct Firebase SDK Import in `firebase.js`
+Batas maksimal: **300 baris per file** (sesuai Clean Architecture Phase 5)
 
+| # | File | Baris | Kelebihan | Kategori |
+|---|------|------:|----------:|----------|
+| 1 | `assets/css/main.css` | 2,898 | +2,598 | CSS |
+| 2 | `assets/js/components/modal.js` | 1,270 | +970 | Komponen |
+| 3 | `index.html` | 1,541 | +1,241 | HTML |
+| 4 | `assets/js/components/charts.js` | 818 | +518 | Komponen |
+| 5 | `assets/js/components/cards.js` | 739 | +439 | Komponen |
+| 6 | `commodities.html` | 659 | +359 | HTML |
+| 7 | `assets/js/components/navbar.js` | 624 | +324 | Komponen |
+| 8 | `assets/js/modules/profile/index.js` | 622 | +322 | Modul |
+| 9 | `assets/js/utils/helpers.js` | 605 | +305 | Utilitas |
+| 10 | `assets/js/components/sidebar.js` | 483 | +183 | Komponen |
+| 11 | `assets/js/modules/property/index.js` | 485 | +185 | Modul |
+| 12 | `assets/js/modules/commodities/index.js` | 456 | +156 | Modul |
+| 13 | `buy-requests.html` | 528 | +228 | HTML |
+| 14 | `assets/js/modules/buy-requests/index.js` | 452 | +152 | Modul |
+| 15 | `assets/js/modules/dashboard/index.js` | 431 | +131 | Modul |
+| 16 | `assets/js/utils/formatter.js` | 428 | +128 | Utilitas |
+| 17 | `assets/js/services/httpService.js` | 422 | +122 | Service |
+| 18 | `assets/js/services/authService.js` | 420 | +120 | Service |
+| 19 | `assets/js/utils/validator.js` | 411 | +111 | Utilitas |
+| 20 | `assets/js/services/requestService.js` | 314 | +14 | Service |
+| 21 | `dashboard.html` | 452 | +152 | HTML |
+| 22 | `profile.html` | 432 | +132 | HTML |
+| 23 | `property.html` | 422 | +122 | HTML |
+
+**Total kelebihan baris**: ~7,296 baris di atas batas 300. Ini menunjukkan bahwa mayoritas file perlu dipecah menjadi modul-modul yang lebih kecil.
+
+---
+
+## 3. IMPOR YANG TIDAK ADA (RUNTIME CRASH)
+
+### Status: KRITIS — Akan menyebabkan crash saat halaman dimuat
+
+Setiap modul halaman mengimpor fungsi/konstanta yang **tidak diekspor** oleh file sumbernya. Karena menggunakan ES Modules, import yang gagal akan menyebabkan **seluruh modul tidak bisa dimuat**.
+
+### 3.1 `cards.js` — Missing Exports
+
+| Fungsi yang Diimpor | Diimpor Oleh | Status |
+|---------------------|-------------|--------|
+| `renderSkeleton()` | dashboard, commodities, buy-requests, property, profile | TIDAK DIEKSPOR |
+| `renderErrorState()` | dashboard, commodities, buy-requests, property, profile | TIDAK DIEKSPOR |
+
+**Export yang ada**: `renderCommodityCard`, `renderBuyRequestCard`, `renderPropertyCard`, `renderStatCard`, `renderOfferCard`, `renderActivityItem`
+
+### 3.2 `modal.js` — Missing Exports
+
+| Fungsi yang Diimpor | Diimpor Oleh | Status |
+|---------------------|-------------|--------|
+| `showNotification()` | dashboard, commodities, buy-requests, property, profile | TIDAK DIEKSPOR |
+| `showCommodityDetail()` | commodities | TIDAK DIEKSPOR |
+
+**Export yang ada**: `showModal`, `closeModal`, `showConfirmDialog`, `showLoginForm`, `showRegisterForm`, `showCreateBuyRequestForm`, `showOfferForm`, `showImageUpload`, `showLoading`, `showSuccess`, `showError`
+
+### 3.3 `charts.js` — Missing Exports
+
+| Fungsi yang Diimpor | Diimpor Oleh | Status |
+|---------------------|-------------|--------|
+| `updatePeriodToggle()` | dashboard | TIDAK DIEKSPOR |
+
+**Export yang ada**: `renderPriceChart`, `renderVolumeChart`, `renderPieChart`, `renderMiniChart`, `resizeCharts`
+
+### 3.4 `userService.js` — Missing Exports
+
+| Fungsi yang Diimpor | Diimpor Oleh | Status |
+|---------------------|-------------|--------|
+| `getRecentActivity()` | dashboard | TIDAK DIEKSPOR |
+| `getStoredUser()` | dashboard | TIDAK DIEKSPOR |
+| `logout()` | profile | TIDAK DIEKSPOR |
+| `isAuthenticated()` | profile | TIDAK DIEKSPOR |
+
+**Export yang ada**: `default` (singleton dengan method: `getProfile`, `updateProfile`, `getAllUsers`, `verifyUser`, `updateRole`, `deleteAccount`, `getDashboardStats`)
+
+### 3.5 `commodityService.js` — Missing Exports
+
+| Fungsi/Konstanta yang Diimpor | Diimpor Oleh | Status |
+|-------------------------------|-------------|--------|
+| `COMMODITY_TYPES` | commodities, buy-requests | TIDAK DIEKSPOR |
+| `LOCATIONS` | commodities | TIDAK DIEKSPOR |
+| `getPriceChartData()` | dashboard | TIDAK DIEKSPOR |
+| `getVolumeChartData()` | dashboard | TIDAK DIEKSPOR |
+
+**Export yang ada**: `default` (singleton dengan method: `getAll`, `getById`, `create`, `update`, `delete`, `getByType`, `getFeatured`, `uploadImage`)
+
+### 3.6 `propertyService.js` — Missing Exports
+
+| Konstanta yang Diimpor | Diimpor Oleh | Status |
+|------------------------|-------------|--------|
+| `PROPERTY_TYPES` | property | TIDAK DIEKSPOR |
+
+**Export yang ada**: `default` (singleton)
+
+### 3.7 `requestService.js` — Missing Exports
+
+| Fungsi/Konstanta yang Diimpor | Diimpor Oleh | Status |
+|-------------------------------|-------------|--------|
+| `getMyRequests()` | buy-requests | TIDAK DIEKSPOR |
+| `REQUEST_STATUSES` | buy-requests | TIDAK DIEKSPOR |
+
+**Export yang ada**: `default` (singleton)
+
+### Ringkasan Dampak
+
+| Halaman | Jumlah Import Rusak | Dampak |
+|---------|---------------------|--------|
+| dashboard.html | 7 | Crash total — halaman tidak bisa dimuat |
+| commodities.html | 4 | Crash total |
+| buy-requests.html | 6 | Crash total |
+| property.html | 3 | Crash total |
+| profile.html | 4 | Crash total |
+
+> **Catatan**: Landing page (`index.html`) tidak terdampak karena menggunakan inline script dan modul terpisah yang tidak memiliki broken imports.
+
+---
+
+## 4. DUPLIKASI KODE
+
+### 4.1 Duplikasi Fungsi Utilitas
+
+| Fungsi | Lokasi Duplikat | Seharusnya Menggunakan |
+|--------|----------------|----------------------|
+| `formatIDR()` | `cards.js:13-17`, `charts.js:188-197` | `formatter.js:formatCurrency()` |
+| `formatCompact()` | `cards.js:24-30`, `charts.js:194-208` | `formatter.js:formatCompactNumber()` |
+| `timeAgo()` | `cards.js:37-54` | `formatter.js:formatRelativeTime()` |
+| `getStatusConfig()` | `cards.js:61-74` | `helpers.js:getStatusColor()` + `formatter.js:formatStatus()` |
+| `escapeHtml()` | `helpers.js:458-475` | Sama dengan `validator.js:sanitizeInput()` |
+
+### 4.2 Duplikasi Fungsi Avatar
+
+Fungsi `getInitials()` dan `generateAvatarColor()` diimplementasikan ulang di **4 lokasi berbeda**:
+
+| Lokasi | Implementasi |
+|--------|-------------|
+| `cards.js:476` (inline di `renderCommodityCard`) | Inisial + hash warna |
+| `cards.js:668-674` (inline di `renderOfferCard`) | Inisial + hash warna (identik) |
+| `sidebar.js:62-74` | `getInitials()` + `generateAvatarColor()` |
+| `navbar.js:54-66` | `getInitials()` + `generateAvatarColor()` |
+
+Semua menggunakan algoritma hash yang sama:
 ```javascript
-// firebase.js — directly initializes Firebase
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { getStorage } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+const colors = ['#10B981', '#06B6D4', '#8B5CF6', '#F59E0B', '#EF4444'];
+let h = 0;
+for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+return colors[Math.abs(h) % colors.length];
 ```
 
-**Exports `db` and `storage` directly**, inviting direct Firestore/Storage access from any module.
+### 4.3 Duplikasi Logika Halaman
 
-### 4.2 authService.js Uses Firebase SDK Directly
+| Pola | Lokasi Duplikat | Baris per Instansi |
+|------|----------------|-------------------|
+| `initMobileMenu()` | `commodities/index.js:71-78`, `buy-requests/index.js:77-84`, `property/index.js:78-85` | ~7 baris x3 |
+| Sidebar toggle | `dashboard/index.js:65-100`, `profile/index.js:75-110` | ~35 baris x2 |
+| Pagination rendering | `commodities/index.js:307-371`, `property/index.js:350-400`, `buy-requests/index.js:314-357` | ~60 baris x3 |
+| Status color mapping | `cards.js:getStatusConfig()`, `helpers.js:getStatusColor()`, `profile/index.js:306-317` | ~15 baris x3 |
+| Inline CSS di HTML | Semua 5 halaman inner memiliki `<style>` block identik (~30 baris) | ~30 baris x5 |
 
+**Total baris duplikat**: ~350+ baris yang bisa dieliminasi dengan shared modules.
+
+---
+
+## 5. FIREBASE CALLS DI LUAR SERVICE LAYER
+
+### Status: AMAN — Semua Firebase calls sudah melalui service layer
+
+| File | Firebase Usage | Lokasi |
+|------|---------------|--------|
+| `config/firebase.js` | Inisialisasi: `initializeApp`, `getAuth`, `getFirestore`, `getStorage` | Config layer (OK) |
+| `services/authService.js` | `signInWithEmailAndPassword`, `createUserWithEmailAndPassword`, `firebaseSignOut`, `onAuthStateChanged`, `getIdToken` | Service layer (OK) |
+
+**Catatan**: Meskipun `getFirestore()` dan `getStorage()` diinisialisasi di `firebase.js`, keduanya **diekspor tapi tidak pernah diimpor** oleh service manapun. Semua operasi data melalui Express backend API via `httpService.js`.
+
+### Potensi Masalah
+- `db` (Firestore) dan `storage` (Firebase Storage) diinisialisasi tapi **tidak digunakan** — menambah bundle size tanpa manfaat
+- `import.meta.env` digunakan untuk konfigurasi Firebase, tapi **tidak ada bundler (Vite) yang dikonfigurasi** — environment variables akan selalu fallback ke empty string
+
+---
+
+## 6. TECHNICAL DEBT
+
+### 6.1 Dua Codebase Paralel
+
+`frontend/` dan `docs/` memiliki **arsitektur berbeda**:
+- **frontend/**: Multi-Page App — 6 file HTML terpisah, masing-masing dengan script module sendiri
+- **docs/**: Single-Page App — 1 file HTML shell + client-side router (`router.js`) + views
+
+Masalah ini menyebabkan:
+- Fitur harus diimplementasi dua kali
+- Bug fixes tidak sinkron
+- Testing harus dilakukan di dua codebase
+
+### 6.2 Tidak Ada Build System
+
+- **Tidak ada Vite/Webpack/Rollup** — semua file served as-is tanpa minification, tree-shaking, atau bundling
+- **`import.meta.env`** digunakan tapi tidak ada tool yang memprosesnya — akan selalu `undefined`
+- **Tailwind CDN** digunakan di production — tidak ada JIT, purging, atau optimization
+- **Tidak ada source maps** untuk debugging
+
+### 6.3 Service Worker Minimal
+
+`sw.js` hanya meng-cache 7 asset dasar:
 ```javascript
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { auth } from '../config/firebase.js';
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/assets/css/main.css',
+  '/assets/images/nce-logo.png',
+  '/assets/images/nce-icon.svg',
+  '/assets/images/nce-splash.svg'
+];
 ```
 
-This bypasses the backend API for authentication. While this works, it means:
-- Client has Firebase credentials in source code
-- Auth flow depends on Firebase SDK (2MB+ bundle)
-- Backend JWT is secondary to Firebase Auth
+Tidak ada caching untuk:
+- JavaScript modules (services, components, utils)
+- API responses
+- Halaman inner (dashboard, commodities, dll)
+- Font Inter dari Google Fonts
 
-### 4.3 No Firestore/Storage Calls Found Outside Services
+### 6.4 Tidak Ada State Management
 
-Good news: No direct `db.collection()` or `storage.ref()` calls were found outside service files. All database access goes through `httpService.js` → Express backend.
+- Setiap halaman memuat state sendiri secara independen
+- Tidak ada shared state antar halaman (user data dimuat ulang di setiap navigasi)
+- Auth state di-cache di localStorage tapi tidak ada mekanisme sinkronisasi antar tab
 
-**However**, the exported `db` and `storage` instances from `firebase.js` create a risk that future developers might use them directly.
+### 6.5 Project Android Tidak Terpakai
 
----
+Dua project Android ada di `frontend/`:
+- `frontend/android/` — Capacitor project (tidak digunakan)
+- `frontend/twa-project/` — TWA project (tidak digunakan, sudah diganti dengan `nce-webview-app/`)
 
-## 5. Technical Debt
-
-### 5.1 Two Divergent Codebases
-
-| Aspect | `/frontend/` (Multi-page) | `/docs/` (SPA) |
-|--------|--------------------------|----------------|
-| Architecture | 6 separate HTML pages | 1 SPA with hash router |
-| CSS | Tailwind CDN + inline + main.css | Modular CSS (variables/base/components/views) |
-| State | Per-page globals | `state.js` (StateManager class) |
-| Navigation | `<a href="page.html">` | Hash-based SPA router |
-| Data | Firebase SDK + httpService | Simple `api.js` wrapper |
-| Components | Large monolithic JS files | Smaller, focused modules |
-| Auth | Firebase Auth + backend JWT | Backend-only JWT |
-| Market data | Real API calls | Hardcoded in `config.js` |
-| Size | ~2.4MB (84 files) | ~smaller (30 files) |
-
-**This is the #1 technical debt** — two versions with incompatible patterns.
-
-### 5.2 Dead Capacitor/TWA Code
-
-| Directory | Files | Size | Status |
-|-----------|-------|------|--------|
-| `twa-project/` | 28 files | 356KB | 🔴 Dead — TWA approach abandoned |
-| `android/` (Capacitor) | 56 files | 608KB | 🔴 Dead — replaced by native WebView APK |
-| `capacitor.config.json` | 1 file | — | 🔴 Dead config |
-
-**Total dead code: ~964KB, 85 files**
-
-### 5.3 No Build System
-
-- No bundler (Webpack, Vite, Rollup, esbuild)
-- No tree-shaking — all code ships as-is
-- No minification
-- No code splitting
-- CDN dependencies loaded at runtime (Tailwind CDN = 300KB+ per page)
-- Firebase SDK loaded via CDN (2MB+)
-
-### 5.4 No TypeScript
-
-All JS files are plain JavaScript with JSDoc comments. No type safety, no compile-time checks.
-
-### 5.5 No Testing Infrastructure
-
-- No test framework configured
-- No unit tests
-- No integration tests
-- No E2E tests
+Kedua direktori ini menambah ukuran repository tanpa manfaat.
 
 ---
 
-## 6. Performance Issues
+## 7. PERFORMANCE
 
-### 6.1 Tailwind CDN in Production
+### 7.1 Asset Loading
 
-Every HTML page loads `https://cdn.tailwindcss.com` — this is the **development-only** version:
-- **~300KB+** per page load (not cached between pages in multi-page app)
-- Includes JIT compiler running in browser
-- Not minified or tree-shaken
-- Should use pre-built CSS for production
+| Masalah | Dampak | Solusi |
+|---------|--------|--------|
+| Tailwind CDN (full bundle ~350KB) | Load time tinggi, blocking render | Gunakan Vite + Tailwind JIT |
+| Google Fonts Inter (external) | DNS lookup + TCP connection ekstra | Self-host font |
+| Tidak ada lazy loading untuk modul | Semua JS dimuat sekaligus | Dynamic imports |
+| SVG icons di-inline di JS | String besar di memory | Sprite sheet atau icon component |
+| Tidak ada image optimization | Gambar tidak terkompresi | WebP + responsive images |
 
-### 6.2 Massive HTML Files with Inline Everything
+### 7.2 Rendering Performance
 
-| File | Size | Problem |
-|------|------|---------|
-| `index.html` | 75KB | 413 lines inline CSS + 306 lines inline JS |
-| `commodities.html` | 53KB | Full Tailwind + inline styles |
-| `buy-requests.html` | 42KB | Full Tailwind + inline styles |
-| `profile.html` | 41KB | Full Tailwind + inline styles |
-| `dashboard.html` | 38KB | Full Tailwind + inline styles |
-| `property.html` | 34KB | Full Tailwind + inline styles |
+| Masalah | Lokasi | Dampak |
+|---------|--------|--------|
+| `innerHTML` untuk semua rendering | cards.js, charts.js, modal.js, dll | Tidak ada DOM diffing, full re-render |
+| Style injection setiap render | Semua komponen (`injectCardStyles()`, dll) | Cek duplikasi style setiap kali |
+| Auto-refresh 60 detik | dashboard/index.js | Fetch yang tidak perlu jika tab tidak aktif |
+| Pagination full re-render | commodities, property, buy-requests | Seluruh grid di-replace setiap page change |
 
-**Total: ~283KB of HTML** — much of it duplicate Tailwind config and inline styles.
+### 7.3 Network Performance
 
-### 6.3 No Caching Strategy
-
-- No service worker caching in `frontend/` (only in `docs/`)
-- No HTTP cache headers configured
-- API responses not cached
-- Images not lazy-loaded systematically
-
-### 6.4 CSS Injection at Runtime
-
-Components inject styles on first render via `document.createElement('style')`. This:
-- Blocks rendering while CSS is parsed
-- Cannot be cached by browser
-- Creates style tag soup in `<head>`
-- Makes debugging difficult
-
-### 6.5 No Image Optimization
-
-- 14 image files totaling 1.5MB
-- No WebP/AVIF variants
-- No responsive image srcsets
-- PWA icons range from 16px to 512px (some may be unused)
+| Masalah | Dampak |
+|---------|--------|
+| Tidak ada request deduplication | Komponen berbeda bisa fetch data yang sama |
+| Tidak ada API response caching | Data dimuat ulang setiap navigasi halaman |
+| Tidak ada retry logic di httpService | Gagal sekali = gagal total |
+| Tidak ada request cancellation | Navigation tidak membatalkan request pending |
 
 ---
 
-## 7. Mobile UX Issues
+## 8. MOBILE UX GAPS
 
-### 7.1 Multi-Page Navigation on Mobile
+### 8.1 Navigasi Tidak Konsisten
 
-Current multi-page app means:
-- Full page reload on every navigation
-- No transition animations between pages
-- Lost scroll position on navigation
-- 300KB+ Tailwind CDN re-downloaded on each page
-- No offline support between pages
+| Halaman | Navigasi Mobile | Bottom Nav |
+|---------|----------------|------------|
+| index.html (Landing) | Custom scroll navigation | Tidak ada |
+| dashboard.html | Sidebar toggle + hamburger | Tidak ada |
+| commodities.html | Hamburger + mobile menu | Tidak ada |
+| property.html | Hamburger + mobile menu | Tidak ada |
+| buy-requests.html | Hamburger + mobile menu | Tidak ada |
+| profile.html | Sidebar toggle + hamburger | Tidak ada |
 
-### 7.2 Competing Navigation Systems
+**bottomNav.js** (117 baris) ada tapi **tidak digunakan** di halaman manapun.
 
-The app has **4 separate navigation systems**:
-1. **Top navbar** (`navbar.js`) — desktop only, hidden on mobile
-2. **Sidebar** (`sidebar.js`) — desktop + mobile overlay
-3. **Mobile drawer** (`mobileDrawer.js`) — left slide-out drawer
-4. **Bottom nav** (`bottomNav.js`) — mobile fixed bottom
+### 8.2 Touch Interaction
 
-Users see different navigation depending on which component renders. The sidebar and drawer have overlapping functionality. This is confusing.
+- Tidak ada swipe gesture untuk sidebar
+- Tidak ada pull-to-refresh
+- Tidak ada infinite scroll (menggunakan pagination tradisional)
+- Modal tidak bisa di-dismiss dengan swipe down
 
-### 7.3 No Touch Gestures
+### 8.3 Responsive Design
 
-- No swipe-to-navigate between views
-- No pull-to-refresh
-- Drawer has basic swipe-to-close only
-- No haptic feedback integration (deviceService exists but unused)
-
-### 7.4 Viewport Issues
-
-- `index.html` uses `user-scalable=no` — violates accessibility guidelines
-- No safe area insets handled consistently
-- Bottom nav can overlap with content
-
-### 7.5 No Bottom Sheet / Action Sheet Pattern
-
-Common mobile patterns missing:
-- No bottom sheet for filters
-- No action sheet for confirmations
-- No pull-up panel for details
+- `main.css` memiliki media queries tapi hanya untuk landing page
+- Halaman inner bergantung sepenuhnya pada Tailwind responsive classes
+- Tidak ada breakpoint konsisten antara main.css dan Tailwind config
 
 ---
 
-## 8. Security Issues
+## 9. SECURITY
 
-### 8.1 Firebase Config Exposed in Source Code
+### 9.1 XSS Vulnerability
 
-```javascript
-// firebase.js — empty strings in source, but fills from import.meta.env
-const firebaseConfig = {
-  apiKey: import.meta.env?.VITE_FIREBASE_API_KEY || '',
-  // ...
-};
-```
+Meskipun `escapeHtml()` tersedia di `helpers.js`, banyak komponen menyisipkan data user langsung ke innerHTML tanpa escaping:
 
-Currently safe (empty strings), but `import.meta.env` only works with a bundler like Vite. Since there's no build system, these env variables won't work. If someone hardcodes the keys, they'll be visible in client-side code.
+| File | Contoh |
+|------|--------|
+| `cards.js:498` | `${name}` di card title — tidak di-escape |
+| `cards.js:506` | `${seller.name}` — tidak di-escape |
+| `cards.js:538` | `${commodityType}` — tidak di-escape |
+| `cards.js:684` | `${sellerName}` — tidak di-escape |
+| `charts.js` | Data labels tidak di-escape |
+| `modal.js` | Form values tidak di-escape saat ditampilkan |
 
-### 8.2 Token Stored in localStorage
+### 9.2 Authentication
 
-Both codebases store JWT tokens in `localStorage`:
-```javascript
-localStorage.setItem('nce_user', JSON.stringify(userData));
-localStorage.setItem('nce_token', token);
-```
+| Masalah | Detail |
+|---------|--------|
+| Token disimpan di localStorage | Rentan terhadap XSS |
+| Tidak ada token refresh mechanism | Token expired = harus login ulang |
+| Firebase config fallback ke empty string | Aplikasi akan gagal silently tanpa error yang jelas |
+| `import.meta.env` tanpa bundler | Environment variables tidak terproteksi |
 
-**Risk**: XSS attack can steal tokens. `httpOnly` cookies would be more secure.
+### 9.3 Content Security Policy
 
-### 8.3 No CSRF Protection
-
-API calls use Bearer token in Authorization header — this provides some CSRF protection, but:
-- No CSRF token for form submissions
-- No SameSite cookie configuration
-- No origin checking on API requests
-
-### 8.4 No Content Security Policy (CSP)
-
-No CSP headers or meta tags configured. Allows:
-- Inline scripts (XSS risk)
-- External CDN loading (supply chain risk)
-- eval() in Tailwind JIT compiler
-
-### 8.5 XSS Risk in Card Components
-
-`cards.js` renders user-supplied data without escaping:
-```javascript
-return `<h3 class="nce-card-title">${name}</h3>`;  // name is not escaped
-```
-
-While `helpers.js` has `escapeHtml()`, it's not used consistently in template rendering.
+Tidak ada CSP header yang dikonfigurasi. Inline styles dan scripts diizinkan tanpa batasan.
 
 ---
 
-## 9. Dead Code
+## 10. DEAD CODE & UNUSED ASSETS
 
-### 9.1 Dead Directories
+### 10.1 Dead Code
 
-| Path | Files | Size | Reason |
-|------|-------|------|--------|
-| `twa-project/` | 28 | 356KB | TWA approach abandoned, now using native WebView |
-| `android/` (Capacitor) | 56 | 608KB | Capacitor approach abandoned, now using custom APK build |
-| `capacitor.config.json` | 1 | — | Dead config |
-| `android/variables.gradle` | 1 | — | Dead Capacitor config |
+| Item | File | Detail |
+|------|------|--------|
+| `db` (Firestore instance) | `config/firebase.js:42` | Diekspor tapi tidak pernah diimpor |
+| `storage` (Firebase Storage) | `config/firebase.js:45` | Diekspor tapi tidak pernah diimpor |
+| `app` (Firebase App) | `config/firebase.js:36` | Diekspor tapi tidak pernah diimpor oleh konsumer |
+| `hasFormData` variable | `httpService.js:162-163` | Dihitung tapi tidak pernah dibaca |
+| `loadingScreen.js` | `components/loadingScreen.js` | Tidak diimpor oleh modul manapun |
+| `mobileDrawer.js` | `components/mobileDrawer.js` | Tidak diimpor oleh modul manapun |
+| `bottomNav.js` | `components/bottomNav.js` | Tidak diimpor oleh halaman manapun |
+| `deviceService.js` | `services/deviceService.js` | Tidak diimpor oleh modul manapun |
+| `notificationService.js` | `services/notificationService.js` | Tidak diimpor oleh modul manapun |
+| `mobile-config.js` | `config/mobile-config.js` | Tidak diimpor oleh modul manapun |
+| `mobile/index.js` | `modules/mobile/index.js` | Tidak diimpor oleh halaman manapun |
 
-### 9.2 Dead/Unused Components
+### 10.2 Unused Directories
 
-| Component | Status | Reason |
-|-----------|--------|--------|
-| `sidebar.js` | 🟡 Pending removal | Replaced by bottom nav in Digital Trading Floor |
-| `mobileDrawer.js` | 🟡 Pending removal | Overlaps with sidebar and bottom nav |
-| `navbar.js` | 🟡 Needs redesign | Will become trading-floor header |
-| `loadingScreen.js` | 🟢 Keep | Still useful |
-| `charts.js` | 🟢 Keep | Core for trading floor |
-| `cards.js` | 🟢 Keep, refactor | Core component, needs modularization |
-| `modal.js` | 🟢 Keep, refactor | Core component, too large |
+| Direktori | Ukuran Estimasi | Status |
+|-----------|----------------|--------|
+| `frontend/android/` | ~15 MB | Capacitor project — tidak digunakan |
+| `frontend/twa-project/` | ~5 MB | TWA project — sudah diganti nce-webview-app |
 
-### 9.3 Dead Capacitor Service Code
+### 10.3 Unused PWA Icons
 
-`deviceService.js` (289 lines) and `notificationService.js` (237 lines) contain extensive Capacitor plugin imports:
-- `@capacitor/device`, `@capacitor/network`, `@capacitor/haptics`
-- `@capacitor/camera`, `@capacitor/filesystem`, `@capacitor/status-bar`
-- `@capacitor/splash-screen`, `@capacitor/app`, `capacitor-plugin-safe-area`
-- `@capacitor/push-notifications`, `@capacitor/local-notifications`, `@capacitor/badge`
-
-Since the app now uses a **native WebView** (not Capacitor), none of these plugins will work. The `MOBILE_CONFIG.isNative()` check will always return `false` in WebView.
-
-### 9.4 Unused Module Entries
-
-- `assets/js/modules/pwa/index.js` — PWA module, unclear if actively used
-- `assets/js/modules/mobile/index.js` — Mobile-specific module, redundant with responsive design
-- `assets/js/modules/landing/index.js` — Landing page module, may overlap with home
+`assets/images/icons/` berisi 10 file icon PWA. Jika PWA tidak di-support dengan baik (Service Worker minimal), ini tidak berguna.
 
 ---
 
-## 10. Unused Assets
+## 11. INKONSISTENSI STYLING
 
-### 10.1 PWA Icon Set (14 files, ~1.5MB)
+### 11.1 Tiga Sistem CSS Terpisah
 
-All PWA icons exist but the PWA is not actively used:
-- `icon-72x72.png` through `icon-512x512.png` (8 files)
-- `apple-touch-icon.png`
-- `favicon-16x16.png`, `favicon-32x32.png`
-- `nce-logo.png` (source)
-- `nce-icon.svg`, `nce-splash.svg`
+| Sistem | Digunakan Oleh | Ukuran |
+|--------|---------------|--------|
+| `main.css` + CSS Custom Properties | index.html (Landing) | 2,898 baris |
+| Component-injected CSS (`injectCardStyles()`, dll) | Komponen cards, charts, modal, sidebar, navbar | ~800+ baris tersebar |
+| Tailwind CDN + inline classes | Semua halaman inner | ~2,000+ class references |
 
-**Recommendation**: Keep for PWA support but optimize file sizes.
+Hasil: Warna, spacing, dan typography **tidak konsisten** antara landing page dan halaman inner.
 
-### 10.2 Duplicate Icons in Dead Directories
+### 11.2 Duplikasi CSS
 
-- `twa-project/app/src/main/res/mipmap-*/` — 14 icon files
-- `android/app/src/main/res/mipmap-*/` — 15 icon files
-- These are from abandoned TWA and Capacitor builds
-
----
-
-## Summary Statistics
-
-| Metric | Count | Target |
-|--------|-------|--------|
-| Files > 300 lines | 23 | 0 |
-| Files > 500 lines | 9 | 0 |
-| Files > 1000 lines | 3 | 0 |
-| Duplicated functions | ~12 | 0 |
-| Inline CSS lines (JS injection) | ~1,700 | 0 |
-| Dead directories | 2 (85 files, 964KB) | 0 |
-| Competing nav systems | 4 | 1 |
-| Total HTML size (multi-page) | 283KB | <50KB |
-| Separate codebases | 2 | 1 |
+| Style | `main.css` | Component CSS | Tailwind |
+|-------|-----------|---------------|----------|
+| Card background | `.nce-card` | `cards.js` inject | `bg-navy-800` |
+| Stat card | `.stat-card` | `cards.js` `.nce-stat-card` | Grid classes |
+| Scrollbar | `::-webkit-scrollbar` | `sidebar.js` scrollbar | Tailwind utilities |
+| Status badges | `.badge-*` | `cards.js` `.nce-badge` | Inline styles |
+| Button gradients | `.btn-primary` | `navbar.js` `.nce-btn-register` | `bg-gradient-to-r` |
+| Modal overlay | `.modal-overlay` | `modal.js` inline | N/A |
 
 ---
 
-## Priority Recommendations
+## 12. KONFIGURASI YANG BERMASALAH
 
-### P0 — Must Fix Before Phase 2
-1. **Unify into single SPA** — Merge `frontend/` and `docs/` into one codebase
-2. **Remove dead directories** — Delete `twa-project/`, `android/`, `capacitor.config.json`
-3. **Create shared icon module** — Extract all SVGs into `icons.js`
-4. **Create shared UI primitives** — Button, Badge, Avatar, Card base components
-
-### P1 — Fix During Phase 2-3
-5. **Extract inline CSS** — Move all `injectStyles()` CSS into proper CSS files
-6. **Replace Tailwind CDN** — Use pre-built CSS or remove Tailwind entirely
-7. **Consolidate navigation** — Single bottom nav + header, remove sidebar/drawer
-8. **Consolidate formatters** — Use `formatter.js` exclusively, delete duplicates
-9. **Unify API layer** — Use `httpService.js` (more robust) in the SPA
-
-### P2 — Fix During Phase 4-5
-10. **Split files > 300 lines** — Break into focused modules
-11. **Implement design token system** — CSS custom properties for all colors
-12. **Add build system** — Vite for bundling, minification, tree-shaking
-13. **XSS protection** — Use `escapeHtml()` in all template rendering
-14. **Remove Capacitor service code** — Replace with WebView-compatible alternatives
+| File | Masalah | Dampak |
+|------|---------|--------|
+| `capacitor.config.json` | `webDir: "www"` tapi tidak ada direktori `www/` | Capacitor build akan gagal |
+| `package.json` | Tidak ada build script, hanya `dev` dengan `npx serve` | Tidak ada production build |
+| `manifest.json` | `start_url: "/"` — tidak sesuai dengan GitHub Pages path | PWA install bisa gagal |
+| `.well-known/assetlinks.json` | SHA256 fingerprint untuk TWA yang sudah tidak digunakan | Tidak berbahaya tapi tidak berguna |
 
 ---
 
-*End of Phase 1 Audit Report*
+## 13. REKOMENDASI PRIORITAS
+
+### P0 — CRITICAL (Harus diperbaiki sebelum Phase 2)
+
+1. **Implementasikan semua missing exports** di services dan components
+   - Tambahkan `renderSkeleton()`, `renderErrorState()` ke cards.js
+   - Tambahkan `showNotification()`, `showCommodityDetail()` ke modal.js
+   - Tambahkan `updatePeriodToggle()` ke charts.js
+   - Tambahkan `getRecentActivity()`, `getStoredUser()`, `logout()`, `isAuthenticated()` ke userService.js
+   - Tambahkan `COMMODITY_TYPES`, `LOCATIONS`, `getPriceChartData()`, `getVolumeChartData()` ke commodityService.js
+   - Tambahkan `PROPERTY_TYPES` ke propertyService.js
+   - Tambahkan `getMyRequests()`, `REQUEST_STATUSES` ke requestService.js
+
+2. **Hapus dead Firebase exports** (`db`, `storage`, `app`) dari firebase.js
+
+3. **Fix capacitor.config.json** — ubah `webDir` ke `.` atau hapus file
+
+### P1 — HIGH (Phase 2-3)
+
+4. **Konsolidasi ke satu codebase** — pilih antara SPA (docs/) atau MPA (frontend/). Rekomendasi: SPA dengan router
+5. **Eliminasi semua duplikasi kode** — buat shared modules untuk formatIDR, timeAgo, getInitials, generateAvatarColor, initMobileMenu, sidebar toggle, pagination
+6. **Satukan sistem styling** — pilih satu: Tailwind JIT + Vite ATAU CSS custom properties
+7. **Implementasikan shared bottom navigation** di semua halaman
+
+### P2 — MEDIUM (Phase 4-5)
+
+8. **Pecah file besar** — modal.js (1,270 baris) jadi 5+ modul, main.css (2,898 baris) jadi 6+ file
+9. **Tambahkan build system** (Vite) — minification, tree-shaking, environment variables
+10. **Perbaiki Service Worker** — caching strategy untuk JS modules dan API responses
+11. **Tambahkan XSS protection** — escape semua user input sebelum innerHTML
+12. **Hapus unused directories** — `frontend/android/`, `frontend/twa-project/`
+
+### P3 — LOW (Phase 6)
+
+13. **Tambahkan state management** — minimal shared reactive store
+14. **Implementasikan lazy loading** — dynamic imports untuk modul halaman
+15. **Tambahkan request deduplication & caching** — di httpService layer
+16. **Tambahkan unit tests** — tidak ada test sama sekali saat ini
+17. **Tambahkan linting** — ESLint + Prettier
+
+---
+
+## 14. METRIK AUDIT
+
+| Metrik | Nilai | Target |
+|--------|------:|-------:|
+| Total file source | 40 | — |
+| Total baris JS | ~10,270 | — |
+| Total baris CSS | 2,898 | — |
+| Total baris HTML | ~4,034 | — |
+| File > 300 baris | 23 | 0 |
+| Import rusak | 18+ | 0 |
+| Duplikasi kode | 6 pola kritis | 0 |
+| Dead code | 11 item | 0 |
+| Test coverage | 0% | >70% |
+| Sistem styling | 3 | 1 |
+| Codebase paralel | 2 | 1 |
+
+---
+
+*Dokumen ini dihasilkan sebagai bagian dari Phase 1 — Audit Project dari rencana 6 fase restrukturisasi NCE menjadi "Indonesia's Digital Trading Floor".*

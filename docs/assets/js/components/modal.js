@@ -1,149 +1,189 @@
-/* ============================================================================
- * NCE — Modal System
- * ============================================================================ */
+import { loginWithEmail, registerWithEmail } from '../auth.js';
+import { showToast } from './toast.js';
+import { COMMODITY_TYPES, LOCATIONS } from '../constants/commodities.js';
 
-const Modal = {
-  _active: null,
+let activeModal = null;
 
-  /**
-   * Open a modal with content
-   */
-  open(content, options = {}) {
-    this.close(); // Close any existing
+export function showModal(options = {}) {
+  const {
+    title = '',
+    content = '',
+    onClose = null,
+    size = 'default',
+  } = options;
 
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="modal" role="dialog" aria-modal="true">
-        <div class="modal__handle"></div>
-        ${content}
+  closeModal();
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.id = 'modal-backdrop';
+
+  backdrop.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>${title}</h3>
+        <button class="modal-close" id="modal-close-btn" aria-label="Tutup">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
-    `;
+      <div class="modal-body">${content}</div>
+    </div>
+  `;
 
-    document.body.appendChild(overlay);
-    this._active = overlay;
+  document.body.appendChild(backdrop);
+  activeModal = { element: backdrop, onClose };
 
-    // Animate in
-    requestAnimationFrame(() => {
-      overlay.classList.add('active');
-    });
+  backdrop.querySelector('#modal-close-btn').addEventListener('click', closeModal);
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closeModal();
+  });
 
-    // Close on overlay click
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) this.close();
-    });
+  document.addEventListener('keydown', handleEscape);
 
-    // Close on escape
-    this._onEsc = (e) => {
-      if (e.key === 'Escape') this.close();
-    };
-    document.addEventListener('keydown', this._onEsc);
+  return backdrop;
+}
 
-    // Close button
-    const closeBtn = overlay.querySelector('.modal__close');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => this.close());
-    }
+function handleEscape(e) {
+  if (e.key === 'Escape') closeModal();
+}
 
-    // Callback
-    if (options.onOpen) options.onOpen(overlay);
-
-    return overlay;
-  },
-
-  /**
-   * Close active modal
-   */
-  close() {
-    if (!this._active) return;
-
-    this._active.classList.remove('active');
-
-    setTimeout(() => {
-      if (this._active && this._active.parentNode) {
-        this._active.parentNode.removeChild(this._active);
-      }
-      this._active = null;
-    }, 300);
-
-    if (this._onEsc) {
-      document.removeEventListener('keydown', this._onEsc);
-      this._onEsc = null;
-    }
-  },
-
-  /**
-   * Show login/register modal
-   */
-  showAuth(mode = 'login') {
-    const isLogin = mode === 'login';
-
-    const content = `
-      <div class="auth-modal">
-        <div class="auth-tabs">
-          <button class="auth-tab ${isLogin ? 'active' : ''}" data-tab="login">Login</button>
-          <button class="auth-tab ${!isLogin ? 'active' : ''}" data-tab="register">Register</button>
-        </div>
-
-        <div id="auth-form-login" style="display:${isLogin ? 'block' : 'none'}">
-          <form id="login-form">
-            <div class="form-group">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-input" name="email" placeholder="your@email.com" required autocomplete="email">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Password</label>
-              <input type="password" class="form-input" name="password" placeholder="••••••••" required autocomplete="current-password">
-            </div>
-            <button type="submit" class="btn btn--gold btn--full" style="margin-top:8px;">Login</button>
-          </form>
-        </div>
-
-        <div id="auth-form-register" style="display:${!isLogin ? 'block' : 'none'}">
-          <form id="register-form">
-            <div class="form-group">
-              <label class="form-label">Full Name</label>
-              <input type="text" class="form-input" name="name" placeholder="Your name" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-input" name="email" placeholder="your@email.com" required autocomplete="email">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Password</label>
-              <input type="password" class="form-input" name="password" placeholder="••••••••" required autocomplete="new-password" minlength="6">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Role</label>
-              <select class="form-input form-select" name="role">
-                <option value="buyer">Buyer</option>
-                <option value="seller">Seller</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn--gold btn--full" style="margin-top:8px;">Create Account</button>
-          </form>
-        </div>
-
-        <div id="auth-error" style="display:none;margin-top:12px;padding:8px 12px;background:var(--danger-bg);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-md);color:var(--danger);font-size:13px;"></div>
-      </div>
-    `;
-
-    const overlay = this.open(content);
-
-    // Tab switching
-    overlay.querySelectorAll('.auth-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        overlay.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const target = tab.dataset.tab;
-        overlay.querySelector('#auth-form-login').style.display = target === 'login' ? 'block' : 'none';
-        overlay.querySelector('#auth-form-register').style.display = target === 'register' ? 'block' : 'none';
-        overlay.querySelector('#auth-error').style.display = 'none';
-      });
-    });
-
-    return overlay;
+export function closeModal() {
+  const backdrop = document.getElementById('modal-backdrop');
+  if (backdrop) {
+    backdrop.remove();
   }
-};
+  document.removeEventListener('keydown', handleEscape);
+  if (activeModal?.onClose) activeModal.onClose();
+  activeModal = null;
+}
 
-export default Modal;
+export function showLoginModal() {
+  const content = `
+    <form id="login-form">
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Email</label>
+        <input type="email" id="login-email" placeholder="email@contoh.com" required autocomplete="email">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Kata Sandi</label>
+        <input type="password" id="login-password" placeholder="Masukkan kata sandi" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px;">Masuk</button>
+      <p style="text-align:center;font-size:0.8rem;color:var(--text-muted);margin-top:12px;">
+        Belum punya akun? <a href="#" id="switch-to-register" style="color:var(--gold);">Daftar</a>
+      </p>
+    </form>
+  `;
+
+  const modal = showModal({ title: 'Masuk ke NCE', content });
+
+  modal.querySelector('#login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    try {
+      await loginWithEmail(email, password);
+      closeModal();
+      showToast('Berhasil masuk!', 'success');
+    } catch (err) {
+      showToast(err.message || 'Gagal masuk', 'danger');
+    }
+  });
+
+  modal.querySelector('#switch-to-register').addEventListener('click', (e) => {
+    e.preventDefault();
+    closeModal();
+    showRegisterModal();
+  });
+}
+
+export function showRegisterModal() {
+  const content = `
+    <form id="register-form">
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Nama Lengkap</label>
+        <input type="text" id="reg-name" placeholder="Nama lengkap" required>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Email</label>
+        <input type="email" id="reg-email" placeholder="email@contoh.com" required autocomplete="email">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Kata Sandi</label>
+        <input type="password" id="reg-password" placeholder="Min. 6 karakter" required minlength="6" autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px;">Daftar</button>
+      <p style="text-align:center;font-size:0.8rem;color:var(--text-muted);margin-top:12px;">
+        Sudah punya akun? <a href="#" id="switch-to-login" style="color:var(--gold);">Masuk</a>
+      </p>
+    </form>
+  `;
+
+  const modal = showModal({ title: 'Daftar Akun NCE', content });
+
+  modal.querySelector('#register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('reg-name').value;
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-password').value;
+
+    try {
+      await registerWithEmail(email, password, name);
+      closeModal();
+      showToast('Pendaftaran berhasil!', 'success');
+    } catch (err) {
+      showToast(err.message || 'Gagal mendaftar', 'danger');
+    }
+  });
+
+  modal.querySelector('#switch-to-login').addEventListener('click', (e) => {
+    e.preventDefault();
+    closeModal();
+    showLoginModal();
+  });
+}
+
+export function showCreateRFQModal() {
+  const commodityOptions = COMMODITY_TYPES.map(c =>
+    `<option value="${c.key}">${c.icon} ${c.label}</option>`
+  ).join('');
+
+  const locationOptions = LOCATIONS.map(l =>
+    `<option value="${l}">${l}</option>`
+  ).join('');
+
+  const content = `
+    <form id="rfq-form">
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Jenis Komoditas</label>
+        <select id="rfq-commodity" required>${commodityOptions}</select>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Volume (kg)</label>
+        <input type="number" id="rfq-volume" placeholder="1000" required min="1">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Harga Target (Rp/kg)</label>
+        <input type="number" id="rfq-price" placeholder="12500" required min="1">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Lokasi</label>
+        <select id="rfq-location" required>${locationOptions}</select>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:0.8rem;color:var(--text-muted);display:block;margin-bottom:6px;">Deskripsi</label>
+        <textarea id="rfq-desc" rows="3" placeholder="Deskripsi kebutuhan..." style="resize:vertical;"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Buat RFQ</button>
+    </form>
+  `;
+
+  const modal = showModal({ title: 'Buat Permintaan (RFQ)', content });
+
+  modal.querySelector('#rfq-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showToast('RFQ berhasil dibuat!', 'success');
+    closeModal();
+  });
+}
