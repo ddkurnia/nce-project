@@ -1,0 +1,1271 @@
+     1→/**
+     2→ * Nusantara Commodity Exchange (NCE) - Modal Component
+     3→ * Full modal system with forms, confirmations, loading, success, and error states
+     4→ */
+     5→
+     6→// ── State ──────────────────────────────────────────────────────────────────
+     7→let currentModal = null;
+     8→let escapeHandler = null;
+     9→
+    10→// ── SVG Icons ──────────────────────────────────────────────────────────────
+    11→const icons = {
+    12→  close: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+    13→
+    14→  success: `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>`,
+    15→
+    16→  error: `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+    17→
+    18→  upload: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
+    19→
+    20→  spinner: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    21→    <circle cx="12" cy="12" r="10" stroke="rgba(16, 185, 129, 0.15)" stroke-width="3"/>
+    22→    <path d="M12 2a10 10 0 0 1 10 10" stroke="#10B981" stroke-width="3" stroke-linecap="round">
+    23→      <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/>
+    24→    </path>
+    25→  </svg>`,
+    26→
+    27→  eye: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+    28→
+    29→  eyeOff: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    30→};
+    31→
+    32→// ── Inject Styles ──────────────────────────────────────────────────────────
+    33→let modalStylesInjected = false;
+    34→
+    35→function injectModalStyles() {
+    36→  if (modalStylesInjected) return;
+    37→  modalStylesInjected = true;
+    38→
+    39→  const style = document.createElement('style');
+    40→  style.id = 'nce-modal-styles';
+    41→  style.textContent = `
+    42→    .nce-modal-overlay {
+    43→      position: fixed;
+    44→      inset: 0;
+    45→      background: rgba(0, 0, 0, 0.6);
+    46→      backdrop-filter: blur(8px);
+    47→      -webkit-backdrop-filter: blur(8px);
+    48→      display: flex;
+    49→      align-items: center;
+    50→      justify-content: center;
+    51→      z-index: 2000;
+    52→      padding: 24px;
+    53→      opacity: 0;
+    54→      transition: opacity 0.25s ease;
+    55→      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    56→    }
+    57→
+    58→    .nce-modal-overlay.visible {
+    59→      opacity: 1;
+    60→    }
+    61→
+    62→    .nce-modal-overlay.closing {
+    63→      opacity: 0;
+    64→    }
+    65→
+    66→    .nce-modal {
+    67→      background: linear-gradient(135deg, #111827 0%, #0F172A 100%);
+    68→      border: 1px solid rgba(16, 185, 129, 0.12);
+    69→      border-radius: 20px;
+    70→      width: 100%;
+    71→      max-height: 90vh;
+    72→      overflow-y: auto;
+    73→      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.05);
+    74→      transform: translateY(20px) scale(0.97);
+    75→      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    76→    }
+    77→
+    78→    .nce-modal-overlay.visible .nce-modal {
+    79→      transform: translateY(0) scale(1);
+    80→    }
+    81→
+    82→    .nce-modal-overlay.closing .nce-modal {
+    83→      transform: translateY(20px) scale(0.97);
+    84→    }
+    85→
+    86→    .nce-modal-sm { max-width: 400px; }
+    87→    .nce-modal-md { max-width: 520px; }
+    88→    .nce-modal-lg { max-width: 680px; }
+    89→    .nce-modal-xl { max-width: 860px; }
+    90→
+    91→    .nce-modal::-webkit-scrollbar {
+    92→      width: 6px;
+    93→    }
+    94→
+    95→    .nce-modal::-webkit-scrollbar-track {
+    96→      background: transparent;
+    97→    }
+    98→
+    99→    .nce-modal::-webkit-scrollbar-thumb {
+   100→      background: rgba(16, 185, 129, 0.2);
+   101→      border-radius: 3px;
+   102→    }
+   103→
+   104→    .nce-modal-header {
+   105→      display: flex;
+   106→      align-items: center;
+   107→      justify-content: space-between;
+   108→      padding: 24px 28px 0;
+   109→    }
+   110→
+   111→    .nce-modal-title {
+   112→      font-size: 20px;
+   113→      font-weight: 700;
+   114→      color: #F1F5F9;
+   115→      margin: 0;
+   116→    }
+   117→
+   118→    .nce-modal-close {
+   119→      width: 36px;
+   120→      height: 36px;
+   121→      display: flex;
+   122→      align-items: center;
+   123→      justify-content: center;
+   124→      background: rgba(255, 255, 255, 0.05);
+   125→      border: 1px solid rgba(255, 255, 255, 0.08);
+   126→      border-radius: 10px;
+   127→      color: #94A3B8;
+   128→      cursor: pointer;
+   129→      transition: all 0.2s ease;
+   130→      flex-shrink: 0;
+   131→    }
+   132→
+   133→    .nce-modal-close:hover {
+   134→      background: rgba(239, 68, 68, 0.1);
+   135→      border-color: rgba(239, 68, 68, 0.3);
+   136→      color: #EF4444;
+   137→    }
+   138→
+   139→    .nce-modal-body {
+   140→      padding: 24px 28px;
+   141→      color: #CBD5E1;
+   142→      font-size: 14px;
+   143→      line-height: 1.6;
+   144→    }
+   145→
+   146→    .nce-modal-footer {
+   147→      display: flex;
+   148→      align-items: center;
+   149→      justify-content: flex-end;
+   150→      gap: 12px;
+   151→      padding: 0 28px 24px;
+   152→    }
+   153→
+   154→    .nce-btn-modal-cancel {
+   155→      padding: 10px 24px;
+   156→      background: transparent;
+   157→      border: 1px solid rgba(255, 255, 255, 0.1);
+   158→      border-radius: 10px;
+   159→      color: #94A3B8;
+   160→      font-size: 14px;
+   161→      font-weight: 600;
+   162→      cursor: pointer;
+   163→      transition: all 0.2s ease;
+   164→      font-family: inherit;
+   165→    }
+   166→
+   167→    .nce-btn-modal-cancel:hover {
+   168→      border-color: rgba(255, 255, 255, 0.2);
+   169→      color: #E2E8F0;
+   170→      background: rgba(255, 255, 255, 0.03);
+   171→    }
+   172→
+   173→    .nce-btn-modal-confirm {
+   174→      padding: 10px 24px;
+   175→      background: linear-gradient(135deg, #10B981, #059669);
+   176→      border: none;
+   177→      border-radius: 10px;
+   178→      color: white;
+   179→      font-size: 14px;
+   180→      font-weight: 600;
+   181→      cursor: pointer;
+   182→      transition: all 0.2s ease;
+   183→      font-family: inherit;
+   184→    }
+   185→
+   186→    .nce-btn-modal-confirm:hover {
+   187→      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+   188→    }
+   189→
+   190→    .nce-btn-modal-confirm.danger {
+   191→      background: linear-gradient(135deg, #EF4444, #DC2626);
+   192→    }
+   193→
+   194→    .nce-btn-modal-confirm.danger:hover {
+   195→      box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+   196→    }
+   197→
+   198→    /* Form styles */
+   199→    .nce-form-group {
+   200→      margin-bottom: 20px;
+   201→    }
+   202→
+   203→    .nce-form-label {
+   204→      display: block;
+   205→      font-size: 13px;
+   206→      font-weight: 600;
+   207→      color: #94A3B8;
+   208→      margin-bottom: 8px;
+   209→      letter-spacing: 0.3px;
+   210→    }
+   211→
+   212→    .nce-form-label .nce-required {
+   213→      color: #EF4444;
+   214→      margin-left: 2px;
+   215→    }
+   216→
+   217→    .nce-form-input,
+   218→    .nce-form-select,
+   219→    .nce-form-textarea {
+   220→      width: 100%;
+   221→      padding: 12px 16px;
+   222→      background: rgba(0, 0, 0, 0.3);
+   223→      border: 1px solid rgba(255, 255, 255, 0.08);
+   224→      border-radius: 10px;
+   225→      color: #F1F5F9;
+   226→      font-size: 14px;
+   227→      font-family: inherit;
+   228→      transition: all 0.2s ease;
+   229→      outline: none;
+   230→      box-sizing: border-box;
+   231→    }
+   232→
+   233→    .nce-form-input::placeholder,
+   234→    .nce-form-textarea::placeholder {
+   235→      color: #4B5563;
+   236→    }
+   237→
+   238→    .nce-form-input:focus,
+   239→    .nce-form-select:focus,
+   240→    .nce-form-textarea:focus {
+   241→      border-color: rgba(16, 185, 129, 0.5);
+   242→      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+   243→    }
+   244→
+   245→    .nce-form-input.error,
+   246→    .nce-form-select.error,
+   247→    .nce-form-textarea.error {
+   248→      border-color: rgba(239, 68, 68, 0.5);
+   249→      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+   250→    }
+   251→
+   252→    .nce-form-select {
+   253→      appearance: none;
+   254→      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+   255→      background-repeat: no-repeat;
+   256→      background-position: right 14px center;
+   257→      padding-right: 36px;
+   258→    }
+   259→
+   260→    .nce-form-select option {
+   261→      background: #1E293B;
+   262→      color: #F1F5F9;
+   263→    }
+   264→
+   265→    .nce-form-textarea {
+   266→      min-height: 100px;
+   267→      resize: vertical;
+   268→    }
+   269→
+   270→    .nce-form-error {
+   271→      font-size: 12px;
+   272→      color: #EF4444;
+   273→      margin-top: 6px;
+   274→      display: none;
+   275→    }
+   276→
+   277→    .nce-form-error.visible {
+   278→      display: block;
+   279→    }
+   280→
+   281→    .nce-form-row {
+   282→      display: flex;
+   283→      gap: 16px;
+   284→    }
+   285→
+   286→    .nce-form-row .nce-form-group {
+   287→      flex: 1;
+   288→    }
+   289→
+   290→    .nce-form-input-wrapper {
+   291→      position: relative;
+   292→    }
+   293→
+   294→    .nce-form-input-wrapper .nce-input-icon {
+   295→      position: absolute;
+   296→      right: 12px;
+   297→      top: 50%;
+   298→      transform: translateY(-50%);
+   299→      color: #64748B;
+   300→      cursor: pointer;
+   301→      transition: color 0.2s;
+   302→    }
+   303→
+   304→    .nce-form-input-wrapper .nce-input-icon:hover {
+   305→      color: #94A3B8;
+   306→    }
+   307→
+   308→    .nce-form-input-wrapper .nce-form-input {
+   309→      padding-right: 40px;
+   310→    }
+   311→
+   312→    /* Loading state */
+   313→    .nce-modal-loading {
+   314→      display: flex;
+   315→      flex-direction: column;
+   316→      align-items: center;
+   317→      justify-content: center;
+   318→      padding: 48px 28px;
+   319→    }
+   320→
+   321→    /* Success / Error animations */
+   322→    .nce-modal-icon {
+   323→      display: flex;
+   324→      justify-content: center;
+   325→      margin-bottom: 20px;
+   326→    }
+   327→
+   328→    .nce-modal-icon svg {
+   329→      filter: drop-shadow(0 0 20px currentColor);
+   330→    }
+   331→
+   332→    @keyframes nceCheckDraw {
+   333→      from { stroke-dashoffset: 24; }
+   334→      to { stroke-dashoffset: 0; }
+   335→    }
+   336→
+   337→    @keyframes nceCircleDraw {
+   338→      from { stroke-dashoffset: 63; }
+   339→      to { stroke-dashoffset: 0; }
+   340→    }
+   341→
+   342→    .nce-success-circle {
+   343→      stroke-dasharray: 63;
+   344→      stroke-dashoffset: 63;
+   345→      animation: nceCircleDraw 0.4s ease forwards;
+   346→    }
+   347→
+   348→    .nce-success-check {
+   349→      stroke-dasharray: 24;
+   350→      stroke-dashoffset: 24;
+   351→      animation: nceCheckDraw 0.3s ease forwards 0.3s;
+   352→    }
+   353→
+   354→    .nce-error-circle {
+   355→      stroke-dasharray: 63;
+   356→      stroke-dashoffset: 63;
+   357→      animation: nceCircleDraw 0.4s ease forwards;
+   358→    }
+   359→
+   360→    .nce-error-x1 {
+   361→      stroke-dasharray: 16;
+   362→      stroke-dashoffset: 16;
+   363→      animation: nceCheckDraw 0.2s ease forwards 0.3s;
+   364→    }
+   365→
+   366→    .nce-error-x2 {
+   367→      stroke-dasharray: 16;
+   368→      stroke-dashoffset: 16;
+   369→      animation: nceCheckDraw 0.2s ease forwards 0.4s;
+   370→    }
+   371→
+   372→    .nce-modal-message {
+   373→      text-align: center;
+   374→      font-size: 16px;
+   375→      color: #E2E8F0;
+   376→      font-weight: 500;
+   377→      margin: 0;
+   378→    }
+   379→
+   380→    /* Upload area */
+   381→    .nce-upload-area {
+   382→      border: 2px dashed rgba(16, 185, 129, 0.2);
+   383→      border-radius: 16px;
+   384→      padding: 40px;
+   385→      text-align: center;
+   386→      cursor: pointer;
+   387→      transition: all 0.2s ease;
+   388→      background: rgba(16, 185, 129, 0.02);
+   389→    }
+   390→
+   391→    .nce-upload-area:hover {
+   392→      border-color: rgba(16, 185, 129, 0.4);
+   393→      background: rgba(16, 185, 129, 0.05);
+   394→    }
+   395→
+   396→    .nce-upload-area.dragging {
+   397→      border-color: #10B981;
+   398→      background: rgba(16, 185, 129, 0.1);
+   399→    }
+   400→
+   401→    .nce-upload-text {
+   402→      font-size: 14px;
+   403→      color: #94A3B8;
+   404→      margin-top: 12px;
+   405→    }
+   406→
+   407→    .nce-upload-hint {
+   408→      font-size: 12px;
+   409→      color: #4B5563;
+   410→      margin-top: 4px;
+   411→    }
+   412→
+   413→    .nce-upload-preview {
+   414→      margin-top: 16px;
+   415→      display: flex;
+   416→      justify-content: center;
+   417→    }
+   418→
+   419→    .nce-upload-preview img {
+   420→      max-width: 200px;
+   421→      max-height: 200px;
+   422→      border-radius: 12px;
+   423→      border: 2px solid rgba(16, 185, 129, 0.2);
+   424→    }
+   425→
+   426→    @media (max-width: 640px) {
+   427→      .nce-modal-overlay {
+   428→        padding: 12px;
+   429→        align-items: flex-end;
+   430→      }
+   431→
+   432→      .nce-modal {
+   433→        border-radius: 20px 20px 0 0;
+   434→        max-height: 85vh;
+   435→      }
+   436→
+   437→      .nce-modal-sm,
+   438→      .nce-modal-md,
+   439→      .nce-modal-lg,
+   440→      .nce-modal-xl {
+   441→        max-width: 100%;
+   442→      }
+   443→
+   444→      .nce-form-row {
+   445→        flex-direction: column;
+   446→        gap: 0;
+   447→      }
+   448→    }
+   449→  `;
+   450→  document.head.appendChild(style);
+   451→}
+   452→
+   453→// ── Core: Show Modal ───────────────────────────────────────────────────────
+   454→export function showModal(options = {}) {
+   455→  injectModalStyles();
+   456→
+   457→  // Close any existing modal first
+   458→  if (currentModal) {
+   459→    _removeModal();
+   460→  }
+   461→
+   462→  const {
+   463→    title = '',
+   464→    content = '',
+   465→    size = 'md',
+   466→    showFooter = true,
+   467→    onConfirm = null,
+   468→    onCancel = null,
+   469→    confirmText = 'Confirm',
+   470→    cancelText = 'Cancel',
+   471→    confirmDanger = false,
+   472→    closeOnOutsideClick = true,
+   473→    closeOnEscape = true
+   474→  } = options;
+   475→
+   476→  // Create overlay
+   477→  const overlay = document.createElement('div');
+   478→  overlay.className = 'nce-modal-overlay';
+   479→  overlay.setAttribute('role', 'dialog');
+   480→  overlay.setAttribute('aria-modal', 'true');
+   481→  if (title) overlay.setAttribute('aria-label', title);
+   482→
+   483→  // Build modal
+   484→  overlay.innerHTML = `
+   485→    <div class="nce-modal nce-modal-${size}">
+   486→      ${title ? `
+   487→        <div class="nce-modal-header">
+   488→          <h2 class="nce-modal-title">${title}</h2>
+   489→          <button class="nce-modal-close" id="nce-modal-close-btn" aria-label="Close modal">
+   490→            ${icons.close}
+   491→          </button>
+   492→        </div>
+   493→      ` : ''}
+   494→      <div class="nce-modal-body">
+   495→        ${content}
+   496→      </div>
+   497→      ${showFooter ? `
+   498→        <div class="nce-modal-footer">
+   499→          <button class="nce-btn-modal-cancel" id="nce-modal-cancel-btn">${cancelText}</button>
+   500→          <button class="nce-btn-modal-confirm${confirmDanger ? ' danger' : ''}" id="nce-modal-confirm-btn">${confirmText}</button>
+   501→        </div>
+   502→      ` : ''}
+   503→    </div>
+   504→  `;
+   505→
+   506→  document.body.appendChild(overlay);
+   507→  document.body.style.overflow = 'hidden';
+   508→
+   509→  // Animate in
+   510→  requestAnimationFrame(() => {
+   511→    overlay.classList.add('visible');
+   512→  });
+   513→
+   514→  // Close button
+   515→  const closeBtn = overlay.querySelector('#nce-modal-close-btn');
+   516→  if (closeBtn) {
+   517→    closeBtn.addEventListener('click', () => {
+   518→      if (onCancel) onCancel();
+   519→      closeModal();
+   520→    });
+   521→  }
+   522→
+   523→  // Cancel button
+   524→  const cancelBtn = overlay.querySelector('#nce-modal-cancel-btn');
+   525→  if (cancelBtn) {
+   526→    cancelBtn.addEventListener('click', () => {
+   527→      if (onCancel) onCancel();
+   528→      closeModal();
+   529→    });
+   530→  }
+   531→
+   532→  // Confirm button
+   533→  const confirmBtn = overlay.querySelector('#nce-modal-confirm-btn');
+   534→  if (confirmBtn) {
+   535→    confirmBtn.addEventListener('click', () => {
+   536→      if (onConfirm) onConfirm();
+   537→    });
+   538→  }
+   539→
+   540→  // Click outside to close
+   541→  if (closeOnOutsideClick) {
+   542→    overlay.addEventListener('click', (e) => {
+   543→      if (e.target === overlay) {
+   544→        if (onCancel) onCancel();
+   545→        closeModal();
+   546→      }
+   547→    });
+   548→  }
+   549→
+   550→  // Escape to close
+   551→  if (closeOnEscape) {
+   552→    escapeHandler = (e) => {
+   553→      if (e.key === 'Escape') {
+   554→        if (onCancel) onCancel();
+   555→        closeModal();
+   556→      }
+   557→    };
+   558→    document.addEventListener('keydown', escapeHandler);
+   559→  }
+   560→
+   561→  currentModal = overlay;
+   562→
+   563→  // Focus the first input if exists
+   564→  setTimeout(() => {
+   565→    const firstInput = overlay.querySelector('input, select, textarea');
+   566→    if (firstInput) firstInput.focus();
+   567→  }, 300);
+   568→
+   569→  return overlay;
+   570→}
+   571→
+   572→// ── Core: Close Modal ──────────────────────────────────────────────────────
+   573→export function closeModal() {
+   574→  if (!currentModal) return;
+   575→
+   576→  const overlay = currentModal;
+   577→  overlay.classList.remove('visible');
+   578→  overlay.classList.add('closing');
+   579→
+   580→  // Remove escape handler
+   581→  if (escapeHandler) {
+   582→    document.removeEventListener('keydown', escapeHandler);
+   583→    escapeHandler = null;
+   584→  }
+   585→
+   586→  setTimeout(() => {
+   587→    if (overlay.parentNode) {
+   588→      overlay.parentNode.removeChild(overlay);
+   589→    }
+   590→    document.body.style.overflow = '';
+   591→  }, 250);
+   592→
+   593→  currentModal = null;
+   594→}
+   595→
+   596→// ── Internal: Force Remove ─────────────────────────────────────────────────
+   597→function _removeModal() {
+   598→  if (currentModal && currentModal.parentNode) {
+   599→    currentModal.parentNode.removeChild(currentModal);
+   600→    document.body.style.overflow = '';
+   601→  }
+   602→  if (escapeHandler) {
+   603→    document.removeEventListener('keydown', escapeHandler);
+   604→    escapeHandler = null;
+   605→  }
+   606→  currentModal = null;
+   607→}
+   608→
+   609→// ── Internal: Form Validation ──────────────────────────────────────────────
+   610→function _validateField(input) {
+   611→  const value = input.value.trim();
+   612→  const required = input.hasAttribute('data-required');
+   613→  const type = input.getAttribute('data-type') || input.type;
+   614→  let errorEl = input.parentNode.querySelector('.nce-form-error');
+   615→
+   616→  if (!errorEl) {
+   617→    errorEl = input.closest('.nce-form-group')?.querySelector('.nce-form-error');
+   618→  }
+   619→
+   620→  let isValid = true;
+   621→  let errorMsg = '';
+   622→
+   623→  if (required && !value) {
+   624→    isValid = false;
+   625→    errorMsg = 'Field ini wajib diisi';
+   626→  } else if (value) {
+   627→    switch (type) {
+   628→      case 'email':
+   629→        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+   630→          isValid = false;
+   631→          errorMsg = 'Format email tidak valid';
+   632→        }
+   633→        break;
+   634→      case 'phone':
+   635→        if (!/^[\d\s\-+()]{8,15}$/.test(value)) {
+   636→          isValid = false;
+   637→          errorMsg = 'Nomor telepon tidak valid';
+   638→        }
+   639→        break;
+   640→      case 'number':
+   641→        if (isNaN(Number(value)) || Number(value) <= 0) {
+   642→          isValid = false;
+   643→          errorMsg = 'Masukkan angka yang valid';
+   644→        }
+   645→        break;
+   646→      case 'password':
+   647→        if (value.length < 8) {
+   648→          isValid = false;
+   649→          errorMsg = 'Password minimal 8 karakter';
+   650→        }
+   651→        break;
+   652→    }
+   653→  }
+   654→
+   655→  input.classList.toggle('error', !isValid);
+   656→  if (errorEl) {
+   657→    errorEl.textContent = errorMsg;
+   658→    errorEl.classList.toggle('visible', !isValid);
+   659→  }
+   660→
+   661→  return isValid;
+   662→}
+   663→
+   664→function _validateForm(formEl) {
+   665→  const inputs = formEl.querySelectorAll('input, select, textarea');
+   666→  let allValid = true;
+   667→
+   668→  inputs.forEach(input => {
+   669→    if (!_validateField(input)) {
+   670→      allValid = false;
+   671→    }
+   672→  });
+   673→
+   674→  return allValid;
+   675→}
+   676→
+   677→// ── Confirm Dialog ─────────────────────────────────────────────────────────
+   678→export function showConfirmDialog(message, onConfirm) {
+   679→  return showModal({
+   680→    title: 'Konfirmasi',
+   681→    content: `<p style="margin:0;color:#CBD5E1;font-size:15px;line-height:1.6;">${message}</p>`,
+   682→    size: 'sm',
+   683→    confirmText: 'Ya, Lanjutkan',
+   684→    cancelText: 'Batal',
+   685→    confirmDanger: true,
+   686→    onConfirm: () => {
+   687→      closeModal();
+   688→      if (onConfirm) onConfirm();
+   689→    },
+   690→    onCancel: () => {
+   691→      closeModal();
+   692→    }
+   693→  });
+   694→}
+   695→
+   696→// ── Login Form ─────────────────────────────────────────────────────────────
+   697→export function showLoginForm() {
+   698→  const content = `
+   699→    <form id="nce-login-form" novalidate>
+   700→      <div class="nce-form-group">
+   701→        <label class="nce-form-label">Email <span class="nce-required">*</span></label>
+   702→        <input type="email" class="nce-form-input" id="nce-login-email" placeholder="nama@email.com" data-required="true" data-type="email" autocomplete="email">
+   703→        <div class="nce-form-error"></div>
+   704→      </div>
+   705→      <div class="nce-form-group">
+   706→        <label class="nce-form-label">Password <span class="nce-required">*</span></label>
+   707→        <div class="nce-form-input-wrapper">
+   708→          <input type="password" class="nce-form-input" id="nce-login-password" placeholder="Masukkan password" data-required="true" data-type="password" autocomplete="current-password">
+   709→          <span class="nce-input-icon" id="nce-login-toggle-pw">${icons.eye}</span>
+   710→        </div>
+   711→        <div class="nce-form-error"></div>
+   712→      </div>
+   713→      <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
+   714→        <a href="#" style="font-size:13px;color:#10B981;text-decoration:none;">Lupa password?</a>
+   715→      </div>
+   716→    </form>
+   717→  `;
+   718→
+   719→  const modal = showModal({
+   720→    title: 'Masuk ke NCE',
+   721→    content,
+   722→    size: 'sm',
+   723→    confirmText: 'Masuk',
+   724→    cancelText: 'Batal',
+   725→    onConfirm: () => {
+   726→      const form = document.getElementById('nce-login-form');
+   727→      if (form && _validateForm(form)) {
+   728→        const email = document.getElementById('nce-login-email').value.trim();
+   729→        const password = document.getElementById('nce-login-password').value;
+   730→        closeModal();
+   731→        // Dispatch custom event with login data
+   732→        document.dispatchEvent(new CustomEvent('nce:login', { detail: { email, password } }));
+   733→      }
+   734→    }
+   735→  });
+   736→
+   737→  // Password toggle
+   738→  setTimeout(() => {
+   739→    const togglePw = document.getElementById('nce-login-toggle-pw');
+   740→    const pwInput = document.getElementById('nce-login-password');
+   741→    if (togglePw && pwInput) {
+   742→      togglePw.addEventListener('click', () => {
+   743→        const isPassword = pwInput.type === 'password';
+   744→        pwInput.type = isPassword ? 'text' : 'password';
+   745→        togglePw.innerHTML = isPassword ? icons.eyeOff : icons.eye;
+   746→      });
+   747→    }
+   748→
+   749→    // Real-time validation
+   750→    const emailInput = document.getElementById('nce-login-email');
+   751→    const passwordInput = document.getElementById('nce-login-password');
+   752→    if (emailInput) emailInput.addEventListener('blur', () => _validateField(emailInput));
+   753→    if (passwordInput) passwordInput.addEventListener('blur', () => _validateField(passwordInput));
+   754→
+   755→    // Submit on enter
+   756→    const form = document.getElementById('nce-login-form');
+   757→    if (form) {
+   758→      form.addEventListener('keydown', (e) => {
+   759→        if (e.key === 'Enter') {
+   760→          e.preventDefault();
+   761→          const confirmBtn = document.getElementById('nce-modal-confirm-btn');
+   762→          if (confirmBtn) confirmBtn.click();
+   763→        }
+   764→      });
+   765→    }
+   766→  }, 100);
+   767→
+   768→  return modal;
+   769→}
+   770→
+   771→// ── Register Form ──────────────────────────────────────────────────────────
+   772→export function showRegisterForm() {
+   773→  const commodityTypes = [
+   774→    'Sawit (Kelapa Sawit)', 'Karet', 'Kopi', 'Tembakau', 'Teh',
+   775→    'Kakao', 'Kelapa', 'Padi/Beras', 'Jagung', 'Kedelai',
+   776→    'Cengkeh', 'Pala', 'Lada', 'Kayu', 'Rotan'
+   777→  ];
+   778→
+   779→  const content = `
+   780→    <form id="nce-register-form" novalidate>
+   781→      <div class="nce-form-group">
+   782→        <label class="nce-form-label">Email <span class="nce-required">*</span></label>
+   783→        <input type="email" class="nce-form-input" id="nce-reg-email" placeholder="nama@email.com" data-required="true" data-type="email" autocomplete="email">
+   784→        <div class="nce-form-error"></div>
+   785→      </div>
+   786→      <div class="nce-form-group">
+   787→        <label class="nce-form-label">Password <span class="nce-required">*</span></label>
+   788→        <div class="nce-form-input-wrapper">
+   789→          <input type="password" class="nce-form-input" id="nce-reg-password" placeholder="Minimal 8 karakter" data-required="true" data-type="password" autocomplete="new-password">
+   790→          <span class="nce-input-icon" id="nce-reg-toggle-pw">${icons.eye}</span>
+   791→        </div>
+   792→        <div class="nce-form-error"></div>
+   793→      </div>
+   794→      <div class="nce-form-row">
+   795→        <div class="nce-form-group">
+   796→          <label class="nce-form-label">Nama Perusahaan <span class="nce-required">*</span></label>
+   797→          <input type="text" class="nce-form-input" id="nce-reg-company" placeholder="PT. Contoh" data-required="true">
+   798→          <div class="nce-form-error"></div>
+   799→        </div>
+   800→        <div class="nce-form-group">
+   801→          <label class="nce-form-label">No. Telepon <span class="nce-required">*</span></label>
+   802→          <input type="tel" class="nce-form-input" id="nce-reg-phone" placeholder="+62 xxx" data-required="true" data-type="phone">
+   803→          <div class="nce-form-error"></div>
+   804→        </div>
+   805→      </div>
+   806→      <div class="nce-form-group">
+   807→        <label class="nce-form-label">Peran <span class="nce-required">*</span></label>
+   808→        <select class="nce-form-select" id="nce-reg-role" data-required="true">
+   809→          <option value="">Pilih peran Anda</option>
+   810→          <option value="buyer">Pembeli (Buyer)</option>
+   811→          <option value="seller">Penjual (Seller)</option>
+   812→          <option value="both">Pembeli & Penjual</option>
+   813→        </select>
+   814→        <div class="nce-form-error"></div>
+   815→      </div>
+   816→      <div class="nce-form-group">
+   817→        <label class="nce-form-label">Komoditas Utama</label>
+   818→        <select class="nce-form-select" id="nce-reg-commodity">
+   819→          <option value="">Pilih komoditas utama</option>
+   820→          ${commodityTypes.map(c => `<option value="${c}">${c}</option>`).join('')}
+   821→        </select>
+   822→      </div>
+   823→    </form>
+   824→  `;
+   825→
+   826→  const modal = showModal({
+   827→    title: 'Daftar Akun NCE',
+   828→    content,
+   829→    size: 'md',
+   830→    confirmText: 'Daftar',
+   831→    cancelText: 'Batal',
+   832→    onConfirm: () => {
+   833→      const form = document.getElementById('nce-register-form');
+   834→      if (form && _validateForm(form)) {
+   835→        const data = {
+   836→          email: document.getElementById('nce-reg-email').value.trim(),
+   837→          password: document.getElementById('nce-reg-password').value,
+   838→          company: document.getElementById('nce-reg-company').value.trim(),
+   839→          phone: document.getElementById('nce-reg-phone').value.trim(),
+   840→          role: document.getElementById('nce-reg-role').value,
+   841→          commodity: document.getElementById('nce-reg-commodity').value
+   842→        };
+   843→        closeModal();
+   844→        document.dispatchEvent(new CustomEvent('nce:register', { detail: data }));
+   845→      }
+   846→    }
+   847→  });
+   848→
+   849→  setTimeout(() => {
+   850→    // Password toggle
+   851→    const togglePw = document.getElementById('nce-reg-toggle-pw');
+   852→    const pwInput = document.getElementById('nce-reg-password');
+   853→    if (togglePw && pwInput) {
+   854→      togglePw.addEventListener('click', () => {
+   855→        const isPassword = pwInput.type === 'password';
+   856→        pwInput.type = isPassword ? 'text' : 'password';
+   857→        togglePw.innerHTML = isPassword ? icons.eyeOff : icons.eye;
+   858→      });
+   859→    }
+   860→
+   861→    // Real-time validation
+   862→    ['nce-reg-email', 'nce-reg-password', 'nce-reg-company', 'nce-reg-phone', 'nce-reg-role'].forEach(id => {
+   863→      const input = document.getElementById(id);
+   864→      if (input) input.addEventListener('blur', () => _validateField(input));
+   865→    });
+   866→
+   867→    // Submit on enter
+   868→    const form = document.getElementById('nce-register-form');
+   869→    if (form) {
+   870→      form.addEventListener('keydown', (e) => {
+   871→        if (e.key === 'Enter') {
+   872→          e.preventDefault();
+   873→          const confirmBtn = document.getElementById('nce-modal-confirm-btn');
+   874→          if (confirmBtn) confirmBtn.click();
+   875→        }
+   876→      });
+   877→    }
+   878→  }, 100);
+   879→
+   880→  return modal;
+   881→}
+   882→
+   883→// ── Create Buy Request Form ────────────────────────────────────────────────
+   884→export function showCreateBuyRequestForm() {
+   885→  const commodityTypes = [
+   886→    'Sawit (Kelapa Sawit)', 'Karet', 'Kopi', 'Tembakau', 'Teh',
+   887→    'Kakao', 'Kelapa', 'Padi/Beras', 'Jagung', 'Kedelai',
+   888→    'Cengkeh', 'Pala', 'Lada', 'Kayu', 'Rotan'
+   889→  ];
+   890→
+   891→  const locations = [
+   892→    'Jakarta', 'Surabaya', 'Medan', 'Bandung', 'Semarang',
+   893→    'Makassar', 'Palembang', 'Balikpapan', 'Manado', 'Denpasar',
+   894→    'Pontianak', 'Banjarmasin', 'Pekanbaru', 'Padang', 'Yogyakarta'
+   895→  ];
+   896→
+   897→  const content = `
+   898→    <form id="nce-buyreq-form" novalidate>
+   899→      <div class="nce-form-group">
+   900→        <label class="nce-form-label">Jenis Komoditas <span class="nce-required">*</span></label>
+   901→        <select class="nce-form-select" id="nce-buyreq-commodity" data-required="true">
+   902→          <option value="">Pilih komoditas</option>
+   903→          ${commodityTypes.map(c => `<option value="${c}">${c}</option>`).join('')}
+   904→        </select>
+   905→        <div class="nce-form-error"></div>
+   906→      </div>
+   907→      <div class="nce-form-row">
+   908→        <div class="nce-form-group">
+   909→          <label class="nce-form-label">Volume Dibutuhkan <span class="nce-required">*</span></label>
+   910→          <input type="number" class="nce-form-input" id="nce-buyreq-volume" placeholder="contoh: 1000" data-required="true" data-type="number" min="1">
+   911→          <div class="nce-form-error"></div>
+   912→        </div>
+   913→        <div class="nce-form-group">
+   914→          <label class="nce-form-label">Satuan <span class="nce-required">*</span></label>
+   915→          <select class="nce-form-select" id="nce-buyreq-unit" data-required="true">
+   916→            <option value="kg">Kilogram (kg)</option>
+   917→            <option value="ton">Ton</option>
+   918→            <option value="liter">Liter</option>
+   919→            <option value="m3">Meter Kubik (m³)</option>
+   920→            <option value="lembar">Lembar</option>
+   921→          </select>
+   922→        </div>
+   923→      </div>
+   924→      <div class="nce-form-group">
+   925→        <label class="nce-form-label">Harga Target (Rp) <span class="nce-required">*</span></label>
+   926→        <input type="number" class="nce-form-input" id="nce-buyreq-price" placeholder="contoh: 15000" data-required="true" data-type="number" min="1">
+   927→        <div class="nce-form-error"></div>
+   928→      </div>
+   929→      <div class="nce-form-group">
+   930→        <label class="nce-form-label">Lokasi Pengiriman <span class="nce-required">*</span></label>
+   931→        <select class="nce-form-select" id="nce-buyreq-location" data-required="true">
+   932→          <option value="">Pilih lokasi</option>
+   933→          ${locations.map(l => `<option value="${l}">${l}</option>`).join('')}
+   934→        </select>
+   935→        <div class="nce-form-error"></div>
+   936→      </div>
+   937→      <div class="nce-form-group">
+   938→        <label class="nce-form-label">Catatan Tambahan</label>
+   939→        <textarea class="nce-form-textarea" id="nce-buyreq-notes" placeholder="Spesifikasi tambahan, persyaratan kualitas, dll." rows="3"></textarea>
+   940→      </div>
+   941→    </form>
+   942→  `;
+   943→
+   944→  const modal = showModal({
+   945→    title: 'Buat Permintaan Beli',
+   946→    content,
+   947→    size: 'md',
+   948→    confirmText: 'Buat Permintaan',
+   949→    cancelText: 'Batal',
+   950→    onConfirm: () => {
+   951→      const form = document.getElementById('nce-buyreq-form');
+   952→      if (form && _validateForm(form)) {
+   953→        const data = {
+   954→          commodityType: document.getElementById('nce-buyreq-commodity').value,
+   955→          volume: Number(document.getElementById('nce-buyreq-volume').value),
+   956→          unit: document.getElementById('nce-buyreq-unit').value,
+   957→          targetPrice: Number(document.getElementById('nce-buyreq-price').value),
+   958→          deliveryLocation: document.getElementById('nce-buyreq-location').value,
+   959→          notes: document.getElementById('nce-buyreq-notes').value.trim()
+   960→        };
+   961→        closeModal();
+   962→        document.dispatchEvent(new CustomEvent('nce:createBuyRequest', { detail: data }));
+   963→      }
+   964→    }
+   965→  });
+   966→
+   967→  setTimeout(() => {
+   968→    ['nce-buyreq-commodity', 'nce-buyreq-volume', 'nce-buyreq-price', 'nce-buyreq-location'].forEach(id => {
+   969→      const input = document.getElementById(id);
+   970→      if (input) input.addEventListener('blur', () => _validateField(input));
+   971→    });
+   972→  }, 100);
+   973→
+   974→  return modal;
+   975→}
+   976→
+   977→// ── Offer Form ─────────────────────────────────────────────────────────────
+   978→export function showOfferForm(requestId) {
+   979→  const content = `
+   980→    <form id="nce-offer-form" novalidate>
+   981→      <input type="hidden" id="nce-offer-request-id" value="${requestId}">
+   982→      <div class="nce-form-row">
+   983→        <div class="nce-form-group">
+   984→          <label class="nce-form-label">Harga per Unit (Rp) <span class="nce-required">*</span></label>
+   985→          <input type="number" class="nce-form-input" id="nce-offer-price" placeholder="contoh: 14500" data-required="true" data-type="number" min="1">
+   986→          <div class="nce-form-error"></div>
+   987→        </div>
+   988→        <div class="nce-form-group">
+   989→          <label class="nce-form-label">Volume Tersedia <span class="nce-required">*</span></label>
+   990→          <input type="number" class="nce-form-input" id="nce-offer-volume" placeholder="contoh: 500" data-required="true" data-type="number" min="1">
+   991→          <div class="nce-form-error"></div>
+   992→        </div>
+   993→      </div>
+   994→      <div class="nce-form-group">
+   995→        <label class="nce-form-label">Satuan</label>
+   996→        <select class="nce-form-select" id="nce-offer-unit">
+   997→          <option value="kg">Kilogram (kg)</option>
+   998→          <option value="ton">Ton</option>
+   999→          <option value="liter">Liter</option>
+  1000→          <option value="m3">Meter Kubik (m³)</option>
+  1001→        </select>
+  1002→      </div>
+  1003→      <div class="nce-form-group">
+  1004→        <label class="nce-form-label">Waktu Pengiriman <span class="nce-required">*</span></label>
+  1005→        <input type="text" class="nce-form-input" id="nce-offer-delivery" placeholder="contoh: 3-5 hari kerja" data-required="true">
+  1006→        <div class="nce-form-error"></div>
+  1007→      </div>
+  1008→      <div class="nce-form-group">
+  1009→        <label class="nce-form-label">Catatan</label>
+  1010→        <textarea class="nce-form-textarea" id="nce-offer-notes" placeholder="Informasi tambahan tentang penawaran Anda" rows="3"></textarea>
+  1011→      </div>
+  1012→    </form>
+  1013→  `;
+  1014→
+  1015→  const modal = showModal({
+  1016→    title: 'Buat Penawaran',
+  1017→    content,
+  1018→    size: 'md',
+  1019→    confirmText: 'Kirim Penawaran',
+  1020→    cancelText: 'Batal',
+  1021→    onConfirm: () => {
+  1022→      const form = document.getElementById('nce-offer-form');
+  1023→      if (form && _validateForm(form)) {
+  1024→        const data = {
+  1025→          requestId: document.getElementById('nce-offer-request-id').value,
+  1026→          price: Number(document.getElementById('nce-offer-price').value),
+  1027→          volume: Number(document.getElementById('nce-offer-volume').value),
+  1028→          unit: document.getElementById('nce-offer-unit').value,
+  1029→          deliveryTime: document.getElementById('nce-offer-delivery').value.trim(),
+  1030→          notes: document.getElementById('nce-offer-notes').value.trim()
+  1031→        };
+  1032→        closeModal();
+  1033→        document.dispatchEvent(new CustomEvent('nce:createOffer', { detail: data }));
+  1034→      }
+  1035→    }
+  1036→  });
+  1037→
+  1038→  setTimeout(() => {
+  1039→    ['nce-offer-price', 'nce-offer-volume', 'nce-offer-delivery'].forEach(id => {
+  1040→      const input = document.getElementById(id);
+  1041→      if (input) input.addEventListener('blur', () => _validateField(input));
+  1042→    });
+  1043→  }, 100);
+  1044→
+  1045→  return modal;
+  1046→}
+  1047→
+  1048→// ── Image Upload ───────────────────────────────────────────────────────────
+  1049→export function showImageUpload(currentImage, onUpload) {
+  1050→  let previewHTML = '';
+  1051→  if (currentImage) {
+  1052→    previewHTML = `<div class="nce-upload-preview"><img src="${currentImage}" alt="Preview" id="nce-upload-preview-img"/></div>`;
+  1053→  }
+  1054→
+  1055→  const content = `
+  1056→    <div class="nce-upload-area" id="nce-upload-area">
+  1057→      ${icons.upload}
+  1058→      <div class="nce-upload-text">Klik atau seret gambar ke sini</div>
+  1059→      <div class="nce-upload-hint">JPG, PNG, atau WebP. Maks 5MB.</div>
+  1060→      <input type="file" id="nce-upload-input" accept="image/jpeg,image/png,image/webp" style="display:none;">
+  1061→    </div>
+  1062→    ${previewHTML}
+  1063→  `;
+  1064→
+  1065→  const modal = showModal({
+  1066→    title: 'Unggah Gambar',
+  1067→    content,
+  1068→    size: 'sm',
+  1069→    confirmText: 'Unggah',
+  1070→    cancelText: 'Batal',
+  1071→    onConfirm: () => {
+  1072→      const fileInput = document.getElementById('nce-upload-input');
+  1073→      const previewImg = document.getElementById('nce-upload-preview-img');
+  1074→      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+  1075→        const file = fileInput.files[0];
+  1076→        if (onUpload) onUpload(file);
+  1077→        closeModal();
+  1078→      } else if (previewImg && previewImg.src) {
+  1079→        // Use existing image
+  1080→        if (onUpload) onUpload(previewImg.src);
+  1081→        closeModal();
+  1082→      } else {
+  1083→        const uploadArea = document.getElementById('nce-upload-area');
+  1084→        if (uploadArea) {
+  1085→          uploadArea.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+  1086→          setTimeout(() => { uploadArea.style.borderColor = ''; }, 2000);
+  1087→        }
+  1088→      }
+  1089→    }
+  1090→  });
+  1091→
+  1092→  setTimeout(() => {
+  1093→    const uploadArea = document.getElementById('nce-upload-area');
+  1094→    const fileInput = document.getElementById('nce-upload-input');
+  1095→
+  1096→    if (uploadArea && fileInput) {
+  1097→      // Click to browse
+  1098→      uploadArea.addEventListener('click', () => {
+  1099→        fileInput.click();
+  1100→      });
+  1101→
+  1102→      // Drag & drop
+  1103→      uploadArea.addEventListener('dragover', (e) => {
+  1104→        e.preventDefault();
+  1105→        uploadArea.classList.add('dragging');
+  1106→      });
+  1107→
+  1108→      uploadArea.addEventListener('dragleave', () => {
+  1109→        uploadArea.classList.remove('dragging');
+  1110→      });
+  1111→
+  1112→      uploadArea.addEventListener('drop', (e) => {
+  1113→        e.preventDefault();
+  1114→        uploadArea.classList.remove('dragging');
+  1115→        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+  1116→          fileInput.files = e.dataTransfer.files;
+  1117→          _previewImage(e.dataTransfer.files[0]);
+  1118→        }
+  1119→      });
+  1120→
+  1121→      // File selected
+  1122→      fileInput.addEventListener('change', () => {
+  1123→        if (fileInput.files && fileInput.files.length > 0) {
+  1124→          _previewImage(fileInput.files[0]);
+  1125→        }
+  1126→      });
+  1127→    }
+  1128→  }, 100);
+  1129→
+  1130→  function _previewImage(file) {
+  1131→    // Validate file type
+  1132→    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  1133→    if (!validTypes.includes(file.type)) {
+  1134→      const uploadArea = document.getElementById('nce-upload-area');
+  1135→      if (uploadArea) {
+  1136→        uploadArea.querySelector('.nce-upload-text').textContent = 'Format file tidak didukung';
+  1137→        uploadArea.querySelector('.nce-upload-text').style.color = '#EF4444';
+  1138→      }
+  1139→      return;
+  1140→    }
+  1141→
+  1142→    // Validate file size (5MB)
+  1143→    if (file.size > 5 * 1024 * 1024) {
+  1144→      const uploadArea = document.getElementById('nce-upload-area');
+  1145→      if (uploadArea) {
+  1146→        uploadArea.querySelector('.nce-upload-text').textContent = 'Ukuran file melebihi 5MB';
+  1147→        uploadArea.querySelector('.nce-upload-text').style.color = '#EF4444';
+  1148→      }
+  1149→      return;
+  1150→    }
+  1151→
+  1152→    const reader = new FileReader();
+  1153→    reader.onload = (e) => {
+  1154→      let previewContainer = document.querySelector('.nce-upload-preview');
+  1155→      if (!previewContainer) {
+  1156→        previewContainer = document.createElement('div');
+  1157→        previewContainer.className = 'nce-upload-preview';
+  1158→        const uploadArea = document.getElementById('nce-upload-area');
+  1159→        if (uploadArea) {
+  1160→          uploadArea.parentNode.insertBefore(previewContainer, uploadArea.nextSibling);
+  1161→        }
+  1162→      }
+  1163→      previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" id="nce-upload-preview-img"/>`;
+  1164→
+  1165→      // Update upload area text
+  1166→      const uploadArea = document.getElementById('nce-upload-area');
+  1167→      if (uploadArea) {
+  1168→        uploadArea.querySelector('.nce-upload-text').textContent = file.name;
+  1169→        uploadArea.querySelector('.nce-upload-text').style.color = '#10B981';
+  1170→      }
+  1171→    };
+  1172→    reader.readAsDataURL(file);
+  1173→  }
+  1174→
+  1175→  return modal;
+  1176→}
+  1177→
+  1178→// ── Loading Modal ──────────────────────────────────────────────────────────
+  1179→export function showLoading() {
+  1180→  const content = `
+  1181→    <div class="nce-modal-loading">
+  1182→      ${icons.spinner}
+  1183→      <p style="margin-top:20px;color:#94A3B8;font-size:14px;">Memproses...</p>
+  1184→    </div>
+  1185→  `;
+  1186→
+  1187→  return showModal({
+  1188→    title: '',
+  1189→    content,
+  1190→    size: 'sm',
+  1191→    showFooter: false,
+  1192→    closeOnOutsideClick: false,
+  1193→    closeOnEscape: false
+  1194→  });
+  1195→}
+  1196→
+  1197→// ── Success Modal ──────────────────────────────────────────────────────────
+  1198→export function showSuccess(message) {
+  1199→  const successIcon = `
+  1200→    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  1201→      <circle cx="12" cy="12" r="10" stroke="#10B981" stroke-width="2" class="nce-success-circle"/>
+  1202→      <polyline points="8 12 11 15 16 9" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nce-success-check"/>
+  1203→    </svg>
+  1204→  `;
+  1205→
+  1206→  const content = `
+  1207→    <div class="nce-modal-icon">${successIcon}</div>
+  1208→    <p class="nce-modal-message">${message}</p>
+  1209→  `;
+  1210→
+  1211→  const modal = showModal({
+  1212→    title: '',
+  1213→    content,
+  1214→    size: 'sm',
+  1215→    showFooter: true,
+  1216→    confirmText: 'OK',
+  1217→    cancelText: '',
+  1218→    onConfirm: () => {
+  1219→      closeModal();
+  1220→    }
+  1221→  });
+  1222→
+  1223→  // Hide cancel button since we only want OK
+  1224→  setTimeout(() => {
+  1225→    const cancelBtn = document.getElementById('nce-modal-cancel-btn');
+  1226→    if (cancelBtn) cancelBtn.style.display = 'none';
+  1227→  }, 50);
+  1228→
+  1229→  // Auto-close after 3 seconds
+  1230→  setTimeout(() => {
+  1231→    if (currentModal) closeModal();
+  1232→  }, 3000);
+  1233→
+  1234→  return modal;
+  1235→}
+  1236→
+  1237→// ── Error Modal ────────────────────────────────────────────────────────────
+  1238→export function showError(message) {
+  1239→  const errorIcon = `
+  1240→    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  1241→      <circle cx="12" cy="12" r="10" stroke="#EF4444" stroke-width="2" class="nce-error-circle"/>
+  1242→      <line x1="15" y1="9" x2="9" y2="15" stroke="#EF4444" stroke-width="2" stroke-linecap="round" class="nce-error-x1"/>
+  1243→      <line x1="9" y1="9" x2="15" y2="15" stroke="#EF4444" stroke-width="2" stroke-linecap="round" class="nce-error-x2"/>
+  1244→    </svg>
+  1245→  `;
+  1246→
+  1247→  const content = `
+  1248→    <div class="nce-modal-icon">${errorIcon}</div>
+  1249→    <p class="nce-modal-message">${message}</p>
+  1250→  `;
+  1251→
+  1252→  const modal = showModal({
+  1253→    title: '',
+  1254→    content,
+  1255→    size: 'sm',
+  1256→    showFooter: true,
+  1257→    confirmText: 'Tutup',
+  1258→    cancelText: '',
+  1259→    onConfirm: () => {
+  1260→      closeModal();
+  1261→    }
+  1262→  });
+  1263→
+  1264→  setTimeout(() => {
+  1265→    const cancelBtn = document.getElementById('nce-modal-cancel-btn');
+  1266→    if (cancelBtn) cancelBtn.style.display = 'none';
+  1267→  }, 50);
+  1268→
+  1269→  return modal;
+  1270→}
+  1271→

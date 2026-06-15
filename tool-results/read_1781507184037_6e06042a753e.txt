@@ -1,0 +1,660 @@
+     1→<!DOCTYPE html>
+     2→<html lang="id" class="scroll-smooth">
+     3→<head>
+     4→    <meta charset="UTF-8">
+     5→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→    <meta name="theme-color" content="#0a0e27">
+     7→    <meta name="apple-mobile-web-app-capable" content="yes">
+     8→    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     9→    <meta name="format-detection" content="telephone=no">
+    10→    <title>Komoditas - NCE Nusantara Commodity Exchange</title>
+    11→    <!-- PWA Support -->
+    12→    <link rel="manifest" href="./manifest.json">
+    13→    <link rel="apple-touch-icon" href="./assets/images/icons/apple-touch-icon.png">
+    14→    <meta name="apple-mobile-web-app-title" content="NCE">
+    15→    <script src="https://cdn.tailwindcss.com"></script>
+    16→    <script>
+    17→    tailwind.config = {
+    18→        theme: {
+    19→            extend: {
+    20→                colors: {
+    21→                    navy: { 900: '#0a0e27', 800: '#111827', 700: '#1a1f3a' },
+    22→                    emerald: { 500: '#10b981', 600: '#059669' },
+    23→                    cyan: { 500: '#06b6d4', 400: '#22d3ee' }
+    24→                }
+    25→            }
+    26→        }
+    27→    }
+    28→    </script>
+    29→    <style>
+    30→        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    31→        body { font-family: 'Inter', sans-serif; }
+    32→        .gradient-text { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    33→        .card-glow:hover { box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
+    34→        ::-webkit-scrollbar { width: 8px; }
+    35→        ::-webkit-scrollbar-track { background: #0a0e27; }
+    36→        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    37→        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    38→        .price-tag { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.1)); }
+    39→    </style>
+    40→    <link rel="stylesheet" href="./assets/css/main.css">
+    41→</head>
+    42→<body class="bg-navy-900 text-slate-200 min-h-screen flex flex-col">
+    43→
+    44→    <!-- Navigation -->
+    45→    <nav class="fixed top-0 left-0 right-0 z-50 bg-navy-900/90 backdrop-blur-xl border-b border-slate-700/50">
+    46→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    47→            <div class="flex items-center justify-between h-16">
+    48→                <a href="index.html" class="flex items-center gap-3 group">
+    49→                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">N</div>
+    50→                    <div>
+    51→                        <span class="text-lg font-bold text-white tracking-tight">NCE</span>
+    52→                        <span class="hidden sm:inline text-xs text-slate-400 ml-2">Nusantara Commodity Exchange</span>
+    53→                    </div>
+    54→                </a>
+    55→                <div class="hidden md:flex items-center gap-1">
+    56→                    <a href="index.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Beranda</a>
+    57→                    <a href="commodities.html" class="px-3 py-2 text-sm font-medium text-emerald-400 bg-emerald-500/10 rounded-lg">Komoditas</a>
+    58→                    <a href="buy-requests.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Permintaan Beli</a>
+    59→                    <a href="property.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Properti</a>
+    60→                </div>
+    61→                <div class="hidden md:flex items-center gap-3">
+    62→                    <a href="dashboard.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors">Masuk</a>
+    63→                    <a href="profile.html" class="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40">Daftar</a>
+    64→                </div>
+    65→                <button id="mobile-menu-btn" class="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+    66→                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    67→                </button>
+    68→            </div>
+    69→        </div>
+    70→        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-700/50 bg-navy-900/95 backdrop-blur-xl">
+    71→            <div class="px-4 py-3 space-y-1">
+    72→                <a href="index.html" class="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Beranda</a>
+    73→                <a href="commodities.html" class="block px-3 py-2 text-sm font-medium text-emerald-400 bg-emerald-500/10 rounded-lg">Komoditas</a>
+    74→                <a href="buy-requests.html" class="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Permintaan Beli</a>
+    75→                <a href="property.html" class="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Properti</a>
+    76→                <div class="pt-3 border-t border-slate-700/50 flex gap-3">
+    77→                    <a href="dashboard.html" class="flex-1 text-center px-3 py-2 text-sm font-medium text-slate-300 border border-slate-600 rounded-lg">Masuk</a>
+    78→                    <a href="profile.html" class="flex-1 text-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg">Daftar</a>
+    79→                </div>
+    80→            </div>
+    81→        </div>
+    82→    </nav>
+    83→
+    84→    <!-- Main Content -->
+    85→    <main class="main-content flex-1 pt-16">
+    86→        <!-- Page Header -->
+    87→        <div class="bg-navy-800/50 border-b border-slate-700/50">
+    88→            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    89→                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    90→                    <div>
+    91→                        <h1 class="text-2xl md:text-3xl font-bold text-white">Marketplace Komoditas</h1>
+    92→                        <p class="text-slate-400 text-sm mt-1">Temukan komoditas berkualitas langsung dari produsen terpercaya</p>
+    93→                    </div>
+    94→                    <div class="flex items-center gap-2 text-sm text-slate-400">
+    95→                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+    96→                        <span><span class="text-white font-medium">4,892</span> listing aktif</span>
+    97→                    </div>
+    98→                </div>
+    99→            </div>
+   100→        </div>
+   101→
+   102→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+   103→            <!-- Search & Filters -->
+   104→            <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-4 md:p-5 mb-6">
+   105→                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+   106→                    <!-- Search -->
+   107→                    <div class="sm:col-span-2 lg:col-span-1 relative">
+   108→                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+   109→                        <input type="text" placeholder="Cari komoditas..." class="w-full pl-10 pr-4 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors">
+   110→                    </div>
+   111→                    <!-- Commodity Type -->
+   112→                    <div>
+   113→                        <select class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors appearance-none cursor-pointer">
+   114→                            <option value="">Semua Komoditas</option>
+   115→                            <option value="pinang">Pinang</option>
+   116→                            <option value="kelapa">Kelapa</option>
+   117→                            <option value="sawit">Sawit</option>
+   118→                            <option value="kakao">Kakao</option>
+   119→                            <option value="kopi">Kopi</option>
+   120→                            <option value="karet">Karet</option>
+   121→                            <option value="sagu">Sagu</option>
+   122→                            <option value="rumput-laut">Rumput Laut</option>
+   123→                        </select>
+   124→                    </div>
+   125→                    <!-- Location -->
+   126→                    <div>
+   127→                        <select class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors appearance-none cursor-pointer">
+   128→                            <option value="">Semua Lokasi</option>
+   129→                            <option value="sumatera">Sumatera</option>
+   130→                            <option value="jawa">Jawa</option>
+   131→                            <option value="kalimantan">Kalimantan</option>
+   132→                            <option value="sulawesi">Sulawesi</option>
+   133→                            <option value="maluku">Maluku</option>
+   134→                            <option value="papua">Papua</option>
+   135→                            <option value="ntb">NTB</option>
+   136→                            <option value="ntt">NTT</option>
+   137→                        </select>
+   138→                    </div>
+   139→                    <!-- Price Range -->
+   140→                    <div>
+   141→                        <select class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors appearance-none cursor-pointer">
+   142→                            <option value="">Semua Harga</option>
+   143→                            <option value="0-10000">< Rp 10.000/kg</option>
+   144→                            <option value="10000-50000">Rp 10.000 - 50.000/kg</option>
+   145→                            <option value="50000-100000">Rp 50.000 - 100.000/kg</option>
+   146→                            <option value="100000+">> Rp 100.000/kg</option>
+   147→                        </select>
+   148→                    </div>
+   149→                    <!-- Filter Button -->
+   150→                    <div>
+   151→                        <button class="w-full px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+   152→                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+   153→                            Filter
+   154→                        </button>
+   155→                    </div>
+   156→                </div>
+   157→            </div>
+   158→
+   159→            <!-- Active Filters Tags -->
+   160→            <div class="flex flex-wrap gap-2 mb-5">
+   161→                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-xs font-medium">
+   162→                    Pinang
+   163→                    <button class="hover:text-white transition-colors"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+   164→                </span>
+   165→                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 text-xs font-medium">
+   166→                    Sulawesi
+   167→                    <button class="hover:text-white transition-colors"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+   168→                </span>
+   169→                <button class="px-3 py-1 text-slate-500 hover:text-slate-300 text-xs transition-colors">Hapus semua filter</button>
+   170→            </div>
+   171→
+   172→            <!-- Results Count & Sort -->
+   173→            <div class="flex items-center justify-between mb-5">
+   174→                <p class="text-sm text-slate-400">Menampilkan <span class="text-white font-medium">1-12</span> dari <span class="text-white font-medium">248</span> hasil</p>
+   175→                <div class="flex items-center gap-2">
+   176→                    <select class="px-3 py-1.5 bg-navy-800 border border-slate-700/50 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-emerald-500/50 transition-colors appearance-none cursor-pointer">
+   177→                        <option>Terbaru</option>
+   178→                        <option>Harga Terendah</option>
+   179→                        <option>Harga Tertinggi</option>
+   180→                        <option>Volume Terbanyak</option>
+   181→                    </select>
+   182→                    <button class="p-1.5 bg-navy-800 border border-emerald-500/30 rounded-lg text-emerald-400" title="Grid view">
+   183→                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+   184→                    </button>
+   185→                    <button class="p-1.5 bg-navy-800 border border-slate-700/50 rounded-lg text-slate-400 hover:text-white hover:border-slate-600 transition-colors" title="List view">
+   186→                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+   187→                    </button>
+   188→                </div>
+   189→            </div>
+   190→
+   191→            <!-- Commodity Cards Grid -->
+   192→            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-8">
+   193→                <!-- Card 1 -->
+   194→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   195→                    <div class="h-40 bg-gradient-to-br from-emerald-900/40 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   196→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   197→                        <div class="relative text-4xl">🥥</div>
+   198→                        <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Verified</div>
+   199→                        <div class="absolute top-2.5 right-2.5 px-2 py-0.5 bg-cyan-500/20 border border-cyan-500/30 rounded text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Export</div>
+   200→                    </div>
+   201→                    <div class="p-4">
+   202→                        <div class="flex items-start justify-between mb-1.5">
+   203→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Pinang Premium Grade A</h3>
+   204→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 12.5%</span>
+   205→                        </div>
+   206→                        <p class="text-xs text-slate-500 mb-3">oleh PT Pinang Nusantara Jaya</p>
+   207→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   208→                            <div class="flex items-center justify-between">
+   209→                                <div>
+   210→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   211→                                    <p class="text-base font-bold text-white">Rp 85.000</p>
+   212→                                </div>
+   213→                                <div class="text-right">
+   214→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   215→                                    <p class="text-xs font-medium text-cyan-400">500 kg</p>
+   216→                                </div>
+   217→                            </div>
+   218→                        </div>
+   219→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   220→                            <div class="flex items-center gap-1">
+   221→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   222→                                Ambon, Maluku
+   223→                            </div>
+   224→                            <span class="text-emerald-400 font-medium">2.4 ton</span>
+   225→                        </div>
+   226→                    </div>
+   227→                </div>
+   228→
+   229→                <!-- Card 2 -->
+   230→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   231→                    <div class="h-40 bg-gradient-to-br from-amber-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   232→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   233→                        <div class="relative text-4xl">🌴</div>
+   234→                        <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Verified</div>
+   235→                    </div>
+   236→                    <div class="p-4">
+   237→                        <div class="flex items-start justify-between mb-1.5">
+   238→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Kelapa Tua Kualitas Ekspor</h3>
+   239→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 8.3%</span>
+   240→                        </div>
+   241→                        <p class="text-xs text-slate-500 mb-3">oleh CV Kelapa Sejahtera</p>
+   242→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   243→                            <div class="flex items-center justify-between">
+   244→                                <div>
+   245→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   246→                                    <p class="text-base font-bold text-white">Rp 12.500</p>
+   247→                                </div>
+   248→                                <div class="text-right">
+   249→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   250→                                    <p class="text-xs font-medium text-cyan-400">1 ton</p>
+   251→                                </div>
+   252→                            </div>
+   253→                        </div>
+   254→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   255→                            <div class="flex items-center gap-1">
+   256→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   257→                                Minahasa, Sulawesi
+   258→                            </div>
+   259→                            <span class="text-emerald-400 font-medium">15.8 ton</span>
+   260→                        </div>
+   261→                    </div>
+   262→                </div>
+   263→
+   264→                <!-- Card 3 -->
+   265→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   266→                    <div class="h-40 bg-gradient-to-br from-orange-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   267→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   268→                        <div class="relative text-4xl">🌿</div>
+   269→                        <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Verified</div>
+   270→                        <div class="absolute top-2.5 right-2.5 px-2 py-0.5 bg-red-500/20 border border-red-500/30 rounded text-red-400 text-[10px] font-semibold uppercase tracking-wider">Hot</div>
+   271→                    </div>
+   272→                    <div class="p-4">
+   273→                        <div class="flex items-start justify-between mb-1.5">
+   274→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">TBS Sawit Segar</h3>
+   275→                            <span class="text-red-400 text-[10px] font-semibold whitespace-nowrap ml-2">▼ 3.2%</span>
+   276→                        </div>
+   277→                        <p class="text-xs text-slate-500 mb-3">oleh PT Sawit Kalimantan Prima</p>
+   278→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   279→                            <div class="flex items-center justify-between">
+   280→                                <div>
+   281→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   282→                                    <p class="text-base font-bold text-white">Rp 3.200</p>
+   283→                                </div>
+   284→                                <div class="text-right">
+   285→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   286→                                    <p class="text-xs font-medium text-cyan-400">5 ton</p>
+   287→                                </div>
+   288→                            </div>
+   289→                        </div>
+   290→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   291→                            <div class="flex items-center gap-1">
+   292→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   293→                                Samarinda, Kalimantan
+   294→                            </div>
+   295→                            <span class="text-emerald-400 font-medium">48.2 ton</span>
+   296→                        </div>
+   297→                    </div>
+   298→                </div>
+   299→
+   300→                <!-- Card 4 -->
+   301→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   302→                    <div class="h-40 bg-gradient-to-br from-yellow-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   303→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   304→                        <div class="relative text-4xl">🫘</div>
+   305→                    </div>
+   306→                    <div class="p-4">
+   307→                        <div class="flex items-start justify-between mb-1.5">
+   308→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Kakao Fermentasi Premium</h3>
+   309→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 15.7%</span>
+   310→                        </div>
+   311→                        <p class="text-xs text-slate-500 mb-3">oleh Koperasi Kakao Sulawesi</p>
+   312→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   313→                            <div class="flex items-center justify-between">
+   314→                                <div>
+   315→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   316→                                    <p class="text-base font-bold text-white">Rp 62.000</p>
+   317→                                </div>
+   318→                                <div class="text-right">
+   319→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   320→                                    <p class="text-xs font-medium text-cyan-400">200 kg</p>
+   321→                                </div>
+   322→                            </div>
+   323→                        </div>
+   324→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   325→                            <div class="flex items-center gap-1">
+   326→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   327→                                Luwu, Sulawesi Selatan
+   328→                            </div>
+   329→                            <span class="text-emerald-400 font-medium">8.6 ton</span>
+   330→                        </div>
+   331→                    </div>
+   332→                </div>
+   333→
+   334→                <!-- Card 5 -->
+   335→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   336→                    <div class="h-40 bg-gradient-to-br from-stone-800/40 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   337→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   338→                        <div class="relative text-4xl">☕</div>
+   339→                        <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Verified</div>
+   340→                    </div>
+   341→                    <div class="p-4">
+   342→                        <div class="flex items-start justify-between mb-1.5">
+   343→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Kopi Arabika Gayo</h3>
+   344→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 22.1%</span>
+   345→                        </div>
+   346→                        <p class="text-xs text-slate-500 mb-3">oleh PT Gayo Arabika Coffee</p>
+   347→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   348→                            <div class="flex items-center justify-between">
+   349→                                <div>
+   350→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   351→                                    <p class="text-base font-bold text-white">Rp 185.000</p>
+   352→                                </div>
+   353→                                <div class="text-right">
+   354→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   355→                                    <p class="text-xs font-medium text-cyan-400">100 kg</p>
+   356→                                </div>
+   357→                            </div>
+   358→                        </div>
+   359→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   360→                            <div class="flex items-center gap-1">
+   361→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   362→                                Aceh Tengah, Aceh
+   363→                            </div>
+   364→                            <span class="text-emerald-400 font-medium">3.2 ton</span>
+   365→                        </div>
+   366→                    </div>
+   367→                </div>
+   368→
+   369→                <!-- Card 6 -->
+   370→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   371→                    <div class="h-40 bg-gradient-to-br from-gray-800/40 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   372→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   373→                        <div class="relative text-4xl">🌳</div>
+   374→                    </div>
+   375→                    <div class="p-4">
+   376→                        <div class="flex items-start justify-between mb-1.5">
+   377→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Karet SIR 20</h3>
+   378→                            <span class="text-red-400 text-[10px] font-semibold whitespace-nowrap ml-2">▼ 1.8%</span>
+   379→                        </div>
+   380→                        <p class="text-xs text-slate-500 mb-3">oleh PT Karet Sumatra Raya</p>
+   381→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   382→                            <div class="flex items-center justify-between">
+   383→                                <div>
+   384→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   385→                                    <p class="text-base font-bold text-white">Rp 18.500</p>
+   386→                                </div>
+   387→                                <div class="text-right">
+   388→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   389→                                    <p class="text-xs font-medium text-cyan-400">2 ton</p>
+   390→                                </div>
+   391→                            </div>
+   392→                        </div>
+   393→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   394→                            <div class="flex items-center gap-1">
+   395→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   396→                                Jambi, Sumatera
+   397→                            </div>
+   398→                            <span class="text-emerald-400 font-medium">32.1 ton</span>
+   399→                        </div>
+   400→                    </div>
+   401→                </div>
+   402→
+   403→                <!-- Card 7 -->
+   404→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   405→                    <div class="h-40 bg-gradient-to-br from-lime-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   406→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   407→                        <div class="relative text-4xl">🌾</div>
+   408→                        <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Verified</div>
+   409→                    </div>
+   410→                    <div class="p-4">
+   411→                        <div class="flex items-start justify-between mb-1.5">
+   412→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Tepung Sagu Organik</h3>
+   413→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 5.4%</span>
+   414→                        </div>
+   415→                        <p class="text-xs text-slate-500 mb-3">oleh Koperasi Sagu Papua</p>
+   416→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   417→                            <div class="flex items-center justify-between">
+   418→                                <div>
+   419→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   420→                                    <p class="text-base font-bold text-white">Rp 22.000</p>
+   421→                                </div>
+   422→                                <div class="text-right">
+   423→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   424→                                    <p class="text-xs font-medium text-cyan-400">300 kg</p>
+   425→                                </div>
+   426→                            </div>
+   427→                        </div>
+   428→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   429→                            <div class="flex items-center gap-1">
+   430→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   431→                                Sentani, Papua
+   432→                            </div>
+   433→                            <span class="text-emerald-400 font-medium">3.7 ton</span>
+   434→                        </div>
+   435→                    </div>
+   436→                </div>
+   437→
+   438→                <!-- Card 8 -->
+   439→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   440→                    <div class="h-40 bg-gradient-to-br from-teal-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   441→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   442→                        <div class="relative text-4xl">🌊</div>
+   443→                        <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Verified</div>
+   444→                        <div class="absolute top-2.5 right-2.5 px-2 py-0.5 bg-cyan-500/20 border border-cyan-500/30 rounded text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Export</div>
+   445→                    </div>
+   446→                    <div class="p-4">
+   447→                        <div class="flex items-start justify-between mb-1.5">
+   448→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Rumput Laut Eucheuma Kering</h3>
+   449→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 9.6%</span>
+   450→                        </div>
+   451→                        <p class="text-xs text-slate-500 mb-3">oleh PT Laut Nusantara Lestari</p>
+   452→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   453→                            <div class="flex items-center justify-between">
+   454→                                <div>
+   455→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   456→                                    <p class="text-base font-bold text-white">Rp 35.000</p>
+   457→                                </div>
+   458→                                <div class="text-right">
+   459→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   460→                                    <p class="text-xs font-medium text-cyan-400">500 kg</p>
+   461→                                </div>
+   462→                            </div>
+   463→                        </div>
+   464→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   465→                            <div class="flex items-center gap-1">
+   466→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   467→                                Lombok, NTB
+   468→                            </div>
+   469→                            <span class="text-emerald-400 font-medium">12.5 ton</span>
+   470→                        </div>
+   471→                    </div>
+   472→                </div>
+   473→
+   474→                <!-- Card 9 -->
+   475→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   476→                    <div class="h-40 bg-gradient-to-br from-amber-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   477→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   478→                        <div class="relative text-4xl">🌴</div>
+   479→                    </div>
+   480→                    <div class="p-4">
+   481→                        <div class="flex items-start justify-between mb-1.5">
+   482→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Kelapa Muda Green Nut</h3>
+   483→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 4.2%</span>
+   484→                        </div>
+   485→                        <p class="text-xs text-slate-500 mb-3">oleh UD Tani Makmur Jaya</p>
+   486→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   487→                            <div class="flex items-center justify-between">
+   488→                                <div>
+   489→                                    <span class="text-[10px] text-slate-500">Harga/butir</span>
+   490→                                    <p class="text-base font-bold text-white">Rp 8.500</p>
+   491→                                </div>
+   492→                                <div class="text-right">
+   493→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   494→                                    <p class="text-xs font-medium text-cyan-400">1.000 butir</p>
+   495→                                </div>
+   496→                            </div>
+   497→                        </div>
+   498→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   499→                            <div class="flex items-center gap-1">
+   500→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   501→                                Bantul, DIY
+   502→                            </div>
+   503→                            <span class="text-emerald-400 font-medium">5.000 butir</span>
+   504→                        </div>
+   505→                    </div>
+   506→                </div>
+   507→
+   508→                <!-- Card 10 -->
+   509→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   510→                    <div class="h-40 bg-gradient-to-br from-stone-800/40 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   511→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   512→                        <div class="relative text-4xl">☕</div>
+   513→                        <div class="absolute top-2.5 left-2.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Verified</div>
+   514→                    </div>
+   515→                    <div class="p-4">
+   516→                        <div class="flex items-start justify-between mb-1.5">
+   517→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Kopi Robusta Toraja</h3>
+   518→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 18.3%</span>
+   519→                        </div>
+   520→                        <p class="text-xs text-slate-500 mb-3">oleh Koperasi Toraja Coffee</p>
+   521→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   522→                            <div class="flex items-center justify-between">
+   523→                                <div>
+   524→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   525→                                    <p class="text-base font-bold text-white">Rp 95.000</p>
+   526→                                </div>
+   527→                                <div class="text-right">
+   528→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   529→                                    <p class="text-xs font-medium text-cyan-400">200 kg</p>
+   530→                                </div>
+   531→                            </div>
+   532→                        </div>
+   533→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   534→                            <div class="flex items-center gap-1">
+   535→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   536→                                Tana Toraja, Sulawesi
+   537→                            </div>
+   538→                            <span class="text-emerald-400 font-medium">4.1 ton</span>
+   539→                        </div>
+   540→                    </div>
+   541→                </div>
+   542→
+   543→                <!-- Card 11 -->
+   544→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   545→                    <div class="h-40 bg-gradient-to-br from-orange-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   546→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   547→                        <div class="relative text-4xl">🌿</div>
+   548→                    </div>
+   549→                    <div class="p-4">
+   550→                        <div class="flex items-start justify-between mb-1.5">
+   551→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">CPO RBD Palm Olein</h3>
+   552→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 2.1%</span>
+   553→                        </div>
+   554→                        <p class="text-xs text-slate-500 mb-3">oleh PT Palm Olein Nusantara</p>
+   555→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   556→                            <div class="flex items-center justify-between">
+   557→                                <div>
+   558→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   559→                                    <p class="text-base font-bold text-white">Rp 16.800</p>
+   560→                                </div>
+   561→                                <div class="text-right">
+   562→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   563→                                    <p class="text-xs font-medium text-cyan-400">10 ton</p>
+   564→                                </div>
+   565→                            </div>
+   566→                        </div>
+   567→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   568→                            <div class="flex items-center gap-1">
+   569→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   570→                                Pekanbaru, Riau
+   571→                            </div>
+   572→                            <span class="text-emerald-400 font-medium">120 ton</span>
+   573→                        </div>
+   574→                    </div>
+   575→                </div>
+   576→
+   577→                <!-- Card 12 -->
+   578→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   579→                    <div class="h-40 bg-gradient-to-br from-emerald-900/40 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   580→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   581→                        <div class="relative text-4xl">🥥</div>
+   582→                    </div>
+   583→                    <div class="p-4">
+   584→                        <div class="flex items-start justify-between mb-1.5">
+   585→                            <h3 class="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">Pinang Super Nampu</h3>
+   586→                            <span class="text-emerald-400 text-[10px] font-semibold whitespace-nowrap ml-2">▲ 10.8%</span>
+   587→                        </div>
+   588→                        <p class="text-xs text-slate-500 mb-3">oleh CV Pinang Jawa Mandiri</p>
+   589→                        <div class="price-tag rounded-lg p-2.5 mb-3">
+   590→                            <div class="flex items-center justify-between">
+   591→                                <div>
+   592→                                    <span class="text-[10px] text-slate-500">Harga/kg</span>
+   593→                                    <p class="text-base font-bold text-white">Rp 92.000</p>
+   594→                                </div>
+   595→                                <div class="text-right">
+   596→                                    <span class="text-[10px] text-slate-500">Min. Order</span>
+   597→                                    <p class="text-xs font-medium text-cyan-400">250 kg</p>
+   598→                                </div>
+   599→                            </div>
+   600→                        </div>
+   601→                        <div class="flex items-center justify-between text-xs text-slate-400">
+   602→                            <div class="flex items-center gap-1">
+   603→                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   604→                                Lampung, Sumatera
+   605→                            </div>
+   606→                            <span class="text-emerald-400 font-medium">1.8 ton</span>
+   607→                        </div>
+   608→                    </div>
+   609→                </div>
+   610→            </div>
+   611→
+   612→            <!-- Pagination -->
+   613→            <div class="flex items-center justify-center gap-2 py-8">
+   614→                <button class="px-3 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-400 hover:text-white hover:border-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+   615→                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+   616→                </button>
+   617→                <button class="px-3.5 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-sm font-medium text-emerald-400">1</button>
+   618→                <button class="px-3.5 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">2</button>
+   619→                <button class="px-3.5 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">3</button>
+   620→                <span class="px-2 text-slate-500">...</span>
+   621→                <button class="px-3.5 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">21</button>
+   622→                <button class="px-3 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">
+   623→                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+   624→                </button>
+   625→            </div>
+   626→        </div>
+   627→    </main>
+   628→
+   629→    <!-- Footer -->
+   630→    <footer class="bg-black/40 border-t border-slate-700/50 mt-auto">
+   631→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+   632→            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+   633→                <div class="flex items-center gap-3">
+   634→                    <div class="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-white text-xs">N</div>
+   635→                    <span class="text-sm text-slate-400">&copy; 2025 Nusantara Commodity Exchange. All rights reserved.</span>
+   636→                </div>
+   637→                <div class="flex items-center gap-4 text-sm text-slate-500">
+   638→                    <a href="#" class="hover:text-emerald-400 transition-colors">Syarat & Ketentuan</a>
+   639→                    <a href="#" class="hover:text-emerald-400 transition-colors">Kebijakan Privasi</a>
+   640→                    <a href="#" class="hover:text-emerald-400 transition-colors">Bantuan</a>
+   641→                </div>
+   642→            </div>
+   643→        </div>
+   644→    </footer>
+   645→
+   646→    <!-- WhatsApp Float Button -->
+   647→    <a href="https://wa.me/6281234567890" target="_blank" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 hover:shadow-emerald-500/50 hover:scale-110 transition-all" aria-label="Chat WhatsApp">
+   648→        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+   649→    </a>
+   650→
+   651→    <script type="module" src="./assets/js/modules/commodities/index.js"></script>
+   652→
+   653→    <!-- NCE Mobile App Support -->
+   654→    <div id="mobile-drawer-container"></div>
+   655→    <script type="module" src="./assets/js/modules/mobile/index.js"></script>
+   656→
+   657→    <!-- PWA Registration -->
+   658→    <script type="module" src="./assets/js/modules/pwa/index.js"></script>
+   659→</body>
+   660→</html>
