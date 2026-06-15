@@ -1,5 +1,6 @@
 /* ============================================================================
  * NCE — Formatter Utilities
+ * Enhanced with trading-floor specific formatters
  * ============================================================================ */
 
 const Formatter = {
@@ -11,6 +12,9 @@ const Formatter = {
     const num = Number(value);
     if (isNaN(num)) return 'Rp0';
 
+    if (compact && num >= 1000000000) {
+      return 'Rp' + (num / 1000000000).toFixed(1) + 'B';
+    }
     if (compact && num >= 1000000) {
       return 'Rp' + (num / 1000000).toFixed(1) + 'M';
     }
@@ -42,6 +46,9 @@ const Formatter = {
   quantity(value, unit = 'kg') {
     if (value == null) return `0 ${unit}`;
     const num = Number(value);
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}k ton`;
+    }
     if (num >= 1000) {
       return `${(num / 1000).toFixed(1)} ton`;
     }
@@ -79,7 +86,7 @@ const Formatter = {
   },
 
   /**
-   * Format number with commas
+   * Format number with locale
    */
   number(value) {
     if (value == null) return '0';
@@ -110,6 +117,16 @@ const Formatter = {
   trustScore(value) {
     if (value == null) return 0;
     return Math.min(99, Math.max(0, Number(value)));
+  },
+
+  /**
+   * Format spread (bid-ask difference)
+   */
+  spread(bid, ask) {
+    if (bid == null || ask == null) return '-';
+    const diff = Math.abs(ask - bid);
+    const pct = bid > 0 ? ((diff / bid) * 100).toFixed(2) : '0.00';
+    return `${pct}%`;
   }
 };
 

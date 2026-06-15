@@ -2,7 +2,7 @@
  * NCE — Service Worker
  * ============================================================================ */
 
-const CACHE_NAME = 'nce-v2.0.0';
+const CACHE_NAME = 'nce-v3.0.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -28,6 +28,7 @@ const STATIC_ASSETS = [
   './assets/js/components/cards.js',
   './assets/js/components/marketBoard.js',
   './assets/js/components/marketPulse.js',
+  './assets/js/components/sparkline.js',
   './assets/js/components/modal.js',
   './assets/js/components/toast.js',
   './assets/js/views/homeView.js',

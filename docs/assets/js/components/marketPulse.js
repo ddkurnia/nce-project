@@ -1,5 +1,6 @@
 /* ============================================================================
  * NCE — Market Pulse Ticker Component
+ * Enhanced with smoother animation and more data
  * ============================================================================ */
 
 import { escapeHtml } from '../utils/helpers.js';
@@ -14,8 +15,7 @@ const MarketPulse = {
    */
   render() {
     const items = this._generateTickerItems();
-    // Duplicate for seamless scroll
-    const content = items + items;
+    const content = items + items; // Duplicate for seamless scroll
 
     return `
       <div class="app-ticker ticker-strip" role="marquee" aria-label="Market ticker">
@@ -35,11 +35,11 @@ const MarketPulse = {
       const price = Math.round(c.price * (1 + fluctuation / 100));
       const change = +(c.change + fluctuation * 0.3).toFixed(2);
       const changeClass = change >= 0 ? 'ticker-item__change--up' : 'ticker-item__change--down';
-      const arrow = change >= 0 ? '▲' : '▼';
+      const arrow = change >= 0 ? '+' : '';
 
       return `
         <span class="ticker-item">
-          <span class="ticker-item__name">${escapeHtml(c.name)}</span>
+          <span class="ticker-item__name">${escapeHtml(c.code || c.id.toUpperCase())}</span>
           <span class="ticker-item__price">${Formatter.currency(price, true)}</span>
           <span class="ticker-item__change ${changeClass}">${arrow}${Formatter.percentChange(change)}</span>
           <span class="ticker-item__sep">|</span>
@@ -49,13 +49,12 @@ const MarketPulse = {
   },
 
   /**
-   * Initialize ticker — set up periodic refresh
+   * Initialize ticker
    */
   init() {
-    // Refresh ticker every 30 seconds
     this._interval = setInterval(() => {
       this.refresh();
-    }, 30000);
+    }, Config.TICKER_REFRESH_INTERVAL);
   },
 
   /**
