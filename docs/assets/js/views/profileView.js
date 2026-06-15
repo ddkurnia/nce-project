@@ -3,41 +3,77 @@ import { isAuthenticated, logout, getStoredUser } from '../auth.js';
 import { showSearch } from '../components/header.js';
 import { showLoginModal } from '../components/modal.js';
 import { showToast } from '../components/toast.js';
+import { renderTrustMeter, renderVerificationProgress, TRUST_LEVELS, getTrustLevel } from '../components/trustScore.js';
+import { getTrustScoreData } from '../services/trustScoreService.js';
 
 let container = null;
 
 export async function mount(el) {
   container = el;
   showSearch(false);
-  render();
+  await render();
 }
 
-function render() {
+async function render() {
   if (!container) return;
 
   const user = getState('user') || getStoredUser();
   const loggedIn = isAuthenticated();
 
   if (loggedIn && user) {
-    renderLoggedIn(user);
+    await renderLoggedIn(user);
   } else {
     renderGuest();
   }
 }
 
-function renderLoggedIn(user) {
+async function renderLoggedIn(user) {
   const initial = (user.displayName || user.email || 'U')[0].toUpperCase();
+
+  // Fetch real trust score from service
+  let trustData;
+  try {
+    trustData = await getTrustScoreData();
+  } catch {
+    trustData = { score: 0, verification: { email: false, phone: false, identity: false, business: false } };
+  }
+  const trustScore = trustData.score || 0;
+  const level = getTrustLevel(trustScore);
+
+  // Build verification steps from trust data
+  const verificationSteps = [
+    { key: 'email', label: 'Email', icon: '\uD83D\uDCE7', done: trustData.verification?.email || false },
+    { key: 'phone', label: 'Telepon', icon: '\uD83D\uDCF1', done: trustData.verification?.phone || false },
+    { key: 'identity', label: 'KTP', icon: '\uD83E\uDEAA', done: trustData.verification?.identity || false },
+    { key: 'business', label: 'NIB/SIUP', icon: '\uD83C\uDFE2', done: trustData.verification?.business || false },
+  ];
+  // Activity data
+  const activities = [
+    { icon: '📝', text: 'Membuat RFQ untuk 2 ton Kopi Arabika', time: '2 jam lalu' },
+    { icon: '💰', text: 'Menerima penawaran dari PT Sawit Jaya', time: '5 jam lalu' },
+    { icon: '✅', text: 'Menyelesaikan transaksi Karet 1.5 ton', time: '1 hari lalu' },
+    { icon: '🤝', text: 'Business match baru: CV Kopi Nusantara', time: '2 hari lalu' },
+    { icon: '📈', text: 'Menambahkan Sawit ke watchlist', time: '3 hari lalu' },
+  ];
 
   container.innerHTML = `
     <div class="profile-view">
       <div class="view-container">
+        <!-- Profile Header -->
         <div class="profile-header">
-          <div class="avatar">${initial}</div>
+          <div class="avatar-wrapper">
+            <div class="avatar">${initial}</div>
+            <span class="trust-level-icon">${level.icon}</span>
+          </div>
           <div class="profile-name">${user.displayName || 'Trader'}</div>
           <div class="profile-email">${user.email || ''}</div>
-          <span class="badge badge-gold" style="margin-top:8px;">✓ Terverifikasi</span>
+          <div class="profile-badges">
+            <span class="badge badge-gold">✓ Terverifikasi</span>
+            <span class="badge ${level.badge}">${level.icon} ${level.label}</span>
+          </div>
         </div>
 
+        <!-- Profile Stats -->
         <div class="profile-stats">
           <div class="stat">
             <div class="stat-val text-gold">12</div>
@@ -53,11 +89,45 @@ function renderLoggedIn(user) {
           </div>
         </div>
 
+        <!-- Trust Score -->
+        <div class="card" style="margin-bottom:16px;">
+          ${renderTrustMeter(trustScore)}
+        </div>
+
+        <!-- Verification Progress -->
+        <div class="card" style="margin-bottom:16px;">
+          ${renderVerificationProgress(verificationSteps)}
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px;">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+            <h4 style="font-size:0.9rem;">Aktivitas Terakhir</h4>
+          </div>
+          <div class="activity-list">
+            ${activities.map(a => `
+              <div class="activity-item">
+                <span class="activity-icon">${a.icon}</span>
+                <div class="activity-content">
+                  <div class="activity-text">${a.text}</div>
+                  <div class="activity-time">${a.time}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Menu -->
         <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px;">
           <ul class="menu-list">
             <li class="menu-item" data-action="edit-profile">
               <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               <span class="menu-label">Edit Profil</span>
+              <svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </li>
+            <li class="menu-item" data-action="my-listings">
+              <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <span class="menu-label">Listing Saya</span>
               <svg class="menu-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
             </li>
             <li class="menu-item" data-action="verify">
@@ -84,7 +154,7 @@ function renderLoggedIn(user) {
         </div>
 
         <p style="text-align:center;font-size:0.7rem;color:var(--text-muted);">
-          NCE v2.0 — Indonesia's Digital Trading Floor
+          NCE v4.0 — Indonesia's Digital Trading Floor
         </p>
       </div>
     </div>
@@ -108,6 +178,17 @@ function renderGuest() {
           <button class="btn btn-outline" id="register-btn" style="width:100%;">Daftar Akun</button>
         </div>
 
+        <!-- Why verify card -->
+        <div class="card" style="margin-bottom:16px;">
+          <h4 style="font-size:0.9rem;margin-bottom:12px;color:var(--gold);">🔒 Kenapa Verifikasi?</h4>
+          <ul style="font-size:0.8rem;color:var(--text-secondary);list-style:none;display:flex;flex-direction:column;gap:8px;">
+            <li>✓ Akses penuh ke Business Matching</li>
+            <li>✓ Tingkatkan Trust Score Anda</li>
+            <li>✓ Prioritas di pencarian supplier</li>
+            <li>✓ Batas RFQ lebih tinggi</li>
+          </ul>
+        </div>
+
         <div class="card" style="padding:0;overflow:hidden;margin-bottom:20px;">
           <ul class="menu-list">
             <li class="menu-item" data-action="help">
@@ -119,7 +200,7 @@ function renderGuest() {
         </div>
 
         <p style="text-align:center;font-size:0.7rem;color:var(--text-muted);">
-          NCE v2.0 — Indonesia's Digital Trading Floor
+          NCE v4.0 — Indonesia's Digital Trading Floor
         </p>
       </div>
     </div>
@@ -153,6 +234,9 @@ function attachAuthListeners() {
           break;
         case 'edit-profile':
           showToast('Fitur edit profil segera hadir', 'info');
+          break;
+        case 'my-listings':
+          showToast('Fitur listing saya segera hadir', 'info');
           break;
         case 'verify':
           showToast('Fitur verifikasi segera hadir', 'info');

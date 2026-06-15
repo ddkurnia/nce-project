@@ -1,6 +1,10 @@
+/**
+ * Market Board — Native Compact Layout
+ * Compact rows for mobile, full table for desktop
+ */
 import { generateSparklineData, getRandomInt } from '../utils/helpers.js';
 import { formatRupiah, formatPercent, formatNumber } from '../utils/formatter.js';
-import { renderSparklineSVG } from './sparkline.js';
+import { renderSparklineSVG, renderSparklineWithVolume } from './sparkline.js';
 
 export function renderMarketPulse(commodities) {
   if (!commodities || !commodities.length) return '';
@@ -14,14 +18,13 @@ export function renderMarketPulse(commodities) {
         <span class="pulse-name">${c.icon || ''} ${c.name}</span>
         <span class="pulse-price">${formatRupiah(price)}</span>
         <span class="pulse-change ${isPositive ? 'positive' : 'negative'}">
-          ${isPositive ? '▲' : '▼'} ${formatPercent(change)}
+          ${isPositive ? '+' : ''}${change.toFixed(2)}%
         </span>
       </div>
       <span class="pulse-separator">•</span>
     `;
   }).join('');
 
-  // Duplicate for seamless scroll
   return `
     <div class="market-pulse-bar">
       <div class="market-pulse-track">
@@ -31,13 +34,10 @@ export function renderMarketPulse(commodities) {
   `;
 }
 
-export function renderMarketBoardTable(commodities, sortKey = 'name', sortAsc = true) {
-  if (!commodities || !commodities.length) {
-    return `<div class="empty-state">
-      <p>Tidak ada data komoditas</p>
-    </div>`;
-  }
-
+/**
+ * Render native compact market list (mobile-first)
+ */
+function renderMarketList(commodities, sortKey, sortAsc) {
   const sorted = [...commodities].sort((a, b) => {
     let va = a[sortKey], vb = b[sortKey];
     if (typeof va === 'string') {
@@ -46,45 +46,139 @@ export function renderMarketBoardTable(commodities, sortKey = 'name', sortAsc = 
     return sortAsc ? va - vb : vb - va;
   });
 
+  const nameSorted = sortKey === 'name' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+  const priceSorted = sortKey === 'price' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+  const changeSorted = sortKey === 'change' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+
+  const rows = sorted.map(c => {
+    const isPositive = (c.change ?? 0) >= 0;
+    const changeClass = isPositive ? 'positive' : 'negative';
+    const changeSign = isPositive ? '+' : '';
+
+    return `
+      <div class="market-row" data-id="${c.id}" data-navigate="#/market/${c.id}">
+        <div class="row-left">
+          <span class="row-icon">${c.icon || '📦'}</span>
+          <div class="row-info">
+            <span class="row-name">${c.name}</span>
+            <span class="row-volume">Vol ${formatNumber(c.volume)}</span>
+          </div>
+        </div>
+        <div class="row-chart">
+          ${renderSparklineSVG(c.sparkline || [], 52, 20)}
+        </div>
+        <div class="row-right">
+          <span class="row-price">${formatRupiah(c.price)}</span>
+          <span class="row-change ${changeClass}">${changeSign}${(c.change ?? 0).toFixed(2)}%</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="market-list">
+      <div class="market-list-header">
+        <span class="col-name ${nameSorted}" data-sort="name">Nama</span>
+        <span class="col-chart">Chart</span>
+        <span class="col-price ${priceSorted}" data-sort="price">Harga</span>
+        <span class="col-change ${changeSorted}" data-sort="change">%</span>
+      </div>
+      <div class="market-list-body">
+        ${rows}
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Render full market table (desktop only)
+ */
+function renderMarketTable(commodities, sortKey, sortAsc) {
+  const sorted = [...commodities].sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (typeof va === 'string') {
+      return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    }
+    return sortAsc ? va - vb : vb - va;
+  });
+
+  const maxVol = Math.max(...sorted.map(c => c.volume || 0), 1);
+
   const rows = sorted.map(c => {
     const isPositive = (c.change ?? 0) >= 0;
     const changeColor = isPositive ? 'var(--success)' : 'var(--danger)';
+    const depthPct = Math.round(((c.volume || 0) / maxVol) * 100);
+    const depthFill = isPositive
+      ? 'linear-gradient(to right, var(--depth-buy), var(--depth-buy-strong))'
+      : 'linear-gradient(to left, var(--depth-sell), var(--depth-sell-strong))';
+
     return `
       <tr data-id="${c.id}" data-navigate="#/market/${c.id}">
         <td>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:1.1rem;">${c.icon || '📦'}</span>
-            <span class="font-semibold">${c.name}</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:1rem;">${c.icon || '📦'}</span>
+            <div>
+              <span class="font-semibold" style="font-size:var(--text-sm);">${c.name}</span>
+              <div class="data-label" style="margin-top:1px;">Vol ${formatNumber(c.volume)}</div>
+            </div>
           </div>
         </td>
-        <td class="font-mono font-bold">${formatRupiah(c.price)}</td>
-        <td style="color:${changeColor};" class="font-mono font-semibold">
-          ${isPositive ? '+' : ''}${(c.change ?? 0).toFixed(2)}%
-        </td>
-        <td class="text-secondary font-mono">${formatNumber(c.volume)}</td>
-        <td class="sparkline-cell">${renderSparklineSVG(c.sparkline || [], 60, 24)}</td>
         <td>
-          <button class="btn btn-sm btn-outline" data-action="view" data-id="${c.id}">Detail</button>
+          <span class="font-data font-bold" style="font-size:var(--text-sm);">${formatRupiah(c.price)}</span>
+        </td>
+        <td>
+          <span class="font-data font-semibold" style="color:${changeColor};font-size:var(--text-sm);">
+            ${isPositive ? '+' : ''}${(c.change ?? 0).toFixed(2)}%
+          </span>
+        </td>
+        <td style="width:80px;">
+          ${renderSparklineSVG(c.sparkline || [], 76, 20)}
+        </td>
+        <td style="width:60px;">
+          <div class="depth-bar" style="height:20px;">
+            <div class="depth-bar-fill" style="width:${depthPct}%;background:${depthFill};"></div>
+            <div class="depth-bar-content">
+              <span class="depth-amount">${formatNumber(c.volume)}</span>
+            </div>
+          </div>
         </td>
       </tr>
     `;
   }).join('');
 
+  const nameSorted = sortKey === 'name' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+  const priceSorted = sortKey === 'price' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+  const changeSorted = sortKey === 'change' ? `sorted ${sortAsc ? 'asc' : ''}` : '';
+
   return `
     <table class="market-table">
       <thead>
         <tr>
-          <th data-sort="name">Nama</th>
-          <th data-sort="price">Harga</th>
-          <th data-sort="change">Perubahan</th>
-          <th data-sort="volume">Volume</th>
+          <th class="${nameSorted}" data-sort="name">Nama</th>
+          <th class="${priceSorted}" data-sort="price">Harga</th>
+          <th class="${changeSorted}" data-sort="change">Perubahan</th>
           <th>Chart</th>
-          <th>Aksi</th>
+          <th>Depth</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
   `;
+}
+
+/**
+ * Main render — renders BOTH list (mobile) and table (desktop)
+ * CSS media queries handle which one is visible
+ */
+export function renderMarketBoardTable(commodities, sortKey = 'name', sortAsc = true) {
+  if (!commodities || !commodities.length) {
+    return `<div class="empty-state"><p>Tidak ada data komoditas</p></div>`;
+  }
+
+  const listHTML = renderMarketList(commodities, sortKey, sortAsc);
+  const tableHTML = renderMarketTable(commodities, sortKey, sortAsc);
+
+  return listHTML + tableHTML;
 }
 
 export function renderMarketBoardGrid(commodities) {
@@ -95,6 +189,8 @@ export function renderMarketBoardGrid(commodities) {
   const cards = commodities.map(c => {
     const isPositive = (c.change ?? 0) >= 0;
     const changeColor = isPositive ? 'var(--success)' : 'var(--danger)';
+    const mockVolumes = Array.from({ length: 12 }, () => getRandomInt(50, 500));
+
     return `
       <div class="commodity-card" data-id="${c.id}" data-navigate="#/market/${c.id}">
         <div class="card-header">
@@ -106,7 +202,7 @@ export function renderMarketBoardGrid(commodities) {
           ${isPositive ? '▲' : '▼'} ${formatPercent(c.change)}
         </div>
         <div class="card-sparkline">
-          ${renderSparklineSVG(c.sparkline || [], 120, 32)}
+          ${renderSparklineWithVolume(c.sparkline || [], mockVolumes, 140, 40)}
         </div>
       </div>
     `;

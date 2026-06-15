@@ -1,0 +1,88 @@
+/* === Chart Area — Terminal Chart Panel (Phase 4) === */
+.detail-chart {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.detail-chart:hover {
+  border-color: var(--border-hover);
+}
+
+.detail-chart-section {
+  margin-bottom: 12px;
+}
+
+/* Chart grid lines overlay */
+.chart-grid-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Volume bar below chart — refined */
+.volume-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 36px;
+  margin-top: 4px;
+}
+
+.volume-bar {
+  flex: 1;
+  min-width: 1px;
+  border-radius: 1px 1px 0 0;
+  transition: height var(--transition-fast);
+}
+
+.volume-bar.buy {
+  background: linear-gradient(to top, var(--chart-volume-up), rgba(0, 230, 118, 0.25));
+}
+
+.volume-bar.sell {
+  background: linear-gradient(to top, var(--chart-volume-down), rgba(255, 82, 82, 0.25));
+}
+
+/* === Supply/Demand Bar — Terminal Depth === */
+.supply-demand-bar {
+  display: flex;
+  height: 24px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.sd-supply {
+  background: var(--depth-buy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  transition: width var(--transition-normal);
+}
+
+.sd-demand {
+  background: var(--depth-sell);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  transition: width var(--transition-normal);
+}
+
+.sd-label {
+  font-size: 0.55rem;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 0 6px;
+  font-family: var(--font-mono);
+}

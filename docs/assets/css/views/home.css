@@ -1,0 +1,274 @@
+/* === Home View — Terminal Dashboard === */
+.home-view .greeting {
+  margin-bottom: 16px;
+}
+
+.home-view .greeting h1 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.home-view .greeting p {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* === Market Index Bar — Terminal Status (Phase 4) === */
+.market-index-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.index-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.index-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  transition: opacity var(--transition-normal);
+  opacity: 0.5;
+}
+
+.index-card.up::after {
+  background: var(--success);
+}
+
+.index-card.down::after {
+  background: var(--danger);
+}
+
+.index-card:hover {
+  border-color: var(--border-hover);
+}
+
+.index-card .index-label {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1px;
+}
+
+.index-card .index-value {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.index-card.up .index-value {
+  color: var(--success);
+}
+
+.index-card.down .index-value {
+  color: var(--danger);
+}
+
+/* === Top Movers — Terminal Heat (Phase 4) === */
+.top-movers {
+  margin-bottom: 20px;
+}
+
+.movers-grid {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.movers-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.mover-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  min-width: 150px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mover-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  opacity: 0.6;
+}
+
+.mover-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+.mover-card:hover::after {
+  opacity: 1;
+}
+
+.mover-card .mover-icon {
+  font-size: 1.25rem;
+}
+
+.mover-card .mover-info {
+  flex: 1;
+}
+
+.mover-card .mover-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.mover-card .mover-price {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin-top: 1px;
+}
+
+.mover-card .mover-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  align-self: flex-start;
+}
+
+/* === Stat Grid === */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.section-header h3 {
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.section-header .section-link {
+  font-size: var(--text-xs);
+  color: var(--gold);
+  cursor: pointer;
+}
+
+.market-preview {
+  margin-bottom: 20px;
+}
+
+/* === Commodity Row — Terminal Order Book Row (Phase 4) === */
+.commodity-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--grid-line);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.commodity-row:hover {
+  background: var(--bg-hover);
+}
+
+.commodity-row:active {
+  background: var(--grid-line-active);
+}
+
+.commodity-row:last-child {
+  border-bottom: none;
+}
+
+.commodity-row .commodity-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.commodity-row .commodity-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.commodity-row .commodity-volume {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  margin-top: 1px;
+  font-family: var(--font-mono);
+}
+
+.commodity-row .commodity-price {
+  text-align: right;
+}
+
+.commodity-row .commodity-price .price {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.commodity-row .commodity-price .change {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.commodity-row .sparkline-cell {
+  width: 56px;
+  flex-shrink: 0;
+}
+
+.rfq-preview {
+  margin-bottom: 20px;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.quick-actions .btn {
+  flex: 1;
+}

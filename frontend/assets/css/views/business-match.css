@@ -1,0 +1,132 @@
+/* === Business Match Section === */
+.business-match-section {
+  margin-bottom: 20px;
+}
+
+.match-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.match-summary-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  text-align: center;
+}
+
+.match-summary-val {
+  display: block;
+  font-size: var(--text-base);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.match-summary-lbl {
+  display: block;
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  transition: all var(--transition-normal);
+}
+
+.match-card:hover {
+  border-color: var(--border-hover);
+}
+
+.match-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.match-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.match-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.match-verified {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: var(--text-xs);
+}
+
+.match-score {
+  border: 1.5px solid;
+  border-radius: var(--radius-xs);
+  padding: 3px 8px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.match-score .score-value {
+  font-size: var(--text-sm);
+  font-weight: 800;
+  font-family: var(--font-mono);
+  display: block;
+}
+
+.match-score .score-label {
+  font-size: 0.5rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.match-body {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.match-field .label {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+}
+
+.match-field .value {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.match-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--grid-line);
+}
+
+.match-meta {
+  display: flex;
+  gap: 10px;
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+}

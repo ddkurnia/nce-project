@@ -1,0 +1,233 @@
+/* === App Layout === */
+#app {
+  padding-top: var(--header-height);
+  padding-bottom: var(--bottom-nav-height);
+  min-height: 100dvh;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+
+.view-container {
+  padding: var(--content-padding);
+  max-width: var(--max-width);
+  margin: 0 auto;
+  animation: fadeIn 0.2s ease;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* === Animations — Terminal Style (Phase 4 Enhanced) === */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Number tick animation — prices updating */
+@keyframes tickUp {
+  0% { color: var(--success-bright); transform: translateY(-1px); }
+  30% { color: var(--success); }
+  100% { color: inherit; transform: translateY(0); }
+}
+
+@keyframes tickDown {
+  0% { color: var(--danger-bright); transform: translateY(1px); }
+  30% { color: var(--danger); }
+  100% { color: inherit; transform: translateY(0); }
+}
+
+/* Live indicator pulse — refined */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--success-mid); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 5px transparent; }
+}
+
+/* Blinking cursor for data */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Flash background for price changes — refined */
+@keyframes flashGreen {
+  0% { background: var(--bg-flash-green); }
+  100% { background: transparent; }
+}
+
+@keyframes flashRed {
+  0% { background: var(--bg-flash-red); }
+  100% { background: transparent; }
+}
+
+/* Stagger entrance — refined */
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Gold shimmer for premium elements */
+@keyframes goldShimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Depth bar fill animation */
+@keyframes depthFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Scale entrance */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Row highlight for data updates */
+@keyframes rowFlash {
+  0% { background: var(--grid-line-active); }
+  100% { background: transparent; }
+}
+
+/* Market status blink */
+@keyframes marketBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Price glow animation */
+@keyframes priceGlow {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  50% { text-shadow: 0 0 8px currentColor; }
+}
+
+/* === Utility Classes === */
+.text-gold { color: var(--gold); }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-muted { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+.text-bright { color: var(--text-bright); }
+
+.bg-gold-dim { background: var(--gold-dim); }
+.bg-success-dim { background: var(--success-dim); }
+.bg-danger-dim { background: var(--danger-dim); }
+
+.font-mono { font-family: var(--font-mono); }
+.font-data { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+
+.tick-up { animation: tickUp 0.6s ease; }
+.tick-down { animation: tickDown 0.6s ease; }
+
+.price-flash-up { animation: flashGreen 0.8s ease; }
+.price-flash-down { animation: flashRed 0.8s ease; }
+
+.row-flash { animation: rowFlash 1.2s ease; }
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: livePulse 2s infinite;
+  display: inline-block;
+}
+
+/* Market Status Indicator */
+.market-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+}
+
+.market-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.market-status.open .market-status-dot {
+  background: var(--market-open);
+  animation: livePulse 2s infinite;
+}
+
+.market-status.closed .market-status-dot {
+  background: var(--market-closed);
+}
+
+.market-status.premarket .market-status-dot {
+  background: var(--market-premarket);
+  animation: marketBlink 1.5s infinite;
+}
+
+/* Gold text shimmer effect */
+.text-gold-shimmer {
+  background: var(--gold-gradient);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: goldShimmer 3s linear infinite;
+}
+
+/* Stagger children animation */
+.stagger-children > * {
+  animation: staggerIn 0.3s ease both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 40ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 80ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 160ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 280ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 320ms; }
+.stagger-children > *:nth-child(10) { animation-delay: 360ms; }
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}

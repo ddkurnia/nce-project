@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: #081120;
+  --color-foreground: #FFFFFF;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --color-sidebar-ring: rgba(212, 175, 55, 0.3);
+  --color-sidebar-border: rgba(212, 175, 55, 0.08);
+  --color-sidebar-accent-foreground: #FFFFFF;
+  --color-sidebar-accent: #1E293B;
+  --color-sidebar-primary-foreground: #081120;
+  --color-sidebar-primary: #D4AF37;
+  --color-sidebar-foreground: #FFFFFF;
+  --color-sidebar: #0F172A;
+  --color-chart-5: #64748B;
+  --color-chart-4: #F59E0B;
+  --color-chart-3: #3B82F6;
+  --color-chart-2: #22C55E;
+  --color-chart-1: #D4AF37;
+  --color-ring: #D4AF37;
+  --color-input: #1E293B;
+  --color-border: rgba(212, 175, 55, 0.08);
+  --color-destructive: #EF4444;
+  --color-accent-foreground: #FFFFFF;
+  --color-accent: #1E293B;
+  --color-muted-foreground: #94A3B8;
+  --color-muted: #1E293B;
+  --color-secondary-foreground: #FFFFFF;
+  --color-secondary: #0F172A;
+  --color-primary-foreground: #081120;
+  --color-primary: #D4AF37;
+  --color-popover-foreground: #FFFFFF;
+  --color-popover: #1E293B;
+  --color-card-foreground: #FFFFFF;
+  --color-card: #1E293B;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: #081120;
+  --foreground: #FFFFFF;
+  --card: #1E293B;
+  --card-foreground: #FFFFFF;
+  --popover: #1E293B;
+  --popover-foreground: #FFFFFF;
+  --primary: #D4AF37;
+  --primary-foreground: #081120;
+  --secondary: #0F172A;
+  --secondary-foreground: #FFFFFF;
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+  --accent: #1E293B;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --border: rgba(212, 175, 55, 0.08);
+  --input: #1E293B;
+  --ring: #D4AF37;
+  --sidebar: #0F172A;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #D4AF37;
+  --sidebar-primary-foreground: #081120;
+  --sidebar-accent: #1E293B;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(212, 175, 55, 0.08);
+  --sidebar-ring: rgba(212, 175, 55, 0.3);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

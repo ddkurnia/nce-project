@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#081120">
+  <meta name="theme-color" content="#060b16">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NCE">
@@ -11,7 +11,6 @@
   <meta name="format-detection" content="telephone=no">
 
   <title>NCE — Indonesia's Digital Trading Floor</title>
-  <base href="/nce-project/">
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
@@ -19,19 +18,36 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png">
 
-  <!-- Fonts -->
+  <!-- Fonts — Terminal Style -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- CSS -->
+  <!-- CSS — Variables first, then base, components, views, navigation -->
   <link rel="stylesheet" href="assets/css/variables.css">
-  <link rel="stylesheet" href="assets/css/base.css">
-  <link rel="stylesheet" href="assets/css/components.css">
-  <link rel="stylesheet" href="assets/css/overlay.css">
-  <link rel="stylesheet" href="assets/css/views.css">
-  <link rel="stylesheet" href="assets/css/views-detail.css">
-  <link rel="stylesheet" href="assets/css/navigation.css">
+  <link rel="stylesheet" href="assets/css/base/reset.css">
+  <link rel="stylesheet" href="assets/css/base/utilities.css">
+  <link rel="stylesheet" href="assets/css/components/buttons.css">
+  <link rel="stylesheet" href="assets/css/components/cards.css">
+  <link rel="stylesheet" href="assets/css/components/data.css">
+  <link rel="stylesheet" href="assets/css/components/forms.css">
+  <link rel="stylesheet" href="assets/css/components/skeleton.css">
+  <link rel="stylesheet" href="assets/css/components/profile.css">
+  <link rel="stylesheet" href="assets/css/components/rfq.css">
+  <link rel="stylesheet" href="assets/css/components/modal.css">
+  <link rel="stylesheet" href="assets/css/components/toast.css">
+  <link rel="stylesheet" href="assets/css/components/notif-panel.css">
+  <link rel="stylesheet" href="assets/css/components/trust-score.css">
+  <link rel="stylesheet" href="assets/css/components/verification.css">
+  <link rel="stylesheet" href="assets/css/views/home.css">
+  <link rel="stylesheet" href="assets/css/views/business-match.css">
+  <link rel="stylesheet" href="assets/css/views/market.css">
+  <link rel="stylesheet" href="assets/css/views/detail-common.css">
+  <link rel="stylesheet" href="assets/css/views/detail-chart.css">
+  <link rel="stylesheet" href="assets/css/views/detail-rfq.css">
+  <link rel="stylesheet" href="assets/css/navigation/header.css">
+  <link rel="stylesheet" href="assets/css/navigation/bottom-nav.css">
+  <link rel="stylesheet" href="assets/css/navigation/pulse-bar.css">
 </head>
 <body>
   <!-- Header -->

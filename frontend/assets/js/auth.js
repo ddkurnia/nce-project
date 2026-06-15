@@ -2,6 +2,7 @@ import { firebaseConfig, FIREBASE_CDN } from './config.js';
 import { setState, getState } from './state.js';
 
 let auth = null;
+let firebaseApp = null;
 
 export async function initAuth() {
   try {
@@ -9,6 +10,7 @@ export async function initAuth() {
     const { getAuth, onAuthStateChanged } = await import(`${FIREBASE_CDN}/firebase-auth.js`);
 
     const app = initializeApp(firebaseConfig);
+    firebaseApp = app;
     auth = getAuth(app);
 
     onAuthStateChanged(auth, (firebaseUser) => {
@@ -70,4 +72,8 @@ export function getStoredUser() {
 
 export function getAuthInstance() {
   return auth;
+}
+
+export function getFirebaseApp() {
+  return firebaseApp;
 }

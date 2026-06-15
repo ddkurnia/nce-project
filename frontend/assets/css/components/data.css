@@ -1,0 +1,73 @@
+/* === Order Book Depth Bars (Refined) === */
+.depth-bar {
+  position: relative;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  transition: background var(--transition-fast);
+}
+
+.depth-bar:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.depth-bar-buy {
+  border-left: 2px solid var(--success);
+}
+
+.depth-bar-sell {
+  border-left: 2px solid var(--danger);
+}
+
+.depth-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  transition: width var(--transition-smooth);
+  pointer-events: none;
+}
+
+.depth-bar-buy .depth-bar-fill {
+  background: linear-gradient(to right, var(--depth-buy), var(--depth-buy-strong));
+  right: 0;
+}
+
+.depth-bar-sell .depth-bar-fill {
+  background: linear-gradient(to left, var(--depth-sell), var(--depth-sell-strong));
+  left: 0;
+}
+
+.depth-bar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.depth-price {
+  font-weight: 600;
+}
+
+.depth-amount {
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+}
+
+/* === Spread Indicator === */
+.spread-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  background: var(--spread);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-2xs);
+  font-family: var(--font-mono);
+  color: var(--gold);
+  gap: 8px;
+}

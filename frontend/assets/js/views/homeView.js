@@ -1,27 +1,30 @@
+/**
+ * Home View — Phase 4 Bloomberg Terminal Dashboard
+ * Market status, stagger animations, refined index cards
+ */
 import { getState, setState, subscribe } from '../state.js';
-import { renderMarketPulse } from '../components/marketBoard.js';
 import { renderStatCard, renderRequestCard } from '../components/cards.js';
 import { renderSparklineSVG } from '../components/sparkline.js';
 import { renderStatGridSkeleton, renderMarketTableSkeleton } from '../components/loading.js';
-import { generateMockCommodities, generateMockRequests, timeAgo } from '../utils/helpers.js';
+import { renderMatchCard, renderMatchSummary } from '../components/businessMatch.js';
+import { renderTrustMeter } from '../components/trustScore.js';
+import { generateMockCommodities, generateMockRequests, timeAgo, getRandomInt } from '../utils/helpers.js';
 import { formatRupiah, formatPercent, formatNumber } from '../utils/formatter.js';
 import { getCommodityLabel, getCommodityIcon } from '../constants/commodities.js';
-import { getStatusLabel, getStatusBadgeClass } from '../constants/requests.js';
 import { showSearch } from '../components/header.js';
 import { commodityService } from '../services/commodityService.js';
 import { requestService } from '../services/requestService.js';
+import { initNotifications } from '../services/notificationService.js';
+import { getMatches, submitMatchFeedback } from '../services/matchingService.js';
+import { startAlertMonitoring, checkPriceAlerts } from '../services/intelligenceService.js';
 
 let container = null;
-let pulseContainer = null;
 
 export async function mount(el) {
   container = el;
   showSearch(false);
-
-  // Show loading first
   container.innerHTML = renderLoadingState();
 
-  // Load data
   try {
     let commodities = [];
     let requests = [];
@@ -40,13 +43,25 @@ export async function mount(el) {
       requests = generateMockRequests();
     }
 
+    initNotifications();
     setState('commodities', commodities);
     setState('requests', requests);
 
-    renderHome(commodities, requests);
+    // Start price alert monitoring
+    startAlertMonitoring();
+    checkPriceAlerts(commodities);
+
+    // Fetch business matches
+    let matches = [];
+    try {
+      matches = await getMatches(5);
+    } catch {
+      matches = [];
+    }
+    renderHome(commodities, requests, matches);
   } catch (err) {
     console.error('Home view error:', err);
-    renderHome(generateMockCommodities(), generateMockRequests());
+    renderHome(generateMockCommodities(), generateMockRequests(), []);
   }
 }
 
@@ -61,21 +76,21 @@ function renderLoadingState() {
   `;
 }
 
-function renderHome(commodities, requests) {
+function renderHome(commodities, requests, matches) {
   if (!container) return;
 
   const user = getState('user');
   const greeting = user ? `Halo, ${user.displayName || 'Trader'}` : 'Lantai Digital Indonesia';
 
   const topCommodities = commodities.slice(0, 5);
-  const openRequests = requests.filter(r => r.status === 'open');
+  const topMovers = [...commodities].sort((a, b) => Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0)).slice(0, 3);
   const recentRequests = requests.slice(0, 3);
-
-  // Stats
-  const totalListings = commodities.length;
-  const activeBuyers = requests.filter(r => r.status === 'open').length;
-  const activeSellers = commodities.filter(c => (c.change ?? 0) > 0).length;
-  const totalTransactions = Math.floor(commodities.reduce((s, c) => s + (c.volume || 0), 0) / 100);
+  // Market index calculations
+  const avgChange = commodities.length ? commodities.reduce((s, c) => s + (c.change ?? 0), 0) / commodities.length : 0;
+  const totalVol = commodities.reduce((s, c) => s + (c.volume || 0), 0);
+  const isMarketUp = avgChange >= 0;
+  const gainers = commodities.filter(c => (c.change ?? 0) > 0).length;
+  const losers = commodities.filter(c => (c.change ?? 0) < 0).length;
 
   container.innerHTML = `
     <div class="market-pulse-bar">
@@ -85,40 +100,109 @@ function renderHome(commodities, requests) {
       </div>
     </div>
     <div class="home-view">
-      <div class="view-container">
-        <div class="greeting">
-          <h1>${greeting}</h1>
-          <p>Pantau pasar komoditas Indonesia secara real-time</p>
+      <div class="view-container stagger-children">
+        <!-- Greeting + Market Status -->
+        <div class="greeting" style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <h1>${greeting}</h1>
+            <p>Pantau pasar komoditas Indonesia secara real-time</p>
+          </div>
+          <span class="market-status open">
+            <span class="market-status-dot"></span>
+            OPEN
+          </span>
         </div>
 
+        <!-- Market Index Bar -->
+        <div class="market-index-bar stagger-children">
+          <div class="index-card ${isMarketUp ? 'up' : 'down'}">
+            <div class="index-label">NCE Index</div>
+            <div class="index-value font-mono">${isMarketUp ? '▲' : '▼'} ${avgChange.toFixed(2)}%</div>
+          </div>
+          <div class="index-card">
+            <div class="index-label">Volume</div>
+            <div class="index-value font-mono">${formatNumber(totalVol)}</div>
+          </div>
+          <div class="index-card up">
+            <div class="index-label">Gainers</div>
+            <div class="index-value font-mono" style="color:var(--success);">${gainers}</div>
+          </div>
+          <div class="index-card down">
+            <div class="index-label">Losers</div>
+            <div class="index-value font-mono" style="color:var(--danger);">${losers}</div>
+          </div>
+        </div>
+
+        <!-- Stat Grid -->
         <div class="stat-grid">
-          ${renderStatCard({ label: 'Listing Aktif', value: formatNumber(totalListings), change: '+12%', changeDir: 'up', icon: '📊' })}
-          ${renderStatCard({ label: 'Pembeli Aktif', value: formatNumber(activeBuyers), change: '+8%', changeDir: 'up', icon: '🛒' })}
-          ${renderStatCard({ label: 'Penjual Aktif', value: formatNumber(activeSellers), change: '+5%', changeDir: 'up', icon: '🏪' })}
-          ${renderStatCard({ label: 'Transaksi Bulan Ini', value: formatNumber(totalTransactions), change: '-2%', changeDir: 'down', icon: '💰' })}
+          ${renderStatCard({ label: 'Listing Aktif', value: formatNumber(commodities.length), change: '+12%', changeDir: 'up', icon: '📊' })}
+          ${renderStatCard({ label: 'RFQ Aktif', value: formatNumber(requests.filter(r => r.status === 'open').length), change: '+8%', changeDir: 'up', icon: '🛒' })}
+          ${renderStatCard({ label: 'Penjual', value: formatNumber(gainers), change: '+5%', changeDir: 'up', icon: '🏪' })}
+          ${renderStatCard({ label: 'Transaksi', value: formatNumber(Math.floor(totalVol / 100)), change: '-2%', changeDir: 'down', icon: '💰' })}
         </div>
 
+        <!-- Top Movers — Terminal Heat Map -->
+        <div class="top-movers">
+          <div class="section-header">
+            <h3>🔥 Top Movers</h3>
+          </div>
+          <div class="movers-grid">
+            ${topMovers.map(c => {
+              const isPositive = (c.change ?? 0) >= 0;
+              const changeColor = isPositive ? 'var(--success)' : 'var(--danger)';
+              const bgClass = isPositive ? 'var(--success-dim)' : 'var(--danger-dim)';
+              return `
+                <div class="mover-card" data-navigate="#/market/${c.id}">
+                  <div class="mover-icon">${c.icon || '📦'}</div>
+                  <div class="mover-info">
+                    <div class="mover-name">${c.name || getCommodityLabel(c.type)}</div>
+                    <div class="mover-price font-mono">${formatRupiah(c.price)}</div>
+                  </div>
+                  <div class="mover-change" style="color:${changeColor};background:${bgClass};">
+                    ${isPositive ? '▲' : '▼'} ${formatPercent(c.change)}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Market Board Preview -->
         <div class="market-preview">
           <div class="section-header">
             <h3>📈 Market Board</h3>
-            <a href="#/market" class="section-link">Lihat Semua →</a>
+            <a href="#/market" class="section-link" style="display:flex;align-items:center;gap:2px;">Lihat Semua <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></a>
           </div>
           <div class="card" style="padding:0;overflow:hidden;">
             ${renderMarketPreviewRows(topCommodities)}
           </div>
         </div>
 
+        <!-- Business Matching -->
+        <div class="business-match-section">
+          <div class="section-header">
+            <h3>🤝 Business Match</h3>
+            <span class="section-link">Saran untuk Anda</span>
+          </div>
+          ${renderMatchSummary(matches)}
+          <div class="match-list">
+            ${matches.slice(0, 3).map(m => renderMatchCard(m)).join('')}
+          </div>
+        </div>
+
+        <!-- RFQ Terbaru -->
         <div class="rfq-preview">
           <div class="section-header">
             <h3>📋 RFQ Terbaru</h3>
-            <a href="#/rfq" class="section-link">Lihat Semua →</a>
+            <a href="#/rfq" class="section-link" style="display:flex;align-items:center;gap:2px;">Lihat Semua <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></a>
           </div>
           ${recentRequests.length > 0 ?
             recentRequests.map(r => renderRequestCard(r)).join('') :
-            '<p class="text-muted" style="font-size:0.85rem;">Belum ada permintaan</p>'
+            '<p class="text-muted" style="font-size:var(--text-xs);">Belum ada permintaan</p>'
           }
         </div>
 
+        <!-- Quick Actions -->
         <div class="quick-actions">
           <a href="#/rfq" class="btn btn-primary">📝 Buat RFQ</a>
           <a href="#/market" class="btn btn-secondary">📊 Lihat Market</a>
@@ -127,13 +211,7 @@ function renderHome(commodities, requests) {
     </div>
   `;
 
-  // Attach click handlers for navigation
-  container.querySelectorAll('[data-navigate]').forEach(el => {
-    el.addEventListener('click', (e) => {
-      const target = e.currentTarget.dataset.navigate;
-      if (target) window.location.hash = target;
-    });
-  });
+  attachEventListeners();
 }
 
 function renderPulseItems(commodities) {
@@ -145,7 +223,7 @@ function renderPulseItems(commodities) {
         <span class="pulse-name">${c.icon || '📦'} ${c.name || c.type}</span>
         <span class="pulse-price">${formatRupiah(c.price)}</span>
         <span class="pulse-change ${isPositive ? 'positive' : 'negative'}">
-          ${isPositive ? '▲' : '▼'} ${formatPercent(change)}
+          ${isPositive ? '+' : ''}${change.toFixed(2)}%
         </span>
       </div>
       <span class="pulse-separator">•</span>
@@ -154,7 +232,7 @@ function renderPulseItems(commodities) {
 }
 
 function renderMarketPreviewRows(commodities) {
-  if (!commodities.length) return '<p style="padding:16px;color:var(--text-muted);">Tidak ada data</p>';
+  if (!commodities.length) return '<p style="padding:12px;color:var(--text-muted);font-size:var(--text-xs);">Tidak ada data</p>';
 
   return commodities.map(c => {
     const isPositive = (c.change ?? 0) >= 0;
@@ -163,10 +241,10 @@ function renderMarketPreviewRows(commodities) {
       <div class="commodity-row" data-navigate="#/market/${c.id}">
         <div class="commodity-info">
           <div class="commodity-name">${c.icon || '📦'} ${c.name || getCommodityLabel(c.type)}</div>
-          <div class="commodity-volume">Vol: ${formatNumber(c.volume)}</div>
+          <div class="commodity-volume">Vol ${formatNumber(c.volume)}</div>
         </div>
         <div class="sparkline-cell">
-          ${renderSparklineSVG(c.sparkline || [], 60, 24)}
+          ${renderSparklineSVG(c.sparkline || [], 56, 18)}
         </div>
         <div class="commodity-price">
           <div class="price">${formatRupiah(c.price)}</div>
@@ -177,6 +255,27 @@ function renderMarketPreviewRows(commodities) {
       </div>
     `;
   }).join('');
+}
+
+function attachEventListeners() {
+  container.querySelectorAll('[data-navigate]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const target = e.currentTarget.dataset.navigate;
+      if (target) window.location.hash = target;
+    });
+  });
+
+  container.querySelectorAll('.match-contact-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const matchId = btn.dataset.id;
+      // Submit feedback for matching algorithm improvement
+      submitMatchFeedback(matchId, 'contact');
+      const { showToast } = await import('../components/toast.js');
+      showToast('Menghubungi supplier...', 'info');
+      // TODO: Navigate to messages or open chat
+    });
+  });
 }
 
 export function unmount() {
