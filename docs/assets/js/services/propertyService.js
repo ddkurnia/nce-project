@@ -1,50 +1,33 @@
-/* ============================================================================
- * NCE — Property Service
- * ============================================================================ */
+import { get, post, put, del } from '../api.js';
 
-import Api from '../api.js';
-import Config from '../config.js';
-import State from '../state.js';
-
-const PropertyService = {
-  /**
-   * Fetch properties from API
-   */
-  async fetchAll(params = {}) {
-    try {
-      const result = await Api.get('/properties', {
-        page: params.page || 1,
-        limit: params.limit || Config.DEFAULT_PAGE_SIZE,
-        ...params
-      });
-
-      const properties = result.data || result.properties || result || [];
-      State.set('properties', properties);
-      return properties;
-    } catch (e) {
-      console.error('Failed to fetch properties:', e);
-      return [];
-    }
-  },
-
-  /**
-   * Get single property
-   */
-  async fetchOne(id) {
-    try {
-      return await Api.get(`/properties/${id}`);
-    } catch (e) {
-      console.error('Failed to fetch property:', e);
-      return null;
-    }
-  },
-
-  /**
-   * Create property — requires auth
-   */
-  async create(data) {
-    return await Api.post('/properties', data);
+class PropertyService {
+  async getAll(params = {}) {
+    return await get('/properties', params);
   }
-};
 
-export default PropertyService;
+  async getById(id) {
+    return await get(`/properties/${id}`);
+  }
+
+  async create(data) {
+    return await post('/properties', data);
+  }
+
+  async update(id, data) {
+    return await put(`/properties/${id}`, data);
+  }
+
+  async remove(id) {
+    return await del(`/properties/${id}`);
+  }
+
+  async getByType(type) {
+    return await get('/properties', { type });
+  }
+
+  async search(query) {
+    return await get('/properties', { search: query });
+  }
+}
+
+export const propertyService = new PropertyService();
