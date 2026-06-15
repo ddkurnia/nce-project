@@ -1,46 +1,49 @@
-/* === Home View === */
+/* === Home View — Terminal Dashboard === */
 .home-view .greeting {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .home-view .greeting h1 {
-  font-size: 1.25rem;
+  font-size: var(--text-lg);
   font-weight: 700;
 }
 
 .home-view .greeting p {
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
-/* === Market Index Bar === */
+/* === Market Index Bar — Terminal Status === */
 .market-index-bar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 16px;
 }
 
 .index-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: 8px 10px;
   text-align: center;
+  position: relative;
 }
 
 .index-card .index-label {
-  font-size: 0.6rem;
+  font-size: var(--text-2xs);
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 2px;
+  letter-spacing: 0.06em;
+  margin-bottom: 1px;
 }
 
 .index-card .index-value {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .index-card.up .index-value {
@@ -51,16 +54,16 @@
   color: var(--danger);
 }
 
-/* === Top Movers === */
+/* === Top Movers — Terminal Heat === */
 .top-movers {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .movers-grid {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -73,14 +76,14 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 14px;
-  min-width: 160px;
+  padding: 12px;
+  min-width: 150px;
   flex-shrink: 0;
   cursor: pointer;
   transition: all var(--transition-normal);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .mover-card:hover {
@@ -89,7 +92,7 @@
 }
 
 .mover-card .mover-icon {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
 }
 
 .mover-card .mover-info {
@@ -97,24 +100,26 @@
 }
 
 .mover-card .mover-name {
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
 .mover-card .mover-price {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-secondary);
-  margin-top: 2px;
+  font-family: var(--font-mono);
+  margin-top: 1px;
 }
 
 .mover-card .mover-change {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  font-size: 0.7rem;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  font-size: var(--text-2xs);
   font-weight: 700;
+  font-family: var(--font-mono);
   align-self: flex-start;
 }
 
@@ -122,40 +127,42 @@
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .section-header h3 {
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 600;
 }
 
 .section-header .section-link {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   color: var(--gold);
   cursor: pointer;
 }
 
 .market-preview {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
+/* === Commodity Row — Terminal Order Book Row === */
 .commodity-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-bottom: 1px solid var(--border);
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--grid-line);
   cursor: pointer;
   transition: background var(--transition-fast);
+  position: relative;
 }
 
 .commodity-row:hover {
@@ -172,15 +179,16 @@
 }
 
 .commodity-row .commodity-name {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .commodity-row .commodity-volume {
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 1px;
+  font-family: var(--font-mono);
 }
 
 .commodity-row .commodity-price {
@@ -188,80 +196,83 @@
 }
 
 .commodity-row .commodity-price .price {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .commodity-row .commodity-price .change {
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   font-weight: 600;
+  font-family: var(--font-mono);
 }
 
 .commodity-row .sparkline-cell {
-  width: 60px;
+  width: 56px;
   flex-shrink: 0;
 }
 
 .rfq-preview {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .quick-actions {
   display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
 .quick-actions .btn {
   flex: 1;
 }
 
-/* === Business Match === */
+/* === Business Match Section === */
 .business-match-section {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .match-summary {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
 .match-summary-stat {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 10px;
+  padding: 8px;
   text-align: center;
 }
 
 .match-summary-val {
   display: block;
-  font-size: 1.1rem;
+  font-size: var(--text-base);
   font-weight: 700;
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .match-summary-lbl {
   display: block;
-  font-size: 0.6rem;
+  font-size: var(--text-2xs);
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .match-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .match-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 14px;
+  padding: 12px;
   transition: all var(--transition-normal);
 }
 
@@ -273,62 +284,63 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .match-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .match-name {
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
 .match-verified {
   color: var(--gold);
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
 }
 
 .match-score {
-  border: 2px solid;
-  border-radius: var(--radius-sm);
-  padding: 4px 10px;
+  border: 1.5px solid;
+  border-radius: var(--radius-xs);
+  padding: 3px 8px;
   text-align: center;
   flex-shrink: 0;
 }
 
 .match-score .score-value {
-  font-size: 1rem;
+  font-size: var(--text-sm);
   font-weight: 800;
   font-family: var(--font-mono);
   display: block;
 }
 
 .match-score .score-label {
-  font-size: 0.55rem;
+  font-size: 0.5rem;
   color: var(--text-muted);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .match-body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .match-field .label {
-  font-size: 0.65rem;
+  font-size: var(--text-2xs);
   color: var(--text-muted);
 }
 
 .match-field .value {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   margin-top: 1px;
 }
@@ -337,34 +349,36 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  border-top: 1px solid var(--grid-line);
 }
 
 .match-meta {
   display: flex;
-  gap: 12px;
-  font-size: 0.7rem;
+  gap: 10px;
+  font-size: var(--text-2xs);
   color: var(--text-muted);
 }
 
-/* === Market View === */
+/* === Market View — Terminal Board === */
 .market-view .search-bar {
   position: relative;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .market-view .search-bar input {
-  padding-left: 40px;
-  padding-right: 14px;
-  height: 44px;
+  padding-left: 36px;
+  padding-right: 12px;
+  height: 40px;
   border-radius: var(--radius-sm);
   background: var(--bg-card);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
 }
 
 .market-view .search-bar .search-icon {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
@@ -372,27 +386,27 @@
 
 .filter-tabs {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   background: var(--bg-secondary);
   border-radius: var(--radius-sm);
-  padding: 4px;
-  margin-bottom: 16px;
+  padding: 3px;
+  margin-bottom: 12px;
   overflow-x: auto;
 }
 
 .view-toggle {
   display: flex;
   gap: 4px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .view-toggle button {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   background: var(--bg-card);
   border: 1px solid var(--border);
   color: var(--text-muted);
@@ -405,7 +419,7 @@
   color: var(--gold);
 }
 
-/* Market Table */
+/* === Market Table — Terminal Grid === */
 .market-table {
   width: 100%;
   border-collapse: collapse;
@@ -413,16 +427,17 @@
 
 .market-table th {
   text-align: left;
-  padding: 10px 12px;
-  font-size: 0.7rem;
+  padding: 8px 10px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
+  font-family: var(--font-mono);
 }
 
 .market-table th:hover {
@@ -433,10 +448,15 @@
   color: var(--gold);
 }
 
+.market-table th.sorted::after {
+  content: ' ▾';
+  font-size: var(--text-2xs);
+}
+
 .market-table td {
-  padding: 12px;
-  font-size: 0.85rem;
-  border-bottom: 1px solid var(--border);
+  padding: 8px 10px;
+  font-size: var(--text-sm);
+  border-bottom: 1px solid var(--grid-line);
   white-space: nowrap;
 }
 
@@ -449,11 +469,11 @@
   background: var(--bg-hover);
 }
 
-/* Market Grid */
+/* === Market Grid === */
 .market-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 8px;
 }
 
 @media (min-width: 640px) {
@@ -466,9 +486,11 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 14px;
   cursor: pointer;
   transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
 }
 
 .commodity-card:hover {
@@ -479,52 +501,35 @@
 .commodity-card .card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
 .commodity-card .card-header .icon {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
 }
 
 .commodity-card .card-header .name {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
 .commodity-card .card-price {
-  font-size: 1.125rem;
+  font-size: var(--text-lg);
   font-weight: 700;
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 .commodity-card .card-change {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
-  margin-top: 4px;
+  margin-top: 2px;
+  font-family: var(--font-mono);
 }
 
 .commodity-card .card-sparkline {
-  margin-top: 12px;
-}
-
-/* === Price Flash Animation === */
-@keyframes flashGreen {
-  0% { background: var(--success-dim); }
-  100% { background: transparent; }
-}
-
-@keyframes flashRed {
-  0% { background: var(--danger-dim); }
-  100% { background: transparent; }
-}
-
-.price-flash-up {
-  animation: flashGreen 1s ease;
-}
-
-.price-flash-down {
-  animation: flashRed 1s ease;
+  margin-top: 10px;
 }
 
 /* === Responsive === */
@@ -544,7 +549,7 @@
   }
 
   .mover-card {
-    min-width: 180px;
+    min-width: 170px;
   }
 
   .match-body {

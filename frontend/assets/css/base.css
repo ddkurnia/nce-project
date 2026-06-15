@@ -1,4 +1,4 @@
-/* Reset */
+/* === Reset === */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -15,28 +15,30 @@ body {
   font-family: var(--font);
   background: var(--bg-primary);
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: 1.5;
   min-height: 100dvh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
-/* Typography */
+/* === Typography — Terminal Data Density === */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   line-height: 1.3;
-  color: var(--text-primary);
+  color: var(--text-bright);
+  letter-spacing: -0.01em;
 }
 
-h1 { font-size: 1.75rem; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.25rem; }
-h4 { font-size: 1.125rem; }
+h1 { font-size: var(--text-2xl); }
+h2 { font-size: var(--text-xl); }
+h3 { font-size: var(--text-lg); }
+h4 { font-size: var(--text-base); }
 
 p {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   line-height: 1.6;
 }
 
@@ -49,79 +51,95 @@ a {
 a:hover { color: var(--gold-light); }
 
 small {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
-/* Images */
+/* === Monospace Data Display === */
+.data-value {
+  font-family: var(--font-data);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.data-label {
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* === Images === */
 img, svg { display: block; max-width: 100%; }
 
-/* Buttons */
+/* === Buttons === */
 button {
   font-family: var(--font);
   cursor: pointer;
   border: none;
   background: none;
   color: var(--text-primary);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* Inputs */
+/* === Inputs === */
 input, select, textarea {
   font-family: var(--font);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
   background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  padding: 8px 12px;
   outline: none;
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   width: 100%;
 }
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px var(--gold-dim);
+  box-shadow: 0 0 0 2px var(--gold-dim);
 }
 
 input::placeholder, textarea::placeholder {
   color: var(--text-muted);
 }
 
-/* Scrollbar */
+/* === Scrollbar — Terminal Style === */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-hover);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Custom Scrollbar for overflow containers */
+/* Custom Scrollbar */
 .custom-scroll {
   scrollbar-width: thin;
-  scrollbar-color: var(--bg-hover) var(--bg-secondary);
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
 
 .custom-scroll::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
 }
 
 .custom-scroll::-webkit-scrollbar-track {
@@ -129,17 +147,17 @@ input::placeholder, textarea::placeholder {
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-  background: var(--bg-hover);
+  background: rgba(255,255,255,0.08);
   border-radius: 2px;
 }
 
-/* Selection */
+/* === Selection === */
 ::selection {
   background: var(--gold-dim);
   color: var(--gold);
 }
 
-/* App Layout */
+/* === App Layout === */
 #app {
   padding-top: var(--header-height);
   padding-bottom: var(--bottom-nav-height);
@@ -150,26 +168,27 @@ input::placeholder, textarea::placeholder {
   padding: var(--content-padding);
   max-width: var(--max-width);
   margin: 0 auto;
-  animation: fadeIn 0.25s ease;
+  animation: fadeIn 0.2s ease;
 }
 
+/* === Animations — Terminal Style === */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50% { opacity: 0.4; }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
+  from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -183,20 +202,79 @@ input::placeholder, textarea::placeholder {
   100% { transform: translateX(-50%); }
 }
 
-/* Utility classes */
+/* Number tick animation — prices updating */
+@keyframes tickUp {
+  0% { color: var(--success); transform: translateY(-2px); }
+  50% { color: var(--success); }
+  100% { color: inherit; transform: translateY(0); }
+}
+
+@keyframes tickDown {
+  0% { color: var(--danger); transform: translateY(2px); }
+  50% { color: var(--danger); }
+  100% { color: inherit; transform: translateY(0); }
+}
+
+/* Live indicator pulse */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--success-mid); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 4px transparent; }
+}
+
+/* Blinking cursor for data */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Flash background for price changes */
+@keyframes flashGreen {
+  0% { background: var(--success-dim); }
+  100% { background: transparent; }
+}
+
+@keyframes flashRed {
+  0% { background: var(--danger-dim); }
+  100% { background: transparent; }
+}
+
+/* Stagger entrance */
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Utility Classes === */
 .text-gold { color: var(--gold); }
 .text-success { color: var(--success); }
 .text-danger { color: var(--danger); }
 .text-muted { color: var(--text-muted); }
 .text-secondary { color: var(--text-secondary); }
+.text-bright { color: var(--text-bright); }
 
 .bg-gold-dim { background: var(--gold-dim); }
 .bg-success-dim { background: var(--success-dim); }
 .bg-danger-dim { background: var(--danger-dim); }
 
 .font-mono { font-family: var(--font-mono); }
+.font-data { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 .font-bold { font-weight: 700; }
 .font-semibold { font-weight: 600; }
+
+.tick-up { animation: tickUp 0.6s ease; }
+.tick-down { animation: tickDown 0.6s ease; }
+
+.price-flash-up { animation: flashGreen 0.8s ease; }
+.price-flash-down { animation: flashRed 0.8s ease; }
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: livePulse 2s infinite;
+  display: inline-block;
+}
 
 .truncate {
   overflow: hidden;
