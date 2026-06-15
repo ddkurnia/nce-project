@@ -10,6 +10,8 @@ import { mount as marketMount, unmount as marketUnmount } from './views/marketVi
 import { mount as rfqMount, unmount as rfqUnmount } from './views/rfqView.js';
 import { mount as messagesMount, unmount as messagesUnmount } from './views/messagesView.js';
 import { mount as profileMount, unmount as profileUnmount } from './views/profileView.js';
+import { mount as marketDetailMount, unmount as marketDetailUnmount } from './views/marketDetailView.js';
+import { mount as rfqDetailMount, unmount as rfqDetailUnmount } from './views/rfqDetailView.js';
 
 // Register routes
 registerRoute('/', { mount: homeMount, unmount: homeUnmount });
@@ -18,9 +20,9 @@ registerRoute('/rfq', { mount: rfqMount, unmount: rfqUnmount });
 registerRoute('/messages', { mount: messagesMount, unmount: messagesUnmount });
 registerRoute('/profile', { mount: profileMount, unmount: profileUnmount });
 
-// Detail routes (reuse parent views for now)
-registerRoute('/market/:id', { mount: marketMount, unmount: marketUnmount });
-registerRoute('/rfq/:id', { mount: rfqMount, unmount: rfqUnmount });
+// Detail routes
+registerRoute('/market/:id', { mount: marketDetailMount, unmount: marketDetailUnmount });
+registerRoute('/rfq/:id', { mount: rfqDetailMount, unmount: rfqDetailUnmount });
 
 // Initialize app
 async function initApp() {

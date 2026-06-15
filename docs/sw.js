@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nce-v2';
+const CACHE_NAME = 'nce-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -27,7 +27,6 @@ const STATIC_ASSETS = [
   '/assets/js/components/header.js',
   '/assets/js/components/bottomNav.js',
   '/assets/js/components/marketBoard.js',
-  '/assets/js/components/marketPulse.js',
   '/assets/js/components/sparkline.js',
   '/assets/js/components/cards.js',
   '/assets/js/components/modal.js',
@@ -35,7 +34,9 @@ const STATIC_ASSETS = [
   '/assets/js/components/loading.js',
   '/assets/js/views/homeView.js',
   '/assets/js/views/marketView.js',
+  '/assets/js/views/marketDetailView.js',
   '/assets/js/views/rfqView.js',
+  '/assets/js/views/rfqDetailView.js',
   '/assets/js/views/messagesView.js',
   '/assets/js/views/profileView.js',
 ];
@@ -64,7 +65,6 @@ self.addEventListener('activate', (event) => {
 
 // Fetch — Network first, cache fallback
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET and API calls
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
