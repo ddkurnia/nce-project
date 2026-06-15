@@ -1,0 +1,423 @@
+     1→<!DOCTYPE html>
+     2→<html lang="id" class="scroll-smooth">
+     3→<head>
+     4→    <meta charset="UTF-8">
+     5→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→    <meta name="theme-color" content="#0a0e27">
+     7→    <meta name="apple-mobile-web-app-capable" content="yes">
+     8→    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     9→    <meta name="format-detection" content="telephone=no">
+    10→    <title>Properti - NCE Nusantara Commodity Exchange</title>
+    11→    <!-- PWA Support -->
+    12→    <link rel="manifest" href="./manifest.json">
+    13→    <link rel="apple-touch-icon" href="./assets/images/icons/apple-touch-icon.png">
+    14→    <meta name="apple-mobile-web-app-title" content="NCE">
+    15→    <script src="https://cdn.tailwindcss.com"></script>
+    16→    <script>
+    17→    tailwind.config = {
+    18→        theme: {
+    19→            extend: {
+    20→                colors: {
+    21→                    navy: { 900: '#0a0e27', 800: '#111827', 700: '#1a1f3a' },
+    22→                    emerald: { 500: '#10b981', 600: '#059669' },
+    23→                    cyan: { 500: '#06b6d4', 400: '#22d3ee' }
+    24→                }
+    25→            }
+    26→        }
+    27→    }
+    28→    </script>
+    29→    <style>
+    30→        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    31→        body { font-family: 'Inter', sans-serif; }
+    32→        .gradient-text { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    33→        .card-glow:hover { box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
+    34→        ::-webkit-scrollbar { width: 8px; }
+    35→        ::-webkit-scrollbar-track { background: #0a0e27; }
+    36→        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    37→        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    38→        .tab-active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.1)); border-color: rgba(16, 185, 129, 0.4); color: #10b981; }
+    39→    </style>
+    40→    <link rel="stylesheet" href="./assets/css/main.css">
+    41→</head>
+    42→<body class="bg-navy-900 text-slate-200 min-h-screen flex flex-col">
+    43→
+    44→    <!-- Navigation -->
+    45→    <nav class="fixed top-0 left-0 right-0 z-50 bg-navy-900/90 backdrop-blur-xl border-b border-slate-700/50">
+    46→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    47→            <div class="flex items-center justify-between h-16">
+    48→                <a href="index.html" class="flex items-center gap-3 group">
+    49→                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-shadow">N</div>
+    50→                    <div>
+    51→                        <span class="text-lg font-bold text-white tracking-tight">NCE</span>
+    52→                        <span class="hidden sm:inline text-xs text-slate-400 ml-2">Nusantara Commodity Exchange</span>
+    53→                    </div>
+    54→                </a>
+    55→                <div class="hidden md:flex items-center gap-1">
+    56→                    <a href="index.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Beranda</a>
+    57→                    <a href="commodities.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Komoditas</a>
+    58→                    <a href="buy-requests.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">Permintaan Beli</a>
+    59→                    <a href="property.html" class="px-3 py-2 text-sm font-medium text-emerald-400 bg-emerald-500/10 rounded-lg">Properti</a>
+    60→                </div>
+    61→                <div class="hidden md:flex items-center gap-3">
+    62→                    <a href="dashboard.html" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors">Masuk</a>
+    63→                    <a href="profile.html" class="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40">Daftar</a>
+    64→                </div>
+    65→                <button id="mobile-menu-btn" class="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+    66→                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    67→                </button>
+    68→            </div>
+    69→        </div>
+    70→        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-700/50 bg-navy-900/95 backdrop-blur-xl">
+    71→            <div class="px-4 py-3 space-y-1">
+    72→                <a href="index.html" class="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Beranda</a>
+    73→                <a href="commodities.html" class="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Komoditas</a>
+    74→                <a href="buy-requests.html" class="block px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg">Permintaan Beli</a>
+    75→                <a href="property.html" class="block px-3 py-2 text-sm font-medium text-emerald-400 bg-emerald-500/10 rounded-lg">Properti</a>
+    76→                <div class="pt-3 border-t border-slate-700/50 flex gap-3">
+    77→                    <a href="dashboard.html" class="flex-1 text-center px-3 py-2 text-sm font-medium text-slate-300 border border-slate-600 rounded-lg">Masuk</a>
+    78→                    <a href="profile.html" class="flex-1 text-center px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-lg">Daftar</a>
+    79→                </div>
+    80→            </div>
+    81→        </div>
+    82→    </nav>
+    83→
+    84→    <!-- Main Content -->
+    85→    <main class="main-content flex-1 pt-16">
+    86→        <!-- Page Header -->
+    87→        <div class="bg-navy-800/50 border-b border-slate-700/50">
+    88→            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    89→                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    90→                    <div>
+    91→                        <h1 class="text-2xl md:text-3xl font-bold text-white">Property Exchange</h1>
+    92→                        <p class="text-slate-400 text-sm mt-1">Jual beli properti untuk kebutuhan bisnis komoditas Anda</p>
+    93→                    </div>
+    94→                    <div class="flex items-center gap-2 text-sm text-slate-400">
+    95→                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+    96→                        <span><span class="text-white font-medium">342</span> properti aktif</span>
+    97→                    </div>
+    98→                </div>
+    99→            </div>
+   100→        </div>
+   101→
+   102→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+   103→            <!-- Property Type Tabs -->
+   104→            <div class="flex flex-wrap gap-2 mb-6">
+   105→                <button class="property-tab tab-active px-4 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm font-medium transition-all" data-type="all">
+   106→                    Semua
+   107→                </button>
+   108→                <button class="property-tab px-4 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:border-slate-600 transition-all" data-type="rumah">
+   109→                    <span class="mr-1.5">🏠</span> Rumah
+   110→                </button>
+   111→                <button class="property-tab px-4 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:border-slate-600 transition-all" data-type="tanah">
+   112→                    <span class="mr-1.5">🏗️</span> Tanah
+   113→                </button>
+   114→                <button class="property-tab px-4 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:border-slate-600 transition-all" data-type="ruko">
+   115→                    <span class="mr-1.5">🏢</span> Ruko
+   116→                </button>
+   117→                <button class="property-tab px-4 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:border-slate-600 transition-all" data-type="gudang">
+   118→                    <span class="mr-1.5">🏭</span> Gudang
+   119→                </button>
+   120→            </div>
+   121→
+   122→            <!-- Search & Filter -->
+   123→            <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-4 md:p-5 mb-6">
+   124→                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+   125→                    <div class="relative sm:col-span-2 lg:col-span-1">
+   126→                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+   127→                        <input type="text" placeholder="Cari properti..." class="w-full pl-10 pr-4 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors">
+   128→                    </div>
+   129→                    <div>
+   130→                        <select class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors appearance-none cursor-pointer">
+   131→                            <option value="">Semua Lokasi</option>
+   132→                            <option value="jakarta">Jakarta</option>
+   133→                            <option value="surabaya">Surabaya</option>
+   134→                            <option value="makassar">Makassar</option>
+   135→                            <option value="medan">Medan</option>
+   136→                            <option value="semarang">Semarang</option>
+   137→                            <option value="bandung">Bandung</option>
+   138→                        </select>
+   139→                    </div>
+   140→                    <div>
+   141→                        <select class="w-full px-3 py-2.5 bg-navy-900 border border-slate-700/50 rounded-lg text-sm text-slate-300 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-colors appearance-none cursor-pointer">
+   142→                            <option value="">Rentang Harga</option>
+   143→                            <option value="0-500m">< Rp 500 Juta</option>
+   144→                            <option value="500m-1m">Rp 500 Jt - 1 M</option>
+   145→                            <option value="1m-5m">Rp 1 - 5 Miliar</option>
+   146→                            <option value="5m+">> Rp 5 Miliar</option>
+   147→                        </select>
+   148→                    </div>
+   149→                    <div>
+   150→                        <button class="w-full px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-sm font-semibold rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+   151→                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+   152→                            Cari Properti
+   153→                        </button>
+   154→                    </div>
+   155→                </div>
+   156→            </div>
+   157→
+   158→            <!-- Property Cards Grid -->
+   159→            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+   160→                <!-- Property 1 - Gudang -->
+   161→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   162→                    <div class="h-48 bg-gradient-to-br from-slate-800/60 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   163→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   164→                        <div class="relative text-5xl opacity-60">🏭</div>
+   165→                        <div class="absolute top-3 left-3">
+   166→                            <span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Gudang</span>
+   167→                        </div>
+   168→                        <div class="absolute top-3 right-3">
+   169→                            <span class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/30 rounded text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Featured</span>
+   170→                        </div>
+   171→                    </div>
+   172→                    <div class="p-5">
+   173→                        <h3 class="text-base font-semibold text-white group-hover:text-emerald-400 transition-colors mb-1">Gudang Logistik 2000m²</h3>
+   174→                        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-3">
+   175→                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   176→                            Marunda, Jakarta Utara
+   177→                        </div>
+   178→                        <div class="grid grid-cols-2 gap-3 mb-4">
+   179→                            <div>
+   180→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas Tanah</span>
+   181→                                <p class="text-sm font-semibold text-white">2.000 m²</p>
+   182→                            </div>
+   183→                            <div>
+   184→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas Bangunan</span>
+   185→                                <p class="text-sm font-semibold text-white">1.800 m²</p>
+   186→                            </div>
+   187→                        </div>
+   188→                        <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
+   189→                            <div>
+   190→                                <span class="text-[10px] text-slate-500">Harga</span>
+   191→                                <p class="text-lg font-bold gradient-text">Rp 8.5 Miliar</p>
+   192→                            </div>
+   193→                            <button class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-lg hover:bg-emerald-500/20 transition-colors">Detail</button>
+   194→                        </div>
+   195→                    </div>
+   196→                </div>
+   197→
+   198→                <!-- Property 2 - Tanah -->
+   199→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   200→                    <div class="h-48 bg-gradient-to-br from-emerald-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   201→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   202→                        <div class="relative text-5xl opacity-60">🏗️</div>
+   203→                        <div class="absolute top-3 left-3">
+   204→                            <span class="px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 rounded text-amber-400 text-[10px] font-semibold uppercase tracking-wider">Tanah</span>
+   205→                        </div>
+   206→                    </div>
+   207→                    <div class="p-5">
+   208→                        <h3 class="text-base font-semibold text-white group-hover:text-emerald-400 transition-colors mb-1">Lahan Perkebunan Sawit 50Ha</h3>
+   209→                        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-3">
+   210→                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   211→                            Kutai Kartanegara, Kalimantan Timur
+   212→                        </div>
+   213→                        <div class="grid grid-cols-2 gap-3 mb-4">
+   214→                            <div>
+   215→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas</span>
+   216→                                <p class="text-sm font-semibold text-white">50 Hektar</p>
+   217→                            </div>
+   218→                            <div>
+   219→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">SHM</span>
+   220→                                <p class="text-sm font-semibold text-emerald-400">✓ Tersedia</p>
+   221→                            </div>
+   222→                        </div>
+   223→                        <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
+   224→                            <div>
+   225→                                <span class="text-[10px] text-slate-500">Harga</span>
+   226→                                <p class="text-lg font-bold gradient-text">Rp 25 Miliar</p>
+   227→                            </div>
+   228→                            <button class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-lg hover:bg-emerald-500/20 transition-colors">Detail</button>
+   229→                        </div>
+   230→                    </div>
+   231→                </div>
+   232→
+   233→                <!-- Property 3 - Ruko -->
+   234→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   235→                    <div class="h-48 bg-gradient-to-br from-cyan-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   236→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   237→                        <div class="relative text-5xl opacity-60">🏢</div>
+   238→                        <div class="absolute top-3 left-3">
+   239→                            <span class="px-2.5 py-1 bg-cyan-500/20 border border-cyan-500/30 rounded text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Ruko</span>
+   240→                        </div>
+   241→                    </div>
+   242→                    <div class="p-5">
+   243→                        <h3 class="text-base font-semibold text-white group-hover:text-emerald-400 transition-colors mb-1">Ruko 3 Lantai Kawasan Pelabuhan</h3>
+   244→                        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-3">
+   245→                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   246→                            Tanjung Priok, Jakarta Utara
+   247→                        </div>
+   248→                        <div class="grid grid-cols-2 gap-3 mb-4">
+   249→                            <div>
+   250→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas Tanah</span>
+   251→                                <p class="text-sm font-semibold text-white">120 m²</p>
+   252→                            </div>
+   253→                            <div>
+   254→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas Bangunan</span>
+   255→                                <p class="text-sm font-semibold text-white">300 m²</p>
+   256→                            </div>
+   257→                        </div>
+   258→                        <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
+   259→                            <div>
+   260→                                <span class="text-[10px] text-slate-500">Harga</span>
+   261→                                <p class="text-lg font-bold gradient-text">Rp 4.2 Miliar</p>
+   262→                            </div>
+   263→                            <button class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-lg hover:bg-emerald-500/20 transition-colors">Detail</button>
+   264→                        </div>
+   265→                    </div>
+   266→                </div>
+   267→
+   268→                <!-- Property 4 - Rumah -->
+   269→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   270→                    <div class="h-48 bg-gradient-to-br from-indigo-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   271→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   272→                        <div class="relative text-5xl opacity-60">🏠</div>
+   273→                        <div class="absolute top-3 left-3">
+   274→                            <span class="px-2.5 py-1 bg-violet-500/20 border border-violet-500/30 rounded text-violet-400 text-[10px] font-semibold uppercase tracking-wider">Rumah</span>
+   275→                        </div>
+   276→                    </div>
+   277→                    <div class="p-5">
+   278→                        <h3 class="text-base font-semibold text-white group-hover:text-emerald-400 transition-colors mb-1">Rumah Besar Tipe 300</h3>
+   279→                        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-3">
+   280→                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   281→                            Bumi Serpong Damai, Tangerang
+   282→                        </div>
+   283→                        <div class="grid grid-cols-2 gap-3 mb-4">
+   284→                            <div>
+   285→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas Tanah</span>
+   286→                                <p class="text-sm font-semibold text-white">300 m²</p>
+   287→                            </div>
+   288→                            <div>
+   289→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas Bangunan</span>
+   290→                                <p class="text-sm font-semibold text-white">250 m²</p>
+   291→                            </div>
+   292→                        </div>
+   293→                        <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
+   294→                            <div>
+   295→                                <span class="text-[10px] text-slate-500">Harga</span>
+   296→                                <p class="text-lg font-bold gradient-text">Rp 3.8 Miliar</p>
+   297→                            </div>
+   298→                            <button class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-lg hover:bg-emerald-500/20 transition-colors">Detail</button>
+   299→                        </div>
+   300→                    </div>
+   301→                </div>
+   302→
+   303→                <!-- Property 5 - Gudang -->
+   304→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   305→                    <div class="h-48 bg-gradient-to-br from-slate-800/60 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   306→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   307→                        <div class="relative text-5xl opacity-60">🏭</div>
+   308→                        <div class="absolute top-3 left-3">
+   309→                            <span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Gudang</span>
+   310→                        </div>
+   311→                    </div>
+   312→                    <div class="p-5">
+   313→                        <h3 class="text-base font-semibold text-white group-hover:text-emerald-400 transition-colors mb-1">Gudang Penyimpanan Komoditas</h3>
+   314→                        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-3">
+   315→                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   316→                            Tanjung Emas, Semarang
+   317→                        </div>
+   318→                        <div class="grid grid-cols-2 gap-3 mb-4">
+   319→                            <div>
+   320→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas Tanah</span>
+   321→                                <p class="text-sm font-semibold text-white">5.000 m²</p>
+   322→                            </div>
+   323→                            <div>
+   324→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas Bangunan</span>
+   325→                                <p class="text-sm font-semibold text-white">3.500 m²</p>
+   326→                            </div>
+   327→                        </div>
+   328→                        <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
+   329→                            <div>
+   330→                                <span class="text-[10px] text-slate-500">Harga</span>
+   331→                                <p class="text-lg font-bold gradient-text">Rp 15 Miliar</p>
+   332→                            </div>
+   333→                            <button class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-lg hover:bg-emerald-500/20 transition-colors">Detail</button>
+   334→                        </div>
+   335→                    </div>
+   336→                </div>
+   337→
+   338→                <!-- Property 6 - Tanah -->
+   339→                <div class="group bg-navy-800 border border-slate-700/50 rounded-xl overflow-hidden card-glow transition-all duration-300 hover:border-emerald-500/30">
+   340→                    <div class="h-48 bg-gradient-to-br from-emerald-900/30 to-navy-800 flex items-center justify-center relative overflow-hidden">
+   341→                        <div class="absolute inset-0 bg-gradient-to-t from-navy-800 via-transparent to-transparent"></div>
+   342→                        <div class="relative text-5xl opacity-60">🏗️</div>
+   343→                        <div class="absolute top-3 left-3">
+   344→                            <span class="px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 rounded text-amber-400 text-[10px] font-semibold uppercase tracking-wider">Tanah</span>
+   345→                        </div>
+   346→                        <div class="absolute top-3 right-3">
+   347→                            <span class="px-2 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded text-emerald-400 text-[10px] font-semibold uppercase tracking-wider">Verified</span>
+   348→                        </div>
+   349→                    </div>
+   350→                    <div class="p-5">
+   351→                        <h3 class="text-base font-semibold text-white group-hover:text-emerald-400 transition-colors mb-1">Lahan Perkebunan Kelapa 20Ha</h3>
+   352→                        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-3">
+   353→                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   354→                            Minahasa, Sulawesi Utara
+   355→                        </div>
+   356→                        <div class="grid grid-cols-2 gap-3 mb-4">
+   357→                            <div>
+   358→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">Luas</span>
+   359→                                <p class="text-sm font-semibold text-white">20 Hektar</p>
+   360→                            </div>
+   361→                            <div>
+   362→                                <span class="text-[10px] text-slate-500 uppercase tracking-wider">SHM</span>
+   363→                                <p class="text-sm font-semibold text-emerald-400">✓ Tersedia</p>
+   364→                            </div>
+   365→                        </div>
+   366→                        <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
+   367→                            <div>
+   368→                                <span class="text-[10px] text-slate-500">Harga</span>
+   369→                                <p class="text-lg font-bold gradient-text">Rp 12 Miliar</p>
+   370→                            </div>
+   371→                            <button class="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-lg hover:bg-emerald-500/20 transition-colors">Detail</button>
+   372→                        </div>
+   373→                    </div>
+   374→                </div>
+   375→            </div>
+   376→
+   377→            <!-- Pagination -->
+   378→            <div class="flex items-center justify-center gap-2 py-4">
+   379→                <button class="px-3 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-400 hover:text-white hover:border-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+   380→                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+   381→                </button>
+   382→                <button class="px-3.5 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-sm font-medium text-emerald-400">1</button>
+   383→                <button class="px-3.5 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">2</button>
+   384→                <button class="px-3.5 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">3</button>
+   385→                <button class="px-3 py-2 bg-navy-800 border border-slate-700/50 rounded-lg text-sm text-slate-300 hover:text-white hover:border-slate-600 transition-colors">
+   386→                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+   387→                </button>
+   388→            </div>
+   389→        </div>
+   390→    </main>
+   391→
+   392→    <!-- Footer -->
+   393→    <footer class="bg-black/40 border-t border-slate-700/50 mt-auto">
+   394→        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+   395→            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+   396→                <div class="flex items-center gap-3">
+   397→                    <div class="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-white text-xs">N</div>
+   398→                    <span class="text-sm text-slate-400">&copy; 2025 Nusantara Commodity Exchange. All rights reserved.</span>
+   399→                </div>
+   400→                <div class="flex items-center gap-4 text-sm text-slate-500">
+   401→                    <a href="#" class="hover:text-emerald-400 transition-colors">Syarat & Ketentuan</a>
+   402→                    <a href="#" class="hover:text-emerald-400 transition-colors">Kebijakan Privasi</a>
+   403→                    <a href="#" class="hover:text-emerald-400 transition-colors">Bantuan</a>
+   404→                </div>
+   405→            </div>
+   406→        </div>
+   407→    </footer>
+   408→
+   409→    <!-- WhatsApp Float Button -->
+   410→    <a href="https://wa.me/6281234567890" target="_blank" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 hover:shadow-emerald-500/50 hover:scale-110 transition-all" aria-label="Chat WhatsApp">
+   411→        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+   412→    </a>
+   413→
+   414→    <script type="module" src="./assets/js/modules/property/index.js"></script>
+   415→
+   416→    <!-- NCE Mobile App Support -->
+   417→    <div id="mobile-drawer-container"></div>
+   418→    <script type="module" src="./assets/js/modules/mobile/index.js"></script>
+   419→
+   420→    <!-- PWA Registration -->
+   421→    <script type="module" src="./assets/js/modules/pwa/index.js"></script>
+   422→</body>
+   423→</html>

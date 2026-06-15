@@ -1,0 +1,1542 @@
+     1→<!DOCTYPE html>
+     2→<html lang="id">
+     3→<head>
+     4→  <meta charset="UTF-8">
+     5→  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+     6→  <meta name="theme-color" content="#0a0e27">
+     7→  <meta name="apple-mobile-web-app-capable" content="yes">
+     8→  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     9→  <meta name="apple-mobile-web-app-title" content="NCE">
+    10→  <meta name="mobile-web-app-capable" content="yes">
+    11→  <meta name="format-detection" content="telephone=no">
+    12→  <meta name="msapplication-TileColor" content="#0a0e27">
+    13→  <meta name="msapplication-navbutton-color" content="#0a0e27">
+    14→  <meta name="application-name" content="NCE">
+    15→  <meta name="chrome-mobile-web-app-capable" content="yes">
+    16→  <meta name="chrome-mobile-web-app-status-bar-style" content="black-translucent">
+    17→  <link rel="manifest" href="./manifest.json">
+    18→  <link rel="apple-touch-icon" href="./assets/images/icons/apple-touch-icon.png">
+    19→  <link rel="icon" type="image/png" sizes="32x32" href="./assets/images/icons/favicon-32x32.png">
+    20→  <link rel="icon" type="image/png" sizes="16x16" href="./assets/images/icons/favicon-16x16.png">
+    21→  <link rel="shortcut icon" href="./assets/images/icons/favicon-32x32.png">
+    22→  <title>NCE - Nusantara Commodity Exchange</title>
+    23→  <link rel="preconnect" href="https://fonts.googleapis.com">
+    24→  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    25→  <style>
+    26→    /* ===== CORE RESET ===== */
+    27→    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    28→    html, body {
+    29→      height:100%; width:100%; overflow:hidden;
+    30→      background:#0a0e27; color:#e2e8f0;
+    31→      font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    32→      overscroll-behavior:none; -webkit-overflow-scrolling:touch;
+    33→      user-select:none; -webkit-user-select:none;
+    34→      touch-action:manipulation;
+    35→    }
+    36→    ::-webkit-scrollbar{width:0;height:0}
+    37→    *{scrollbar-width:none}
+    38→    img{-webkit-user-drag:none;user-select:none}
+    39→    a{text-decoration:none;color:inherit}
+    40→    button{border:none;outline:none;background:none;cursor:pointer;font-family:inherit;color:inherit}
+    41→    input,select,textarea{outline:none;border:none;font-family:inherit;color:inherit}
+    42→
+    43→    /* ===== APP SHELL ===== */
+    44→    #app-shell {
+    45→      display:flex; flex-direction:column;
+    46→      height:100vh; height:100dvh; width:100vw;
+    47→      position:relative; overflow:hidden;
+    48→    }
+    49→
+    50→    /* ===== STATUS BAR SPACER ===== */
+    51→    .status-bar-spacer {
+    52→      height:env(safe-area-inset-top, 0px);
+    53→      background:#0a0e27; flex-shrink:0;
+    54→    }
+    55→
+    56→    /* ===== APP HEADER ===== */
+    57→    .app-header {
+    58→      display:flex; align-items:center; justify-content:space-between;
+    59→      padding:12px 16px; background:#0a0e27;
+    60→      border-bottom:1px solid #1e293b; flex-shrink:0;
+    61→      position:relative; z-index:100;
+    62→    }
+    63→    .app-header-left { display:flex; align-items:center; gap:10px; }
+    64→    .app-header-logo { width:32px; height:32px; border-radius:8px; object-fit:contain; }
+    65→    .app-header-title { font-size:18px; font-weight:700; letter-spacing:-0.3px; }
+    66→    .app-header-title span { color:#10b981; }
+    67→    .app-header-right { display:flex; align-items:center; gap:16px; }
+    68→    .header-icon-btn {
+    69→      width:36px; height:36px; border-radius:10px;
+    70→      display:flex; align-items:center; justify-content:center;
+    71→      background:#111827; color:#94a3b8; font-size:18px;
+    72→      transition:background .2s, color .2s; position:relative;
+    73→    }
+    74→    .header-icon-btn:active { background:#1e293b; color:#e2e8f0; }
+    75→    .notif-badge {
+    76→      position:absolute; top:4px; right:4px; width:8px; height:8px;
+    77→      background:#ef4444; border-radius:50%; border:2px solid #0a0e27;
+    78→    }
+    79→
+    80→    /* ===== CONTENT AREA ===== */
+    81→    .content-area {
+    82→      flex:1; overflow-y:auto; overflow-x:hidden;
+    83→      -webkit-overflow-scrolling:touch;
+    84→      scroll-behavior:smooth;
+    85→      padding-bottom:0;
+    86→    }
+    87→
+    88→    /* ===== VIEWS ===== */
+    89→    .view { display:none; min-height:100%; }
+    90→    .view.active { display:block; animation:viewFadeIn .25s ease; }
+    91→    @keyframes viewFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    92→
+    93→    /* ===== BOTTOM NAV ===== */
+    94→    .bottom-nav {
+    95→      display:flex; align-items:stretch;
+    96→      background:#0d1121; border-top:1px solid #1e293b;
+    97→      padding-bottom:env(safe-area-inset-bottom, 0px);
+    98→      flex-shrink:0; position:relative; z-index:100;
+    99→    }
+   100→    .nav-item {
+   101→      flex:1; display:flex; flex-direction:column; align-items:center;
+   102→      justify-content:center; padding:8px 0 6px; gap:2px;
+   103→      color:#64748b; transition:color .2s; min-height:56px;
+   104→      position:relative;
+   105→    }
+   106→    .nav-item.active { color:#10b981; }
+   107→    .nav-item.active::before {
+   108→      content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+   109→      width:24px; height:3px; background:#10b981; border-radius:0 0 3px 3px;
+   110→    }
+   111→    .nav-item svg { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:all .2s; }
+   112→    .nav-item span { font-size:10px; font-weight:500; letter-spacing:0.2px; }
+   113→    .nav-item:active { background:#111827; }
+   114→
+   115→    /* ===== SECTION STYLES ===== */
+   116→    .section { padding:16px; }
+   117→    .section-title {
+   118→      font-size:15px; font-weight:700; color:#e2e8f0;
+   119→      margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;
+   120→    }
+   121→    .section-title .see-all { font-size:12px; color:#10b981; font-weight:500; }
+   122→
+   123→    /* ===== CARDS ===== */
+   124→    .card {
+   125→      background:#111827; border-radius:14px; padding:16px;
+   126→      border:1px solid #1e293b; position:relative; overflow:hidden;
+   127→    }
+   128→    .card:active { background:#162033; }
+   129→    .card-glow { box-shadow:0 0 40px rgba(16,185,129,0.06); }
+   130→
+   131→    /* ===== HOME VIEW ===== */
+   132→    .greeting { padding:16px 16px 0; }
+   133→    .greeting-text { font-size:13px; color:#64748b; margin-bottom:2px; }
+   134→    .greeting-name { font-size:20px; font-weight:700; }
+   135→
+   136→    .balance-card {
+   137→      margin:12px 16px; padding:20px;
+   138→      background:linear-gradient(135deg,#0f2027,#1a3a2a,#10b98120);
+   139→      border-radius:16px; border:1px solid #10b98130;
+   140→      position:relative; overflow:hidden;
+   141→    }
+   142→    .balance-card::after {
+   143→      content:''; position:absolute; top:-30px; right:-30px;
+   144→      width:120px; height:120px; border-radius:50%;
+   145→      background:radial-gradient(circle,#10b98115,transparent);
+   146→    }
+   147→    .balance-label { font-size:12px; color:#94a3b8; margin-bottom:4px; }
+   148→    .balance-amount { font-size:28px; font-weight:800; letter-spacing:-0.5px; }
+   149→    .balance-amount .currency { font-size:16px; font-weight:500; color:#94a3b8; margin-right:4px; }
+   150→    .balance-change { display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:12px; font-weight:600; color:#10b981; background:#10b98118; padding:3px 8px; border-radius:6px; }
+   151→
+   152→    /* Quick Actions */
+   153→    .quick-actions {
+   154→      display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+   155→      padding:0 16px; margin-bottom:16px;
+   156→    }
+   157→    .quick-action {
+   158→      display:flex; flex-direction:column; align-items:center; gap:8px;
+   159→      padding:14px 8px; background:#111827; border-radius:14px;
+   160→      border:1px solid #1e293b; transition:all .2s;
+   161→    }
+   162→    .quick-action:active { background:#1a2234; transform:scale(0.96); }
+   163→    .quick-action-icon {
+   164→      width:40px; height:40px; border-radius:12px;
+   165→      display:flex; align-items:center; justify-content:center;
+   166→      font-size:20px;
+   167→    }
+   168→    .quick-action-icon.buy { background:#10b98120; color:#10b981; }
+   169→    .quick-action-icon.sell { background:#ef444420; color:#ef4444; }
+   170→    .quick-action-icon.request { background:#06b6d420; color:#06b6d4; }
+   171→    .quick-action-icon.property { background:#f59e0b20; color:#f59e0b; }
+   172→    .quick-action span { font-size:11px; font-weight:500; color:#94a3b8; }
+   173→
+   174→    /* Ticker Scroll */
+   175→    .ticker-scroll {
+   176→      display:flex; gap:10px; overflow-x:auto; padding:0 16px 16px;
+   177→      scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+   178→    }
+   179→    .ticker-item {
+   180→      flex-shrink:0; width:140px; padding:12px;
+   181→      background:#111827; border-radius:12px; border:1px solid #1e293b;
+   182→      scroll-snap-align:start;
+   183→    }
+   184→    .ticker-name { font-size:12px; color:#94a3b8; margin-bottom:2px; }
+   185→    .ticker-symbol { font-size:13px; font-weight:600; }
+   186→    .ticker-price { font-size:16px; font-weight:700; margin-top:6px; }
+   187→    .ticker-change { font-size:11px; font-weight:600; margin-top:2px; }
+   188→    .ticker-change.up { color:#10b981; }
+   189→    .ticker-change.down { color:#ef4444; }
+   190→
+   191→    /* Commodity List Item */
+   192→    .commodity-item {
+   193→      display:flex; align-items:center; gap:12px;
+   194→      padding:14px 16px; border-bottom:1px solid #1e293b10;
+   195→      transition:background .15s;
+   196→    }
+   197→    .commodity-item:active { background:#111827; }
+   198→    .commodity-icon {
+   199→      width:42px; height:42px; border-radius:12px;
+   200→      display:flex; align-items:center; justify-content:center;
+   201→      font-size:22px; flex-shrink:0;
+   202→    }
+   203→    .commodity-info { flex:1; min-width:0; }
+   204→    .commodity-name { font-size:14px; font-weight:600; }
+   205→    .commodity-origin { font-size:11px; color:#64748b; margin-top:1px; }
+   206→    .commodity-price-col { text-align:right; flex-shrink:0; }
+   207→    .commodity-price { font-size:14px; font-weight:700; }
+   208→    .commodity-change { font-size:11px; font-weight:600; }
+   209→    .commodity-change.up { color:#10b981; }
+   210→    .commodity-change.down { color:#ef4444; }
+   211→
+   212→    /* Mini chart placeholder */
+   213→    .mini-chart { width:48px; height:24px; flex-shrink:0; margin-right:8px; }
+   214→
+   215→    /* ===== MARKET VIEW ===== */
+   216→    .search-bar {
+   217→      margin:12px 16px; position:relative;
+   218→    }
+   219→    .search-bar input {
+   220→      width:100%; padding:12px 16px 12px 42px;
+   221→      background:#111827; border:1px solid #1e293b; border-radius:12px;
+   222→      color:#e2e8f0; font-size:14px;
+   223→    }
+   224→    .search-bar input::placeholder { color:#475569; }
+   225→    .search-bar input:focus { border-color:#10b981; }
+   226→    .search-bar svg {
+   227→      position:absolute; left:14px; top:50%; transform:translateY(-50%);
+   228→      width:18px; height:18px; fill:#475569;
+   229→    }
+   230→
+   231→    .filter-tabs {
+   232→      display:flex; gap:8px; padding:0 16px 12px;
+   233→      overflow-x:auto; -webkit-overflow-scrolling:touch;
+   234→    }
+   235→    .filter-tab {
+   236→      flex-shrink:0; padding:8px 16px; border-radius:20px;
+   237→      font-size:13px; font-weight:500; color:#64748b;
+   238→      background:#111827; border:1px solid #1e293b;
+   239→      transition:all .2s; white-space:nowrap;
+   240→    }
+   241→    .filter-tab.active { background:#10b981; color:#fff; border-color:#10b981; }
+   242→    .filter-tab:active { transform:scale(0.95); }
+   243→
+   244→    /* ===== ORDERS VIEW ===== */
+   245→    .order-tabs {
+   246→      display:flex; margin:12px 16px; background:#111827; border-radius:12px; padding:4px;
+   247→      border:1px solid #1e293b;
+   248→    }
+   249→    .order-tab {
+   250→      flex:1; padding:10px; text-align:center; font-size:13px; font-weight:600;
+   251→      border-radius:10px; color:#64748b; transition:all .2s;
+   252→    }
+   253→    .order-tab.active { background:#10b981; color:#fff; }
+   254→
+   255→    .order-card {
+   256→      margin:0 16px 10px; padding:16px; background:#111827;
+   257→      border-radius:14px; border:1px solid #1e293b;
+   258→    }
+   259→    .order-card:active { background:#162033; }
+   260→    .order-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+   261→    .order-type { font-size:13px; font-weight:600; }
+   262→    .order-status { font-size:11px; font-weight:600; padding:3px 10px; border-radius:6px; }
+   263→    .order-status.active { background:#10b98120; color:#10b981; }
+   264→    .order-status.completed { background:#06b6d420; color:#06b6d4; }
+   265→    .order-status.cancelled { background:#ef444420; color:#ef4444; }
+   266→    .order-status.pending { background:#f59e0b20; color:#f59e0b; }
+   267→    .order-detail { display:flex; justify-content:space-between; padding:4px 0; }
+   268→    .order-detail-label { font-size:12px; color:#64748b; }
+   269→    .order-detail-value { font-size:12px; font-weight:500; }
+   270→
+   271→    /* FAB */
+   272→    .fab {
+   273→      position:fixed; bottom:80px; right:20px;
+   274→      width:56px; height:56px; border-radius:16px;
+   275→      background:linear-gradient(135deg,#10b981,#059669);
+   276→      display:flex; align-items:center; justify-content:center;
+   277→      color:#fff; font-size:28px; font-weight:300;
+   278→      box-shadow:0 8px 24px #10b98140;
+   279→      z-index:90; transition:transform .2s, box-shadow .2s;
+   280→    }
+   281→    .fab:active { transform:scale(0.92); box-shadow:0 4px 16px #10b98130; }
+   282→
+   283→    /* ===== PROPERTY VIEW ===== */
+   284→    .property-banner-scroll {
+   285→      display:flex; gap:12px; padding:12px 16px;
+   286→      overflow-x:auto; -webkit-overflow-scrolling:touch;
+   287→      scroll-snap-type:x mandatory;
+   288→    }
+   289→    .property-banner {
+   290→      flex-shrink:0; width:calc(100vw - 48px); height:160px;
+   291→      border-radius:16px; overflow:hidden; position:relative;
+   292→      scroll-snap-align:start;
+   293→    }
+   294→    .property-banner-bg {
+   295→      width:100%; height:100%; object-fit:cover;
+   296→    }
+   297→    .property-banner-overlay {
+   298→      position:absolute; bottom:0; left:0; right:0; padding:16px;
+   299→      background:linear-gradient(transparent,rgba(10,14,39,0.95));
+   300→    }
+   301→    .property-banner-title { font-size:16px; font-weight:700; }
+   302→    .property-banner-price { font-size:13px; color:#10b981; font-weight:600; margin-top:2px; }
+   303→
+   304→    .property-card {
+   305→      margin:0 16px 12px; padding:0; background:#111827;
+   306→      border-radius:14px; border:1px solid #1e293b; overflow:hidden;
+   307→    }
+   308→    .property-card:active { background:#162033; }
+   309→    .property-card-img { width:100%; height:140px; object-fit:cover; }
+   310→    .property-card-body { padding:14px; }
+   311→    .property-card-title { font-size:14px; font-weight:600; margin-bottom:4px; }
+   312→    .property-card-location { font-size:12px; color:#64748b; display:flex; align-items:center; gap:4px; margin-bottom:8px; }
+   313→    .property-card-footer { display:flex; justify-content:space-between; align-items:center; }
+   314→    .property-card-price { font-size:16px; font-weight:700; color:#10b981; }
+   315→    .property-card-tag { font-size:10px; font-weight:600; padding:3px 8px; border-radius:6px; background:#06b6d420; color:#06b6d4; }
+   316→
+   317→    /* ===== PROFILE VIEW ===== */
+   318→    .profile-header {
+   319→      display:flex; flex-direction:column; align-items:center;
+   320→      padding:24px 16px; position:relative;
+   321→    }
+   322→    .profile-avatar {
+   323→      width:72px; height:72px; border-radius:20px; border:3px solid #10b981;
+   324→      object-fit:contain; background:#111827; padding:4px;
+   325→    }
+   326→    .profile-name { font-size:18px; font-weight:700; margin-top:12px; }
+   327→    .profile-role { font-size:13px; color:#10b981; font-weight:500; margin-top:2px; }
+   328→    .profile-stats {
+   329→      display:flex; gap:0; margin-top:16px; background:#111827; border-radius:14px;
+   330→      border:1px solid #1e293b; width:100%; overflow:hidden;
+   331→    }
+   332→    .profile-stat {
+   333→      flex:1; text-align:center; padding:14px 8px;
+   334→      border-right:1px solid #1e293b;
+   335→    }
+   336→    .profile-stat:last-child { border-right:none; }
+   337→    .profile-stat-value { font-size:16px; font-weight:700; color:#10b981; }
+   338→    .profile-stat-label { font-size:10px; color:#64748b; margin-top:2px; }
+   339→
+   340→    .settings-group { padding:0 16px; margin-bottom:16px; }
+   341→    .settings-group-title { font-size:12px; color:#64748b; font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+   342→    .settings-list { background:#111827; border-radius:14px; border:1px solid #1e293b; overflow:hidden; }
+   343→    .settings-item {
+   344→      display:flex; align-items:center; gap:12px;
+   345→      padding:14px 16px; border-bottom:1px solid #1e293b20;
+   346→      transition:background .15s;
+   347→    }
+   348→    .settings-item:last-child { border-bottom:none; }
+   349→    .settings-item:active { background:#162033; }
+   350→    .settings-item-icon {
+   351→      width:36px; height:36px; border-radius:10px;
+   352→      display:flex; align-items:center; justify-content:center;
+   353→      font-size:18px; flex-shrink:0;
+   354→    }
+   355→    .settings-item-icon.green { background:#10b98120; color:#10b981; }
+   356→    .settings-item-icon.blue { background:#06b6d420; color:#06b6d4; }
+   357→    .settings-item-icon.yellow { background:#f59e0b20; color:#f59e0b; }
+   358→    .settings-item-icon.red { background:#ef444420; color:#ef4444; }
+   359→    .settings-item-icon.purple { background:#8b5cf620; color:#8b5cf6; }
+   360→    .settings-item-text { flex:1; }
+   361→    .settings-item-label { font-size:14px; font-weight:500; }
+   362→    .settings-item-desc { font-size:11px; color:#64748b; margin-top:1px; }
+   363→    .settings-item-arrow { color:#475569; font-size:14px; }
+   364→
+   365→    /* ===== MODAL / BOTTOM SHEET ===== */
+   366→    .modal-overlay {
+   367→      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+   368→      z-index:200; justify-content:flex-end; flex-direction:column;
+   369→    }
+   370→    .modal-overlay.show { display:flex; animation:fadeIn .2s ease; }
+   371→    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+   372→    .bottom-sheet {
+   373→      background:#0d1121; border-radius:20px 20px 0 0;
+   374→      padding:8px 0 env(safe-area-inset-bottom, 20px);
+   375→      max-height:85vh; overflow-y:auto;
+   376→      animation:slideUp .3s cubic-bezier(.32,.72,0,1);
+   377→    }
+   378→    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+   379→    .bottom-sheet-handle {
+   380→      width:36px; height:4px; background:#334155; border-radius:2px;
+   381→      margin:4px auto 12px;
+   382→    }
+   383→    .bottom-sheet-title {
+   384→      font-size:17px; font-weight:700; padding:0 20px 16px;
+   385→    }
+   386→
+   387→    /* ===== TOAST ===== */
+   388→    .toast {
+   389→      position:fixed; top:60px; left:16px; right:16px;
+   390→      padding:14px 16px; background:#111827; border:1px solid #1e293b;
+   391→      border-radius:14px; z-index:300;
+   392→      display:flex; align-items:center; gap:10px;
+   393→      transform:translateY(-100px); opacity:0;
+   394→      transition:all .3s cubic-bezier(.32,.72,0,1);
+   395→    }
+   396→    .toast.show { transform:translateY(0); opacity:1; }
+   397→    .toast-icon { font-size:20px; }
+   398→    .toast-text { font-size:13px; font-weight:500; }
+   399→
+   400→    /* ===== PULL TO REFRESH ===== */
+   401→    .pull-indicator {
+   402→      text-align:center; padding:8px; font-size:12px; color:#64748b;
+   403→      display:none;
+   404→    }
+   405→    .pull-indicator.visible { display:block; }
+   406→
+   407→    /* ===== EMPTY STATE ===== */
+   408→    .empty-state {
+   409→      display:flex; flex-direction:column; align-items:center;
+   410→      justify-content:center; padding:48px 24px; text-align:center;
+   411→    }
+   412→    .empty-state-icon { font-size:48px; margin-bottom:12px; opacity:0.5; }
+   413→    .empty-state-title { font-size:16px; font-weight:600; margin-bottom:4px; }
+   414→    .empty-state-desc { font-size:13px; color:#64748b; }
+   415→
+   416→    /* ===== CHART PLACEHOLDER ===== */
+   417→    .chart-area {
+   418→      height:180px; padding:0 16px; margin-bottom:12px;
+   419→    }
+   420→    .chart-canvas { width:100%; height:100%; }
+   421→
+   422→    /* ===== LIVE DOT ===== */
+   423→    .live-dot {
+   424→      display:inline-block; width:6px; height:6px; border-radius:50%;
+   425→      background:#10b981; margin-right:4px;
+   426→      animation:pulse 2s infinite;
+   427→    }
+   428→    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+   429→
+   430→    /* ===== LOADING SKELETON ===== */
+   431→    .skeleton {
+   432→      background:linear-gradient(90deg,#111827 25%,#1a2234 50%,#111827 75%);
+   433→      background-size:200% 100%; border-radius:8px;
+   434→      animation:shimmer 1.5s infinite;
+   435→    }
+   436→    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+   437→  </style>
+   438→</head>
+   439→<body>
+   440→  <div id="app-shell">
+   441→    <!-- Status Bar Spacer -->
+   442→    <div class="status-bar-spacer"></div>
+   443→
+   444→    <!-- App Header -->
+   445→    <header class="app-header">
+   446→      <div class="app-header-left">
+   447→        <img src="./assets/images/nce-logo.png" alt="NCE" class="app-header-logo">
+   448→        <div class="app-header-title"><span>NCE</span> Exchange</div>
+   449→      </div>
+   450→      <div class="app-header-right">
+   451→        <button class="header-icon-btn" onclick="showToast('search','Fitur pencarian segera hadir')">
+   452→          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+   453→        </button>
+   454→        <button class="header-icon-btn" onclick="showToast('notif','Tidak ada notifikasi baru')">
+   455→          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+   456→          <span class="notif-badge"></span>
+   457→        </button>
+   458→        <button class="header-icon-btn" onclick="showToast('scan','QR Scan segera hadir')">
+   459→          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10"/></svg>
+   460→        </button>
+   461→      </div>
+   462→    </header>
+   463→
+   464→    <!-- Content Area -->
+   465→    <div class="content-area" id="contentArea">
+   466→
+   467→      <!-- ===== HOME VIEW ===== -->
+   468→      <div class="view active" id="view-home">
+   469→        <div class="greeting">
+   470→          <div class="greeting-text">Selamat datang 👋</div>
+   471→          <div class="greeting-name">NCE Trading</div>
+   472→        </div>
+   473→
+   474→        <!-- Balance Card -->
+   475→        <div class="balance-card card-glow">
+   476→          <div class="balance-label">Total Portofolio</div>
+   477→          <div class="balance-amount"><span class="currency">IDR</span>2,847,350,000</div>
+   478→          <div class="balance-change">
+   479→            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 12H4z"/></svg>
+   480→            +12.4% bulan ini
+   481→          </div>
+   482→        </div>
+   483→
+   484→        <!-- Quick Actions -->
+   485→        <div class="quick-actions">
+   486→          <button class="quick-action" onclick="switchTab(1)">
+   487→            <div class="quick-action-icon buy">📊</div>
+   488→            <span>Beli</span>
+   489→          </button>
+   490→          <button class="quick-action" onclick="showToast('sell','Fitur jual segera hadir')">
+   491→            <div class="quick-action-icon sell">📉</div>
+   492→            <span>Jual</span>
+   493→          </button>
+   494→          <button class="quick-action" onclick="switchTab(2)">
+   495→            <div class="quick-action-icon request">📝</div>
+   496→            <span>Permintaan</span>
+   497→          </button>
+   498→          <button class="quick-action" onclick="switchTab(3)">
+   499→            <div class="quick-action-icon property">🏠</div>
+   500→            <span>Properti</span>
+   501→          </button>
+   502→        </div>
+   503→
+   504→        <!-- Live Tickers -->
+   505→        <div class="section">
+   506→          <div class="section-title">
+   507→            <span><span class="live-dot"></span>Harga Live</span>
+   508→            <span class="see-all" onclick="switchTab(1)">Lihat Semua →</span>
+   509→          </div>
+   510→        </div>
+   511→        <div class="ticker-scroll" id="tickerScroll">
+   512→          <div class="ticker-item">
+   513→            <div class="ticker-name">Sawit CPO</div>
+   514→            <div class="ticker-symbol">CPO</div>
+   515→            <div class="ticker-price">14,250</div>
+   516→            <div class="ticker-change up">+2.3%</div>
+   517→          </div>
+   518→          <div class="ticker-item">
+   519→            <div class="ticker-name">Kopi Arabika</div>
+   520→            <div class="ticker-symbol">KPI</div>
+   521→            <div class="ticker-price">68,500</div>
+   522→            <div class="ticker-change up">+1.8%</div>
+   523→          </div>
+   524→          <div class="ticker-item">
+   525→            <div class="ticker-name">Nikel</div>
+   526→            <div class="ticker-symbol">NKL</div>
+   527→            <div class="ticker-price">182,300</div>
+   528→            <div class="ticker-change down">-0.9%</div>
+   529→          </div>
+   530→          <div class="ticker-item">
+   531→            <div class="ticker-name">Tembaga</div>
+   532→            <div class="ticker-symbol">TMB</div>
+   533→            <div class="ticker-price">95,800</div>
+   534→            <div class="ticker-change up">+3.1%</div>
+   535→          </div>
+   536→          <div class="ticker-item">
+   537→            <div class="ticker-name">Timah</div>
+   538→            <div class="ticker-symbol">TMH</div>
+   539→            <div class="ticker-price">278,500</div>
+   540→            <div class="ticker-change up">+0.5%</div>
+   541→          </div>
+   542→          <div class="ticker-item">
+   543→            <div class="ticker-name">Batu Bara</div>
+   544→            <div class="ticker-symbol">BBA</div>
+   545→            <div class="ticker-price">2,845</div>
+   546→            <div class="ticker-change down">-1.2%</div>
+   547→          </div>
+   548→        </div>
+   549→
+   550→        <!-- Market Overview Chart -->
+   551→        <div class="section" style="padding-top:0">
+   552→          <div class="section-title">Grafik Pasar</div>
+   553→          <div class="chart-area">
+   554→            <canvas id="homeChart" class="chart-canvas"></canvas>
+   555→          </div>
+   556→        </div>
+   557→
+   558→        <!-- Trending Commodities -->
+   559→        <div class="section" style="padding-top:0">
+   560→          <div class="section-title">
+   561→            <span>Komoditas Populer</span>
+   562→            <span class="see-all" onclick="switchTab(1)">Lihat Semua →</span>
+   563→          </div>
+   564→          <div id="homeCommodityList">
+   565→            <div class="commodity-item" onclick="switchTab(1)">
+   566→              <div class="commodity-icon" style="background:#10b98120">🌴</div>
+   567→              <div class="commodity-info">
+   568→                <div class="commodity-name">Kelapa Sawit CPO</div>
+   569→                <div class="commodity-origin">Riau, Sumatera</div>
+   570→              </div>
+   571→              <canvas class="mini-chart" id="miniChart1"></canvas>
+   572→              <div class="commodity-price-col">
+   573→                <div class="commodity-price">14,250/kg</div>
+   574→                <div class="commodity-change up">+2.3%</div>
+   575→              </div>
+   576→            </div>
+   577→            <div class="commodity-item" onclick="switchTab(1)">
+   578→              <div class="commodity-icon" style="background:#8b5cf620">☕</div>
+   579→              <div class="commodity-info">
+   580→                <div class="commodity-name">Kopi Arabika</div>
+   581→                <div class="commodity-origin">Aceh, Sumatera</div>
+   582→              </div>
+   583→              <canvas class="mini-chart" id="miniChart2"></canvas>
+   584→              <div class="commodity-price-col">
+   585→                <div class="commodity-price">68,500/kg</div>
+   586→                <div class="commodity-change up">+1.8%</div>
+   587→              </div>
+   588→            </div>
+   589→            <div class="commodity-item" onclick="switchTab(1)">
+   590→              <div class="commodity-icon" style="background:#06b6d420">⛏️</div>
+   591→              <div class="commodity-info">
+   592→                <div class="commodity-name">Nikel</div>
+   593→                <div class="commodity-origin">Sulawesi Tengah</div>
+   594→              </div>
+   595→              <canvas class="mini-chart" id="miniChart3"></canvas>
+   596→              <div class="commodity-price-col">
+   597→                <div class="commodity-price">182,300/kg</div>
+   598→                <div class="commodity-change down">-0.9%</div>
+   599→              </div>
+   600→            </div>
+   601→            <div class="commodity-item" onclick="switchTab(1)">
+   602→              <div class="commodity-icon" style="background:#f59e0b20">🪙</div>
+   603→              <div class="commodity-info">
+   604→                <div class="commodity-name">Tembaga</div>
+   605→                <div class="commodity-origin">Papua</div>
+   606→              </div>
+   607→              <canvas class="mini-chart" id="miniChart4"></canvas>
+   608→              <div class="commodity-price-col">
+   609→                <div class="commodity-price">95,800/kg</div>
+   610→                <div class="commodity-change up">+3.1%</div>
+   611→              </div>
+   612→            </div>
+   613→            <div class="commodity-item" onclick="switchTab(1)">
+   614→              <div class="commodity-icon" style="background:#ef444420">🔥</div>
+   615→              <div class="commodity-info">
+   616→                <div class="commodity-name">Batu Bara</div>
+   617→                <div class="commodity-origin">Kalimantan Timur</div>
+   618→              </div>
+   619→              <canvas class="mini-chart" id="miniChart5"></canvas>
+   620→              <div class="commodity-price-col">
+   621→                <div class="commodity-price">2,845/kg</div>
+   622→                <div class="commodity-change down">-1.2%</div>
+   623→              </div>
+   624→            </div>
+   625→          </div>
+   626→        </div>
+   627→
+   628→        <!-- Recent Activity -->
+   629→        <div class="section" style="padding-top:0; padding-bottom:24px;">
+   630→          <div class="section-title">Aktivitas Terakhir</div>
+   631→          <div style="display:flex;flex-direction:column;gap:8px;">
+   632→            <div class="card" style="padding:14px;">
+   633→              <div style="display:flex;justify-content:space-between;align-items:center;">
+   634→                <div>
+   635→                  <div style="font-size:13px;font-weight:600;">Beli CPO - 50 Ton</div>
+   636→                  <div style="font-size:11px;color:#64748b;margin-top:2px;">Hari ini, 14:32</div>
+   637→                </div>
+   638→                <div style="text-align:right;">
+   639→                  <div style="font-size:13px;font-weight:600;color:#10b981;">+Rp 712.5M</div>
+   640→                  <div style="font-size:10px;color:#64748b;">Selesai</div>
+   641→                </div>
+   642→              </div>
+   643→            </div>
+   644→            <div class="card" style="padding:14px;">
+   645→              <div style="display:flex;justify-content:space-between;align-items:center;">
+   646→                <div>
+   647→                  <div style="font-size:13px;font-weight:600;">Jual Nikel - 20 Ton</div>
+   648→                  <div style="font-size:11px;color:#64748b;margin-top:2px;">Kemarin, 09:15</div>
+   649→                </div>
+   650→                <div style="text-align:right;">
+   651→                  <div style="font-size:13px;font-weight:600;color:#10b981;">+Rp 3.64M</div>
+   652→                  <div style="font-size:10px;color:#64748b;">Selesai</div>
+   653→                </div>
+   654→              </div>
+   655→            </div>
+   656→            <div class="card" style="padding:14px;">
+   657→              <div style="display:flex;justify-content:space-between;align-items:center;">
+   658→                <div>
+   659→                  <div style="font-size:13px;font-weight:600;">Permintaan Kopi</div>
+   660→                  <div style="font-size:11px;color:#64748b;margin-top:2px;">2 hari lalu, 16:45</div>
+   661→                </div>
+   662→                <div style="text-align:right;">
+   663→                  <div style="font-size:13px;font-weight:600;color:#f59e0b;">Pending</div>
+   664→                  <div style="font-size:10px;color:#64748b;">Menunggu</div>
+   665→                </div>
+   666→              </div>
+   667→            </div>
+   668→          </div>
+   669→        </div>
+   670→      </div>
+   671→
+   672→      <!-- ===== MARKET VIEW ===== -->
+   673→      <div class="view" id="view-market">
+   674→        <div class="search-bar">
+   675→          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+   676→          <input type="text" placeholder="Cari komoditas..." id="marketSearch" oninput="filterMarket()">
+   677→        </div>
+   678→
+   679→        <div class="filter-tabs" id="marketFilters">
+   680→          <button class="filter-tab active" onclick="setMarketFilter(this,'all')">Semua</button>
+   681→          <button class="filter-tab" onclick="setMarketFilter(this,'agri')">🌾 Pertanian</button>
+   682→          <button class="filter-tab" onclick="setMarketFilter(this,'mining')">⛏️ Pertambangan</button>
+   683→          <button class="filter-tab" onclick="setMarketFilter(this,'forest')">🌲 Kehutanan</button>
+   684→          <button class="filter-tab" onclick="setMarketFilter(this,'marine')">🐟 Perikanan</button>
+   685→        </div>
+   686→
+   687→        <!-- Market Stats -->
+   688→        <div style="display:flex;gap:8px;padding:0 16px 12px;overflow-x:auto;">
+   689→          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+   690→            <div style="font-size:10px;color:#64748b;">Volume 24h</div>
+   691→            <div style="font-size:14px;font-weight:700;color:#10b981;">2.4T</div>
+   692→          </div>
+   693→          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+   694→            <div style="font-size:10px;color:#64748b;">Transaksi</div>
+   695→            <div style="font-size:14px;font-weight:700;">12,847</div>
+   696→          </div>
+   697→          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+   698→            <div style="font-size:10px;color:#64748b;">Komoditas</div>
+   699→            <div style="font-size:14px;font-weight:700;">256</div>
+   700→          </div>
+   701→          <div style="flex-shrink:0;padding:10px 16px;background:#111827;border-radius:10px;border:1px solid #1e293b;">
+   702→            <div style="font-size:10px;color:#64748b;">Produsen</div>
+   703→            <div style="font-size:14px;font-weight:700;">1,423</div>
+   704→          </div>
+   705→        </div>
+   706→
+   707→        <div id="marketList">
+   708→          <!-- Agriculture -->
+   709→          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Kelapa Sawit CPO')">
+   710→            <div class="commodity-icon" style="background:#10b98120">🌴</div>
+   711→            <div class="commodity-info">
+   712→              <div class="commodity-name">Kelapa Sawit CPO</div>
+   713→              <div class="commodity-origin">Riau · Vol: 2.4M ton</div>
+   714→            </div>
+   715→            <div class="commodity-price-col">
+   716→              <div class="commodity-price">14,250/kg</div>
+   717→              <div class="commodity-change up">+2.3%</div>
+   718→            </div>
+   719→          </div>
+   720→          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Kopi Arabika')">
+   721→            <div class="commodity-icon" style="background:#8b5cf620">☕</div>
+   722→            <div class="commodity-info">
+   723→              <div class="commodity-name">Kopi Arabika</div>
+   724→              <div class="commodity-origin">Aceh · Vol: 890K ton</div>
+   725→            </div>
+   726→            <div class="commodity-price-col">
+   727→              <div class="commodity-price">68,500/kg</div>
+   728→              <div class="commodity-change up">+1.8%</div>
+   729→            </div>
+   730→          </div>
+   731→          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Kakao')">
+   732→            <div class="commodity-icon" style="background:#a1620720">🍫</div>
+   733→            <div class="commodity-info">
+   734→              <div class="commodity-name">Kakao</div>
+   735→              <div class="commodity-origin">Sulawesi · Vol: 620K ton</div>
+   736→            </div>
+   737→            <div class="commodity-price-col">
+   738→              <div class="commodity-price">52,800/kg</div>
+   739→              <div class="commodity-change up">+4.1%</div>
+   740→            </div>
+   741→          </div>
+   742→          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Karet')">
+   743→            <div class="commodity-icon" style="background:#eab30820">🟤</div>
+   744→            <div class="commodity-info">
+   745→              <div class="commodity-name">Karet SIR20</div>
+   746→              <div class="commodity-origin">Jambi · Vol: 340K ton</div>
+   747→            </div>
+   748→            <div class="commodity-price-col">
+   749→              <div class="commodity-price">16,200/kg</div>
+   750→              <div class="commodity-change down">-0.8%</div>
+   751→            </div>
+   752→          </div>
+   753→          <div class="commodity-item market-item" data-cat="agri" onclick="openCommodityDetail('Beras')">
+   754→            <div class="commodity-icon" style="background:#22c55e20">🌾</div>
+   755→            <div class="commodity-info">
+   756→              <div class="commodity-name">Beras Premium</div>
+   757→              <div class="commodity-origin">Jawa Barat · Vol: 1.2M ton</div>
+   758→            </div>
+   759→            <div class="commodity-price-col">
+   760→              <div class="commodity-price">12,800/kg</div>
+   761→              <div class="commodity-change up">+0.5%</div>
+   762→            </div>
+   763→          </div>
+   764→          <!-- Mining -->
+   765→          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Nikel')">
+   766→            <div class="commodity-icon" style="background:#06b6d420">⛏️</div>
+   767→            <div class="commodity-info">
+   768→              <div class="commodity-name">Nikel</div>
+   769→              <div class="commodity-origin">Sulawesi Tengah · Vol: 1.6M ton</div>
+   770→            </div>
+   771→            <div class="commodity-price-col">
+   772→              <div class="commodity-price">182,300/kg</div>
+   773→              <div class="commodity-change down">-0.9%</div>
+   774→            </div>
+   775→          </div>
+   776→          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Tembaga')">
+   777→            <div class="commodity-icon" style="background:#f59e0b20">🪙</div>
+   778→            <div class="commodity-info">
+   779→              <div class="commodity-name">Tembaga</div>
+   780→              <div class="commodity-origin">Papua · Vol: 980K ton</div>
+   781→            </div>
+   782→            <div class="commodity-price-col">
+   783→              <div class="commodity-price">95,800/kg</div>
+   784→              <div class="commodity-change up">+3.1%</div>
+   785→            </div>
+   786→          </div>
+   787→          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Timah')">
+   788→            <div class="commodity-icon" style="background:#94a3b820">💎</div>
+   789→            <div class="commodity-info">
+   790→              <div class="commodity-name">Timah</div>
+   791→              <div class="commodity-origin">Bangka Belitung · Vol: 75K ton</div>
+   792→            </div>
+   793→            <div class="commodity-price-col">
+   794→              <div class="commodity-price">278,500/kg</div>
+   795→              <div class="commodity-change up">+0.5%</div>
+   796→            </div>
+   797→          </div>
+   798→          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Batu Bara')">
+   799→            <div class="commodity-icon" style="background:#ef444420">🔥</div>
+   800→            <div class="commodity-info">
+   801→              <div class="commodity-name">Batu Bara</div>
+   802→              <div class="commodity-origin">Kalimantan Timur · Vol: 6.2M ton</div>
+   803→            </div>
+   804→            <div class="commodity-price-col">
+   805→              <div class="commodity-price">2,845/kg</div>
+   806→              <div class="commodity-change down">-1.2%</div>
+   807→            </div>
+   808→          </div>
+   809→          <div class="commodity-item market-item" data-cat="mining" onclick="openCommodityDetail('Emas')">
+   810→            <div class="commodity-icon" style="background:#eab30820">🥇</div>
+   811→            <div class="commodity-info">
+   812→              <div class="commodity-name">Emas</div>
+   813→              <div class="commodity-origin">Nusa Tenggara · Vol: 120K oz</div>
+   814→            </div>
+   815→            <div class="commodity-price-col">
+   816→              <div class="commodity-price">1,185,000/g</div>
+   817→              <div class="commodity-change up">+1.9%</div>
+   818→            </div>
+   819→          </div>
+   820→          <!-- Forest -->
+   821→          <div class="commodity-item market-item" data-cat="forest" onclick="openCommodityDetail('Kayu Merbau')">
+   822→            <div class="commodity-icon" style="background:#16a34a20">🪵</div>
+   823→            <div class="commodity-info">
+   824→              <div class="commodity-name">Kayu Merbau</div>
+   825→              <div class="commodity-origin">Papua · Vol: 45K m3</div>
+   826→            </div>
+   827→            <div class="commodity-price-col">
+   828→              <div class="commodity-price">8,500,000/m3</div>
+   829→              <div class="commodity-change up">+2.7%</div>
+   830→            </div>
+   831→          </div>
+   832→          <div class="commodity-item market-item" data-cat="forest" onclick="openCommodityDetail('Rotan')">
+   833→            <div class="commodity-icon" style="background:#65a30d20">🌿</div>
+   834→            <div class="commodity-info">
+   835→              <div class="commodity-name">Rotan</div>
+   836→              <div class="commodity-origin">Kalimantan · Vol: 28K ton</div>
+   837→            </div>
+   838→            <div class="commodity-price-col">
+   839→              <div class="commodity-price">25,000/kg</div>
+   840→              <div class="commodity-change down">-0.3%</div>
+   841→            </div>
+   842→          </div>
+   843→          <!-- Marine -->
+   844→          <div class="commodity-item market-item" data-cat="marine" onclick="openCommodityDetail('Udang')">
+   845→            <div class="commodity-icon" style="background:#06b6d420">🦐</div>
+   846→            <div class="commodity-info">
+   847→              <div class="commodity-name">Udang Windu</div>
+   848→              <div class="commodity-origin">Sulawesi Selatan · Vol: 180K ton</div>
+   849→            </div>
+   850→            <div class="commodity-price-col">
+   851→              <div class="commodity-price">145,000/kg</div>
+   852→              <div class="commodity-change up">+5.2%</div>
+   853→            </div>
+   854→          </div>
+   855→          <div class="commodity-item market-item" data-cat="marine" onclick="openCommodityDetail('Tuna')">
+   856→            <div class="commodity-icon" style="background:#3b82f620">🐟</div>
+   857→            <div class="commodity-info">
+   858→              <div class="commodity-name">Tuna Sashimi</div>
+   859→              <div class="commodity-origin">Maluku · Vol: 95K ton</div>
+   860→            </div>
+   861→            <div class="commodity-price-col">
+   862→              <div class="commodity-price">285,000/kg</div>
+   863→              <div class="commodity-change up">+1.4%</div>
+   864→            </div>
+   865→          </div>
+   866→        </div>
+   867→      </div>
+   868→
+   869→      <!-- ===== ORDERS VIEW ===== -->
+   870→      <div class="view" id="view-orders">
+   871→        <div style="padding:16px 16px 0;">
+   872→          <div style="font-size:20px;font-weight:700;margin-bottom:4px;">Permintaan Beli</div>
+   873→          <div style="font-size:13px;color:#64748b;">Kelola permintaan pembelian komoditas</div>
+   874→        </div>
+   875→
+   876→        <div class="order-tabs">
+   877→          <button class="order-tab active" onclick="setOrderTab(this,'active')">Aktif</button>
+   878→          <button class="order-tab" onclick="setOrderTab(this,'completed')">Selesai</button>
+   879→          <button class="order-tab" onclick="setOrderTab(this,'pending')">Pending</button>
+   880→          <button class="order-tab" onclick="setOrderTab(this,'cancelled')">Batal</button>
+   881→        </div>
+   882→
+   883→        <div id="ordersList">
+   884→          <!-- Active Orders -->
+   885→          <div class="order-card order-item" data-status="active">
+   886→            <div class="order-header">
+   887→              <div class="order-type">🌾 CPO - 500 Ton</div>
+   888→              <span class="order-status active">Aktif</span>
+   889→            </div>
+   890→            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 14,250/kg</span></div>
+   891→            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 7.125M</span></div>
+   892→            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Sawit Nusantara</span></div>
+   893→            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">12 Jun 2026</span></div>
+   894→          </div>
+   895→          <div class="order-card order-item" data-status="active">
+   896→            <div class="order-header">
+   897→              <div class="order-type">☕ Kopi Arabika - 200 Ton</div>
+   898→              <span class="order-status active">Aktif</span>
+   899→            </div>
+   900→            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 68,500/kg</span></div>
+   901→            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 13.7M</span></div>
+   902→            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">CV Kopi Gayo</span></div>
+   903→            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">10 Jun 2026</span></div>
+   904→          </div>
+   905→          <!-- Completed Orders -->
+   906→          <div class="order-card order-item" data-status="completed">
+   907→            <div class="order-header">
+   908→              <div class="order-type">⛏️ Nikel - 1000 Ton</div>
+   909→              <span class="order-status completed">Selesai</span>
+   910→            </div>
+   911→            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 182,300/kg</span></div>
+   912→            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 182.3M</span></div>
+   913→            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Vale Indonesia</span></div>
+   914→            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">5 Jun 2026</span></div>
+   915→          </div>
+   916→          <!-- Pending Orders -->
+   917→          <div class="order-card order-item" data-status="pending">
+   918→            <div class="order-header">
+   919→              <div class="order-type">🪙 Tembaga - 300 Ton</div>
+   920→              <span class="order-status pending">Pending</span>
+   921→            </div>
+   922→            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 95,800/kg</span></div>
+   923→            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 28.74M</span></div>
+   924→            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Freeport</span></div>
+   925→            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">14 Jun 2026</span></div>
+   926→          </div>
+   927→          <!-- Cancelled -->
+   928→          <div class="order-card order-item" data-status="cancelled">
+   929→            <div class="order-header">
+   930→              <div class="order-type">🔥 Batu Bara - 5000 Ton</div>
+   931→              <span class="order-status cancelled">Dibatalkan</span>
+   932→            </div>
+   933→            <div class="order-detail"><span class="order-detail-label">Harga</span><span class="order-detail-value">Rp 2,845/kg</span></div>
+   934→            <div class="order-detail"><span class="order-detail-label">Total</span><span class="order-detail-value">Rp 14.225M</span></div>
+   935→            <div class="order-detail"><span class="order-detail-label">Pengirim</span><span class="order-detail-value">PT Bumi Resources</span></div>
+   936→            <div class="order-detail"><span class="order-detail-label">Tanggal</span><span class="order-detail-value">1 Jun 2026</span></div>
+   937→          </div>
+   938→        </div>
+   939→
+   940→        <!-- FAB -->
+   941→        <button class="fab" onclick="openNewRequestSheet()">+</button>
+   942→      </div>
+   943→
+   944→      <!-- ===== PROPERTY VIEW ===== -->
+   945→      <div class="view" id="view-property">
+   946→        <div style="padding:16px 16px 0;">
+   947→          <div style="font-size:20px;font-weight:700;margin-bottom:4px;">Property Exchange</div>
+   948→          <div style="font-size:13px;color:#64748b;">Investasi properti Nusantara</div>
+   949→        </div>
+   950→
+   951→        <!-- Featured Banners -->
+   952→        <div class="property-banner-scroll">
+   953→          <div class="property-banner">
+   954→            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027,#1a3a2a,#10b98140);display:flex;align-items:flex-end;">
+   955→              <div class="property-banner-overlay">
+   956→                <div class="property-banner-title">🌱 Sawit Plantation</div>
+   957→                <div class="property-banner-price">Mulai Rp 2.5M / hektar</div>
+   958→              </div>
+   959→            </div>
+   960→          </div>
+   961→          <div class="property-banner">
+   962→            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027,#1a2a3a,#06b6d440);display:flex;align-items:flex-end;">
+   963→              <div class="property-banner-overlay">
+   964→                <div class="property-banner-title">🏗️ Industrial Zone</div>
+   965→                <div class="property-banner-price">Mulai Rp 15M / m2</div>
+   966→              </div>
+   967→            </div>
+   968→          </div>
+   969→          <div class="property-banner">
+   970→            <div style="width:100%;height:100%;background:linear-gradient(135deg,#0f2027,#2a1a3a,#8b5cf640);display:flex;align-items:flex-end;">
+   971→              <div class="property-banner-overlay">
+   972→                <div class="property-banner-title">🏝️ Resort & Tourism</div>
+   973→                <div class="property-banner-price">Mulai Rp 500M / unit</div>
+   974→              </div>
+   975→            </div>
+   976→          </div>
+   977→        </div>
+   978→
+   979→        <!-- Property Category Filters -->
+   980→        <div class="filter-tabs">
+   981→          <button class="filter-tab active" onclick="setPropertyFilter(this,'all')">Semua</button>
+   982→          <button class="filter-tab" onclick="setPropertyFilter(this,'plantation')">Perkebunan</button>
+   983→          <button class="filter-tab" onclick="setPropertyFilter(this,'industrial')">Industri</button>
+   984→          <button class="filter-tab" onclick="setPropertyFilter(this,'commercial')">Komersial</button>
+   985→          <button class="filter-tab" onclick="setPropertyFilter(this,'residential')">Residensial</button>
+   986→        </div>
+   987→
+   988→        <div id="propertyList">
+   989→          <div class="property-card property-item" data-type="plantation" onclick="openPropertyDetail('Perkebunan Sawit Riau')">
+   990→            <div class="property-card-img" style="background:linear-gradient(135deg,#10b98130,#06b6d420);display:flex;align-items:center;justify-content:center;font-size:48px;">🌴</div>
+   991→            <div class="property-card-body">
+   992→              <div class="property-card-title">Perkebunan Sawit Riau</div>
+   993→              <div class="property-card-location">📍 Riau, Sumatera · 500 Ha</div>
+   994→              <div class="property-card-footer">
+   995→                <div class="property-card-price">Rp 1.25T</div>
+   996→                <span class="property-card-tag">Perkebunan</span>
+   997→              </div>
+   998→            </div>
+   999→          </div>
+  1000→          <div class="property-card property-item" data-type="industrial" onclick="openPropertyDetail('Kawasan Industri Morowali')">
+  1001→            <div class="property-card-img" style="background:linear-gradient(135deg,#06b6d430,#3b82f620);display:flex;align-items:center;justify-content:center;font-size:48px;">🏭</div>
+  1002→            <div class="property-card-body">
+  1003→              <div class="property-card-title">Kawasan Industri Morowali</div>
+  1004→              <div class="property-card-location">📍 Sulawesi Tengah · 200 Ha</div>
+  1005→              <div class="property-card-footer">
+  1006→                <div class="property-card-price">Rp 3.8T</div>
+  1007→                <span class="property-card-tag">Industri</span>
+  1008→              </div>
+  1009→            </div>
+  1010→          </div>
+  1011→          <div class="property-card property-item" data-type="commercial" onclick="openPropertyDetail('Pusat Perdagangan Makassar')">
+  1012→            <div class="property-card-img" style="background:linear-gradient(135deg,#8b5cf630,#ec489920);display:flex;align-items:center;justify-content:center;font-size:48px;">🏢</div>
+  1013→            <div class="property-card-body">
+  1014→              <div class="property-card-title">Pusat Perdagangan Makassar</div>
+  1015→              <div class="property-card-location">📍 Makassar, Sulawesi · 5 Ha</div>
+  1016→              <div class="property-card-footer">
+  1017→                <div class="property-card-price">Rp 850M</div>
+  1018→                <span class="property-card-tag">Komersial</span>
+  1019→              </div>
+  1020→            </div>
+  1021→          </div>
+  1022→          <div class="property-card property-item" data-type="residential" onclick="openPropertyDetail('Residensial Premium Bali')">
+  1023→            <div class="property-card-img" style="background:linear-gradient(135deg,#f59e0b30,#ef444420);display:flex;align-items:center;justify-content:center;font-size:48px;">🏡</div>
+  1024→            <div class="property-card-body">
+  1025→              <div class="property-card-title">Residensial Premium Bali</div>
+  1026→              <div class="property-card-location">📍 Badung, Bali · 2 Ha</div>
+  1027→              <div class="property-card-footer">
+  1028→                <div class="property-card-price">Rp 1.5T</div>
+  1029→                <span class="property-card-tag">Residensial</span>
+  1030→              </div>
+  1031→            </div>
+  1032→          </div>
+  1033→          <div class="property-card property-item" data-type="plantation" onclick="openPropertyDetail('Kebun Kopi Aceh')">
+  1034→            <div class="property-card-img" style="background:linear-gradient(135deg,#8b5cf630,#10b98120);display:flex;align-items:center;justify-content:center;font-size:48px;">☕</div>
+  1035→            <div class="property-card-body">
+  1036→              <div class="property-card-title">Kebun Kopi Aceh</div>
+  1037→              <div class="property-card-location">📍 Aceh Besar · 150 Ha</div>
+  1038→              <div class="property-card-footer">
+  1039→                <div class="property-card-price">Rp 420M</div>
+  1040→                <span class="property-card-tag">Perkebunan</span>
+  1041→              </div>
+  1042→            </div>
+  1043→          </div>
+  1044→        </div>
+  1045→      </div>
+  1046→
+  1047→      <!-- ===== PROFILE VIEW ===== -->
+  1048→      <div class="view" id="view-profile">
+  1049→        <div class="profile-header">
+  1050→          <img src="./assets/images/nce-logo.png" alt="NCE" class="profile-avatar">
+  1051→          <div class="profile-name">PT Nusantara Trading</div>
+  1052→          <div class="profile-role">Premium Trader</div>
+  1053→          <div class="profile-stats">
+  1054→            <div class="profile-stat">
+  1055→              <div class="profile-stat-value">247</div>
+  1056→              <div class="profile-stat-label">Transaksi</div>
+  1057→            </div>
+  1058→            <div class="profile-stat">
+  1059→              <div class="profile-stat-value">4.8</div>
+  1060→              <div class="profile-stat-label">Rating</div>
+  1061→            </div>
+  1062→            <div class="profile-stat">
+  1063→              <div class="profile-stat-value">3yr</div>
+  1064→              <div class="profile-stat-label">Member</div>
+  1065→            </div>
+  1066→          </div>
+  1067→        </div>
+  1068→
+  1069→        <!-- Wallet Summary -->
+  1070→        <div style="padding:0 16px 16px;">
+  1071→          <div class="card card-glow" style="background:linear-gradient(135deg,#111827,#1a2234);">
+  1072→            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+  1073→              <span style="font-size:13px;color:#64748b;">Saldo Dompet</span>
+  1074→              <span style="font-size:12px;color:#10b981;font-weight:600;">Lihat Detail →</span>
+  1075→            </div>
+  1076→            <div style="font-size:24px;font-weight:800;">Rp 847.5M</div>
+  1077→            <div style="display:flex;gap:10px;margin-top:14px;">
+  1078→              <button style="flex:1;padding:10px;background:#10b981;color:#fff;border-radius:10px;font-size:13px;font-weight:600;">Deposit</button>
+  1079→              <button style="flex:1;padding:10px;background:#1e293b;color:#e2e8f0;border-radius:10px;font-size:13px;font-weight:600;">Tarik</button>
+  1080→            </div>
+  1081→          </div>
+  1082→        </div>
+  1083→
+  1084→        <!-- Verification Status -->
+  1085→        <div style="padding:0 16px 16px;">
+  1086→          <div class="card" style="display:flex;align-items:center;gap:12px;padding:14px;">
+  1087→            <div style="width:40px;height:40px;border-radius:10px;background:#10b98120;display:flex;align-items:center;justify-content:center;font-size:20px;">✅</div>
+  1088→            <div style="flex:1;">
+  1089→              <div style="font-size:13px;font-weight:600;">Terverifikasi</div>
+  1090→              <div style="font-size:11px;color:#64748b;">KYC & AML Complete</div>
+  1091→            </div>
+  1092→            <span style="font-size:11px;color:#10b981;font-weight:600;">Level 3</span>
+  1093→          </div>
+  1094→        </div>
+  1095→
+  1096→        <!-- Settings -->
+  1097→        <div class="settings-group">
+  1098→          <div class="settings-group-title">Akun</div>
+  1099→          <div class="settings-list">
+  1100→            <div class="settings-item" onclick="showToast('profile','Profil segera hadir')">
+  1101→              <div class="settings-item-icon green">👤</div>
+  1102→              <div class="settings-item-text">
+  1103→                <div class="settings-item-label">Profil Perusahaan</div>
+  1104→                <div class="settings-item-desc">Data perusahaan & dokumen</div>
+  1105→              </div>
+  1106→              <span class="settings-item-arrow">›</span>
+  1107→            </div>
+  1108→            <div class="settings-item" onclick="showToast('security','Keamanan segera hadir')">
+  1109→              <div class="settings-item-icon blue">🔒</div>
+  1110→              <div class="settings-item-text">
+  1111→                <div class="settings-item-label">Keamanan</div>
+  1112→                <div class="settings-item-desc">Password, 2FA, biometrik</div>
+  1113→              </div>
+  1114→              <span class="settings-item-arrow">›</span>
+  1115→            </div>
+  1116→            <div class="settings-item" onclick="showToast('kyc','KYC segera hadir')">
+  1117→              <div class="settings-item-icon purple">📋</div>
+  1118→              <div class="settings-item-text">
+  1119→                <div class="settings-item-label">Verifikasi KYC</div>
+  1120→                <div class="settings-item-desc">Identitas & dokumen legal</div>
+  1121→              </div>
+  1122→              <span class="settings-item-arrow">›</span>
+  1123→            </div>
+  1124→          </div>
+  1125→        </div>
+  1126→
+  1127→        <div class="settings-group">
+  1128→          <div class="settings-group-title">Preferensi</div>
+  1129→          <div class="settings-list">
+  1130→            <div class="settings-item" onclick="showToast('notif','Notifikasi segera hadir')">
+  1131→              <div class="settings-item-icon yellow">🔔</div>
+  1132→              <div class="settings-item-text">
+  1133→                <div class="settings-item-label">Notifikasi</div>
+  1134→                <div class="settings-item-desc">Push, email, SMS</div>
+  1135→              </div>
+  1136→              <span class="settings-item-arrow">›</span>
+  1137→            </div>
+  1138→            <div class="settings-item" onclick="showToast('lang','Bahasa segera hadir')">
+  1139→              <div class="settings-item-icon blue">🌐</div>
+  1140→              <div class="settings-item-text">
+  1141→                <div class="settings-item-label">Bahasa</div>
+  1142→                <div class="settings-item-desc">Indonesia</div>
+  1143→              </div>
+  1144→              <span class="settings-item-arrow">›</span>
+  1145→            </div>
+  1146→            <div class="settings-item" onclick="showToast('theme','Tema segera hadir')">
+  1147→              <div class="settings-item-icon green">🎨</div>
+  1148→              <div class="settings-item-text">
+  1149→                <div class="settings-item-label">Tampilan</div>
+  1150→                <div class="settings-item-desc">Dark mode</div>
+  1151→              </div>
+  1152→              <span class="settings-item-arrow">›</span>
+  1153→            </div>
+  1154→          </div>
+  1155→        </div>
+  1156→
+  1157→        <div class="settings-group">
+  1158→          <div class="settings-group-title">Lainnya</div>
+  1159→          <div class="settings-list">
+  1160→            <div class="settings-item" onclick="showToast('help','Pusat bantuan segera hadir')">
+  1161→              <div class="settings-item-icon blue">❓</div>
+  1162→              <div class="settings-item-text">
+  1163→                <div class="settings-item-label">Pusat Bantuan</div>
+  1164→                <div class="settings-item-desc">FAQ & dukungan</div>
+  1165→              </div>
+  1166→              <span class="settings-item-arrow">›</span>
+  1167→            </div>
+  1168→            <div class="settings-item" onclick="showToast('terms','Syarat segera hadir')">
+  1169→              <div class="settings-item-icon purple">📄</div>
+  1170→              <div class="settings-item-text">
+  1171→                <div class="settings-item-label">Syarat & Ketentuan</div>
+  1172→                <div class="settings-item-desc">Kebijakan privasi</div>
+  1173→              </div>
+  1174→              <span class="settings-item-arrow">›</span>
+  1175→            </div>
+  1176→            <div class="settings-item" onclick="showToast('logout','Logout segera hadir')">
+  1177→              <div class="settings-item-icon red">🚪</div>
+  1178→              <div class="settings-item-text">
+  1179→                <div class="settings-item-label">Keluar</div>
+  1180→                <div class="settings-item-desc">Logout dari akun</div>
+  1181→              </div>
+  1182→              <span class="settings-item-arrow">›</span>
+  1183→            </div>
+  1184→          </div>
+  1185→        </div>
+  1186→
+  1187→        <div style="text-align:center;padding:16px 16px 32px;">
+  1188→          <div style="font-size:11px;color:#475569;">NCE v2.0.0 · Nusantara Commodity Exchange</div>
+  1189→          <div style="font-size:11px;color:#475569;margin-top:2px;">© 2026 PT NCE Indonesia</div>
+  1190→        </div>
+  1191→      </div>
+  1192→
+  1193→    </div><!-- /content-area -->
+  1194→
+  1195→    <!-- Bottom Navigation -->
+  1196→    <nav class="bottom-nav">
+  1197→      <button class="nav-item active" onclick="switchTab(0)" data-tab="0">
+  1198→        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  1199→        <span>Home</span>
+  1200→      </button>
+  1201→      <button class="nav-item" onclick="switchTab(1)" data-tab="1">
+  1202→        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+  1203→        <span>Market</span>
+  1204→      </button>
+  1205→      <button class="nav-item" onclick="switchTab(2)" data-tab="2">
+  1206→        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+  1207→        <span>Orders</span>
+  1208→      </button>
+  1209→      <button class="nav-item" onclick="switchTab(3)" data-tab="3">
+  1210→        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+  1211→        <span>Property</span>
+  1212→      </button>
+  1213→      <button class="nav-item" onclick="switchTab(4)" data-tab="4">
+  1214→        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  1215→        <span>Profil</span>
+  1216→      </button>
+  1217→    </nav>
+  1218→
+  1219→    <!-- Modal Overlay -->
+  1220→    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  1221→      <div class="bottom-sheet" id="bottomSheet" onclick="event.stopPropagation()">
+  1222→        <div class="bottom-sheet-handle"></div>
+  1223→        <div id="bottomSheetContent"></div>
+  1224→      </div>
+  1225→    </div>
+  1226→
+  1227→    <!-- Toast -->
+  1228→    <div class="toast" id="toast">
+  1229→      <span class="toast-icon" id="toastIcon">ℹ️</span>
+  1230→      <span class="toast-text" id="toastText"></span>
+  1231→    </div>
+  1232→  </div>
+  1233→
+  1234→  <script>
+  1235→    // ===== TAB SWITCHING =====
+  1236→    const views = ['view-home','view-market','view-orders','view-property','view-profile'];
+  1237→    const navItems = document.querySelectorAll('.nav-item');
+  1238→    let currentTab = 0;
+  1239→
+  1240→    function switchTab(index) {
+  1241→      if (index === currentTab) {
+  1242→        // Scroll to top if same tab
+  1243→        document.getElementById('contentArea').scrollTop = 0;
+  1244→        return;
+  1245→      }
+  1246→      currentTab = index;
+  1247→      views.forEach((v, i) => {
+  1248→        const el = document.getElementById(v);
+  1249→        el.classList.toggle('active', i === index);
+  1250→      });
+  1251→      navItems.forEach((n, i) => {
+  1252→        n.classList.toggle('active', i === index);
+  1253→      });
+  1254→      document.getElementById('contentArea').scrollTop = 0;
+  1255→
+  1256→      // Update header title based on tab
+  1257→      const titles = ['NCE Exchange', 'Pasar Komoditas', 'Permintaan Beli', 'Property Exchange', 'Profil'];
+  1258→      document.querySelector('.app-header-title').innerHTML = index === 0
+  1259→        ? '<span>NCE</span> Exchange'
+  1260→        : titles[index];
+  1261→    }
+  1262→
+  1263→    // ===== TOAST =====
+  1264→    let toastTimer;
+  1265→    function showToast(icon, text) {
+  1266→      const toast = document.getElementById('toast');
+  1267→      document.getElementById('toastIcon').textContent = icon === 'notif' ? '🔔' : icon === 'search' ? '🔍' : icon === 'scan' ? '📷' : icon === 'sell' ? '📉' : icon === 'profile' ? '👤' : icon === 'security' ? '🔒' : icon === 'kyc' ? '📋' : icon === 'notif_set' ? '🔔' : icon === 'lang' ? '🌐' : icon === 'theme' ? '🎨' : icon === 'help' ? '❓' : icon === 'terms' ? '📄' : icon === 'logout' ? '🚪' : 'ℹ️';
+  1268→      document.getElementById('toastText').textContent = text;
+  1269→      toast.classList.add('show');
+  1270→      clearTimeout(toastTimer);
+  1271→      toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  1272→    }
+  1273→
+  1274→    // ===== MARKET FILTER =====
+  1275→    function setMarketFilter(btn, cat) {
+  1276→      document.querySelectorAll('#marketFilters .filter-tab').forEach(t => t.classList.remove('active'));
+  1277→      btn.classList.add('active');
+  1278→      document.querySelectorAll('.market-item').forEach(item => {
+  1279→        if (cat === 'all' || item.dataset.cat === cat) {
+  1280→          item.style.display = 'flex';
+  1281→        } else {
+  1282→          item.style.display = 'none';
+  1283→        }
+  1284→      });
+  1285→    }
+  1286→
+  1287→    function filterMarket() {
+  1288→      const q = document.getElementById('marketSearch').value.toLowerCase();
+  1289→      document.querySelectorAll('.market-item').forEach(item => {
+  1290→        const name = item.querySelector('.commodity-name').textContent.toLowerCase();
+  1291→        item.style.display = name.includes(q) ? 'flex' : 'none';
+  1292→      });
+  1293→    }
+  1294→
+  1295→    // ===== ORDER TABS =====
+  1296→    function setOrderTab(btn, status) {
+  1297→      document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
+  1298→      btn.classList.add('active');
+  1299→      document.querySelectorAll('.order-item').forEach(item => {
+  1300→        if (status === 'active' || item.dataset.status === status) {
+  1301→          item.style.display = item.dataset.status === 'active' || item.dataset.status === status ? 'block' : 'none';
+  1302→        } else {
+  1303→          item.style.display = 'none';
+  1304→        }
+  1305→      });
+  1306→      // Show all matching
+  1307→      document.querySelectorAll('.order-item').forEach(item => {
+  1308→        item.style.display = item.dataset.status === status ? 'block' : 'none';
+  1309→      });
+  1310→    }
+  1311→
+  1312→    // ===== PROPERTY FILTER =====
+  1313→    function setPropertyFilter(btn, type) {
+  1314→      document.querySelectorAll('#view-property .filter-tab').forEach(t => t.classList.remove('active'));
+  1315→      btn.classList.add('active');
+  1316→      document.querySelectorAll('.property-item').forEach(item => {
+  1317→        if (type === 'all' || item.dataset.type === type) {
+  1318→          item.style.display = 'block';
+  1319→        } else {
+  1320→          item.style.display = 'none';
+  1321→        }
+  1322→      });
+  1323→    }
+  1324→
+  1325→    // ===== COMMODITY DETAIL BOTTOM SHEET =====
+  1326→    function openCommodityDetail(name) {
+  1327→      const content = `
+  1328→        <div class="bottom-sheet-title">${name}</div>
+  1329→        <div style="padding:0 20px 20px;">
+  1330→          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+  1331→            <div>
+  1332→              <div style="font-size:28px;font-weight:800;">14,250</div>
+  1333→              <div style="font-size:13px;color:#10b981;font-weight:600;">+2.3% hari ini</div>
+  1334→            </div>
+  1335→            <div style="text-align:right;">
+  1336→              <div style="font-size:12px;color:#64748b;">24h Volume</div>
+  1337→              <div style="font-size:14px;font-weight:600;">2.4M ton</div>
+  1338→            </div>
+  1339→          </div>
+  1340→          <div style="height:120px;background:#111827;border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:13px;">Chart Area</div>
+  1341→          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+  1342→            <div style="padding:10px;background:#111827;border-radius:10px;">
+  1343→              <div style="font-size:11px;color:#64748b;">Harga Buka</div>
+  1344→              <div style="font-size:14px;font-weight:600;">13,980</div>
+  1345→            </div>
+  1346→            <div style="padding:10px;background:#111827;border-radius:10px;">
+  1347→              <div style="font-size:11px;color:#64748b;">Harga Tutup</div>
+  1348→              <div style="font-size:14px;font-weight:600;">14,250</div>
+  1349→            </div>
+  1350→            <div style="padding:10px;background:#111827;border-radius:10px;">
+  1351→              <div style="font-size:11px;color:#64748b;">Tertinggi</div>
+  1352→              <div style="font-size:14px;font-weight:600;">14,500</div>
+  1353→            </div>
+  1354→            <div style="padding:10px;background:#111827;border-radius:10px;">
+  1355→              <div style="font-size:11px;color:#64748b;">Terendah</div>
+  1356→              <div style="font-size:14px;font-weight:600;">13,750</div>
+  1357→            </div>
+  1358→          </div>
+  1359→          <div style="display:flex;gap:10px;">
+  1360→            <button style="flex:1;padding:14px;background:#10b981;color:#fff;border-radius:12px;font-size:15px;font-weight:700;">Beli</button>
+  1361→            <button style="flex:1;padding:14px;background:#ef4444;color:#fff;border-radius:12px;font-size:15px;font-weight:700;">Jual</button>
+  1362→          </div>
+  1363→        </div>
+  1364→      `;
+  1365→      document.getElementById('bottomSheetContent').innerHTML = content;
+  1366→      document.getElementById('modalOverlay').classList.add('show');
+  1367→    }
+  1368→
+  1369→    // ===== NEW REQUEST SHEET =====
+  1370→    function openNewRequestSheet() {
+  1371→      const content = `
+  1372→        <div class="bottom-sheet-title">Buat Permintaan Beli</div>
+  1373→        <div style="padding:0 20px 20px;">
+  1374→          <div style="margin-bottom:14px;">
+  1375→            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Komoditas</label>
+  1376→            <select style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;">
+  1377→              <option>Pilih Komoditas</option>
+  1378→              <option>Kelapa Sawit CPO</option>
+  1379→              <option>Kopi Arabika</option>
+  1380→              <option>Nikel</option>
+  1381→              <option>Tembaga</option>
+  1382→            </select>
+  1383→          </div>
+  1384→          <div style="margin-bottom:14px;">
+  1385→            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Jumlah (Ton)</label>
+  1386→            <input type="number" placeholder="Masukkan jumlah" style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;">
+  1387→          </div>
+  1388→          <div style="margin-bottom:14px;">
+  1389→            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Harga Maks (Rp/kg)</label>
+  1390→            <input type="number" placeholder="Masukkan harga" style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;">
+  1391→          </div>
+  1392→          <div style="margin-bottom:14px;">
+  1393→            <label style="font-size:12px;color:#64748b;display:block;margin-bottom:6px;">Catatan</label>
+  1394→            <textarea placeholder="Catatan tambahan..." rows="3" style="width:100%;padding:12px;background:#111827;border:1px solid #1e293b;border-radius:10px;font-size:14px;resize:none;"></textarea>
+  1395→          </div>
+  1396→          <button style="width:100%;padding:14px;background:#10b981;color:#fff;border-radius:12px;font-size:15px;font-weight:700;" onclick="closeModal();showToast('✅','Permintaan berhasil dibuat')">Kirim Permintaan</button>
+  1397→        </div>
+  1398→      `;
+  1399→      document.getElementById('bottomSheetContent').innerHTML = content;
+  1400→      document.getElementById('modalOverlay').classList.add('show');
+  1401→    }
+  1402→
+  1403→    // ===== PROPERTY DETAIL =====
+  1404→    function openPropertyDetail(name) {
+  1405→      const content = `
+  1406→        <div class="bottom-sheet-title">${name}</div>
+  1407→        <div style="padding:0 20px 20px;">
+  1408→          <div style="height:140px;background:linear-gradient(135deg,#111827,#1a2234);border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:center;font-size:48px;">🌴</div>
+  1409→          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+  1410→            <div style="padding:10px;background:#111827;border-radius:10px;">
+  1411→              <div style="font-size:11px;color:#64748b;">Luas</div>
+  1412→              <div style="font-size:14px;font-weight:600;">500 Ha</div>
+  1413→            </div>
+  1414→            <div style="padding:10px;background:#111827;border-radius:10px;">
+  1415→              <div style="font-size:11px;color:#64748b;">Harga/m2</div>
+  1416→              <div style="font-size:14px;font-weight:600;">Rp 250K</div>
+  1417→            </div>
+  1418→            <div style="padding:10px;background:#111827;border-radius:10px;">
+  1419→              <div style="font-size:11px;color:#64748b;">ROI</div>
+  1420→              <div style="font-size:14px;font-weight:600;color:#10b981;">18.5%/yr</div>
+  1421→            </div>
+  1422→            <div style="padding:10px;background:#111827;border-radius:10px;">
+  1423→              <div style="font-size:11px;color:#64748b;">Status</div>
+  1424→              <div style="font-size:14px;font-weight:600;color:#06b6d4;">Tersedia</div>
+  1425→            </div>
+  1426→          </div>
+  1427→          <button style="width:100%;padding:14px;background:#10b981;color:#fff;border-radius:12px;font-size:15px;font-weight:700;" onclick="closeModal();showToast('✅','Investasi berhasil diajukan')">Investasi Sekarang</button>
+  1428→        </div>
+  1429→      `;
+  1430→      document.getElementById('bottomSheetContent').innerHTML = content;
+  1431→      document.getElementById('modalOverlay').classList.add('show');
+  1432→    }
+  1433→
+  1434→    // ===== CLOSE MODAL =====
+  1435→    function closeModal() {
+  1436→      document.getElementById('modalOverlay').classList.remove('show');
+  1437→    }
+  1438→
+  1439→    // ===== MINI CHARTS =====
+  1440→    function drawMiniChart(canvasId, up) {
+  1441→      const canvas = document.getElementById(canvasId);
+  1442→      if (!canvas) return;
+  1443→      const ctx = canvas.getContext('2d');
+  1444→      const w = 48, h = 24;
+  1445→      canvas.width = w * 2; canvas.height = h * 2;
+  1446→      ctx.scale(2, 2);
+  1447→      const points = [];
+  1448→      let y = h / 2;
+  1449→      for (let i = 0; i < 8; i++) {
+  1450→        y += (Math.random() - (up ? 0.35 : 0.65)) * 5;
+  1451→        y = Math.max(3, Math.min(h - 3, y));
+  1452→        points.push({ x: (i / 7) * w, y });
+  1453→      }
+  1454→      ctx.beginPath();
+  1455→      ctx.moveTo(points[0].x, points[0].y);
+  1456→      for (let i = 1; i < points.length; i++) {
+  1457→        const cp1x = (points[i - 1].x + points[i].x) / 2;
+  1458→        ctx.bezierCurveTo(cp1x, points[i - 1].y, cp1x, points[i].y, points[i].x, points[i].y);
+  1459→      }
+  1460→      ctx.strokeStyle = up ? '#10b981' : '#ef4444';
+  1461→      ctx.lineWidth = 1.5;
+  1462→      ctx.stroke();
+  1463→    }
+  1464→
+  1465→    // ===== HOME CHART =====
+  1466→    function drawHomeChart() {
+  1467→      const canvas = document.getElementById('homeChart');
+  1468→      if (!canvas) return;
+  1469→      const ctx = canvas.getContext('2d');
+  1470→      const rect = canvas.parentElement.getBoundingClientRect();
+  1471→      canvas.width = rect.width * 2;
+  1472→      canvas.height = rect.height * 2;
+  1473→      ctx.scale(2, 2);
+  1474→      const w = rect.width, h = rect.height;
+  1475→
+  1476→      // Grid lines
+  1477→      ctx.strokeStyle = '#1e293b';
+  1478→      ctx.lineWidth = 0.5;
+  1479→      for (let i = 0; i < 5; i++) {
+  1480→        const y = (h / 4) * i;
+  1481→        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  1482→      }
+  1483→
+  1484→      // Main line
+  1485→      const points = [];
+  1486→      let y = h * 0.6;
+  1487→      for (let i = 0; i < 30; i++) {
+  1488→        y += (Math.random() - 0.4) * (h * 0.06);
+  1489→        y = Math.max(h * 0.1, Math.min(h * 0.85, y));
+  1490→        points.push({ x: (i / 29) * w, y });
+  1491→      }
+  1492→      ctx.beginPath();
+  1493→      ctx.moveTo(points[0].x, points[0].y);
+  1494→      for (let i = 1; i < points.length; i++) {
+  1495→        const cp1x = (points[i - 1].x + points[i].x) / 2;
+  1496→        ctx.bezierCurveTo(cp1x, points[i - 1].y, cp1x, points[i].y, points[i].x, points[i].y);
+  1497→      }
+  1498→      ctx.strokeStyle = '#10b981';
+  1499→      ctx.lineWidth = 2;
+  1500→      ctx.stroke();
+  1501→
+  1502→      // Gradient fill
+  1503→      const grad = ctx.createLinearGradient(0, 0, 0, h);
+  1504→      grad.addColorStop(0, 'rgba(16,185,129,0.15)');
+  1505→      grad.addColorStop(1, 'rgba(16,185,129,0)');
+  1506→      ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+  1507→      ctx.fillStyle = grad;
+  1508→      ctx.fill();
+  1509→    }
+  1510→
+  1511→    // ===== INIT =====
+  1512→    document.addEventListener('DOMContentLoaded', () => {
+  1513→      // Draw charts
+  1514→      drawMiniChart('miniChart1', true);
+  1515→      drawMiniChart('miniChart2', true);
+  1516→      drawMiniChart('miniChart3', false);
+  1517→      drawMiniChart('miniChart4', true);
+  1518→      drawMiniChart('miniChart5', false);
+  1519→      setTimeout(drawHomeChart, 100);
+  1520→
+  1521→      // Register SW
+  1522→      if ('serviceWorker' in navigator) {
+  1523→        navigator.serviceWorker.register('./sw.js').catch(() => {});
+  1524→      }
+  1525→
+  1526→      // Prevent pull-to-refresh
+  1527→      document.body.addEventListener('touchmove', (e) => {
+  1528→        if (e.touches.length > 1) e.preventDefault();
+  1529→      }, { passive: false });
+  1530→
+  1531→      // Handle back button
+  1532→      window.addEventListener('popstate', () => {
+  1533→        if (currentTab !== 0) switchTab(0);
+  1534→      });
+  1535→    });
+  1536→
+  1537→    // Resize chart on orientation change
+  1538→    window.addEventListener('resize', () => setTimeout(drawHomeChart, 200));
+  1539→  </script>
+  1540→</body>
+  1541→</html>
+  1542→

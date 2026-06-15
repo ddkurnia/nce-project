@@ -1,0 +1,453 @@
+     1→<!DOCTYPE html>
+     2→<html lang="id" class="scroll-smooth">
+     3→<head>
+     4→    <meta charset="UTF-8">
+     5→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→    <meta name="theme-color" content="#0a0e27">
+     7→    <meta name="apple-mobile-web-app-capable" content="yes">
+     8→    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     9→    <meta name="format-detection" content="telephone=no">
+    10→    <title>Dashboard - NCE Nusantara Commodity Exchange</title>
+    11→    <!-- PWA Support -->
+    12→    <link rel="manifest" href="./manifest.json">
+    13→    <link rel="apple-touch-icon" href="./assets/images/icons/apple-touch-icon.png">
+    14→    <meta name="apple-mobile-web-app-title" content="NCE">
+    15→    <script src="https://cdn.tailwindcss.com"></script>
+    16→    <script>
+    17→    tailwind.config = {
+    18→        theme: {
+    19→            extend: {
+    20→                colors: {
+    21→                    navy: { 900: '#0a0e27', 800: '#111827', 700: '#1a1f3a' },
+    22→                    emerald: { 500: '#10b981', 600: '#059669' },
+    23→                    cyan: { 500: '#06b6d4', 400: '#22d3ee' }
+    24→                }
+    25→            }
+    26→        }
+    27→    }
+    28→    </script>
+    29→    <style>
+    30→        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    31→        body { font-family: 'Inter', sans-serif; }
+    32→        .gradient-text { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    33→        .card-glow:hover { box-shadow: 0 0 30px rgba(16, 185, 129, 0.15); }
+    34→        ::-webkit-scrollbar { width: 8px; }
+    35→        ::-webkit-scrollbar-track { background: #0a0e27; }
+    36→        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    37→        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    38→        .sidebar-link { transition: all 0.2s ease; }
+    39→        .sidebar-link:hover { background: rgba(16, 185, 129, 0.08); }
+    40→        .sidebar-link.active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.08)); border-right: 3px solid #10b981; color: #10b981; }
+    41→        .chart-bar { transition: height 0.5s ease; }
+    42→    </style>
+    43→    <link rel="stylesheet" href="./assets/css/main.css">
+    44→</head>
+    45→<body class="bg-navy-900 text-slate-200 min-h-screen">
+    46→
+    47→    <!-- Mobile Overlay -->
+    48→    <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm hidden lg:hidden"></div>
+    49→
+    50→    <!-- Sidebar -->
+    51→    <aside id="sidebar" class="fixed top-0 left-0 z-50 w-64 h-full bg-navy-800 border-r border-slate-700/50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+    52→        <!-- Sidebar Header -->
+    53→        <div class="flex items-center gap-3 px-5 h-16 border-b border-slate-700/50">
+    54→            <a href="index.html" class="flex items-center gap-3">
+    55→                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-emerald-500/20">N</div>
+    56→                <div>
+    57→                    <span class="text-lg font-bold text-white tracking-tight">NCE</span>
+    58→                    <span class="text-[10px] text-slate-400 block -mt-1">Dashboard</span>
+    59→                </div>
+    60→            </a>
+    61→            <button id="close-sidebar-btn" class="lg:hidden ml-auto p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-700 transition-colors">
+    62→                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    63→            </button>
+    64→        </div>
+    65→
+    66→        <!-- Sidebar Navigation -->
+    67→        <nav class="p-3 space-y-1 mt-2 overflow-y-auto" style="max-height: calc(100vh - 8rem);">
+    68→            <a href="dashboard.html" class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+    69→                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+    70→                Dashboard
+    71→            </a>
+    72→            <a href="commodities.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300">
+    73→                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+    74→                Komoditas
+    75→            </a>
+    76→            <a href="buy-requests.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300">
+    77→                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+    78→                Permintaan Beli
+    79→                <span class="ml-auto px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-semibold rounded-full">3</span>
+    80→            </a>
+    81→            <a href="property.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300">
+    82→                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+    83→                Properti
+    84→            </a>
+    85→            <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300">
+    86→                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+    87→                Profil Perusahaan
+    88→            </a>
+    89→
+    90→            <div class="pt-4 mt-4 border-t border-slate-700/50">
+    91→                <a href="#" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300">
+    92→                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    93→                    Admin Panel
+    94→                </a>
+    95→                <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300">
+    96→                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+    97→                    Keluar
+    98→                </a>
+    99→            </div>
+   100→        </nav>
+   101→    </aside>
+   102→
+   103→    <!-- Main Content Area -->
+   104→    <div class="lg:ml-64 min-h-screen flex flex-col">
+   105→        <!-- Top Bar -->
+   106→        <header class="sticky top-0 z-30 bg-navy-900/90 backdrop-blur-xl border-b border-slate-700/50">
+   107→            <div class="flex items-center justify-between h-16 px-4 sm:px-6">
+   108→                <div class="flex items-center gap-3">
+   109→                    <button id="open-sidebar-btn" class="lg:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+   110→                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+   111→                    </button>
+   112→                    <div>
+   113→                        <h1 class="text-lg font-semibold text-white">Dashboard</h1>
+   114→                        <p class="text-xs text-slate-500 hidden sm:block">Selamat datang kembali, PT Pinang Nusantara Jaya</p>
+   115→                    </div>
+   116→                </div>
+   117→                <div class="flex items-center gap-3">
+   118→                    <!-- Notification -->
+   119→                    <button class="relative p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+   120→                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+   121→                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full"></span>
+   122→                    </button>
+   123→                    <!-- User Avatar -->
+   124→                    <div class="flex items-center gap-2.5">
+   125→                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">PN</div>
+   126→                        <div class="hidden sm:block">
+   127→                            <p class="text-sm font-medium text-white leading-tight">PT Pinang Nusantara</p>
+   128→                            <p class="text-[10px] text-slate-500">Verified Supplier</p>
+   129→                        </div>
+   130→                    </div>
+   131→                </div>
+   132→            </div>
+   133→        </header>
+   134→
+   135→        <!-- Dashboard Content -->
+   136→        <main class="main-content flex-1 p-4 sm:p-6">
+   137→            <!-- Stats Cards -->
+   138→            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+   139→                <!-- Total Listings -->
+   140→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300">
+   141→                    <div class="flex items-center justify-between mb-3">
+   142→                        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+   143→                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+   144→                        </div>
+   145→                        <span class="text-emerald-400 text-xs font-medium flex items-center gap-1">
+   146→                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+   147→                            +12%
+   148→                        </span>
+   149→                    </div>
+   150→                    <div class="text-2xl font-bold text-white">24</div>
+   151→                    <div class="text-xs text-slate-400 mt-0.5">Total Listing Aktif</div>
+   152→                </div>
+   153→
+   154→                <!-- Active Buyers -->
+   155→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300">
+   156→                    <div class="flex items-center justify-between mb-3">
+   157→                        <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+   158→                            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+   159→                        </div>
+   160→                        <span class="text-cyan-400 text-xs font-medium flex items-center gap-1">
+   161→                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+   162→                            +8%
+   163→                        </span>
+   164→                    </div>
+   165→                    <div class="text-2xl font-bold text-white">156</div>
+   166→                    <div class="text-xs text-slate-400 mt-0.5">Pembeli Aktif</div>
+   167→                </div>
+   168→
+   169→                <!-- Active Sellers -->
+   170→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300">
+   171→                    <div class="flex items-center justify-between mb-3">
+   172→                        <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+   173→                            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+   174→                        </div>
+   175→                        <span class="text-amber-400 text-xs font-medium flex items-center gap-1">
+   176→                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+   177→                            +5%
+   178→                        </span>
+   179→                    </div>
+   180→                    <div class="text-2xl font-bold text-white">89</div>
+   181→                    <div class="text-xs text-slate-400 mt-0.5">Penjual Aktif</div>
+   182→                </div>
+   183→
+   184→                <!-- Total Transactions -->
+   185→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5 card-glow transition-all duration-300">
+   186→                    <div class="flex items-center justify-between mb-3">
+   187→                        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+   188→                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+   189→                        </div>
+   190→                        <span class="text-emerald-400 text-xs font-medium flex items-center gap-1">
+   191→                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+   192→                            +24%
+   193→                        </span>
+   194→                    </div>
+   195→                    <div class="text-2xl font-bold text-white">Rp 2.4M</div>
+   196→                    <div class="text-xs text-slate-400 mt-0.5">Total Transaksi Bulan Ini</div>
+   197→                </div>
+   198→            </div>
+   199→
+   200→            <!-- Chart & Activity Row -->
+   201→            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+   202→                <!-- Price Chart -->
+   203→                <div class="lg:col-span-2 bg-navy-800 border border-slate-700/50 rounded-xl p-5">
+   204→                    <div class="flex items-center justify-between mb-5">
+   205→                        <div>
+   206→                            <h3 class="text-base font-semibold text-white">Harga Komoditas</h3>
+   207→                            <p class="text-xs text-slate-400 mt-0.5">Tren harga 7 hari terakhir</p>
+   208→                        </div>
+   209→                        <div class="flex items-center gap-2">
+   210→                            <button class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-md text-emerald-400 text-xs font-medium">7H</button>
+   211→                            <button class="px-3 py-1 bg-navy-900 border border-slate-700/50 rounded-md text-slate-400 text-xs font-medium hover:text-white transition-colors">1B</button>
+   212→                            <button class="px-3 py-1 bg-navy-900 border border-slate-700/50 rounded-md text-slate-400 text-xs font-medium hover:text-white transition-colors">3B</button>
+   213→                            <button class="px-3 py-1 bg-navy-900 border border-slate-700/50 rounded-md text-slate-400 text-xs font-medium hover:text-white transition-colors">1T</button>
+   214→                        </div>
+   215→                    </div>
+   216→                    <!-- Chart Area -->
+   217→                    <div class="relative h-56 flex items-end gap-1.5 px-2">
+   218→                        <!-- Y-axis labels -->
+   219→                        <div class="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[10px] text-slate-500 pr-2">
+   220→                            <span>100K</span>
+   221→                            <span>75K</span>
+   222→                            <span>50K</span>
+   223→                            <span>25K</span>
+   224→                            <span>0</span>
+   225→                        </div>
+   226→                        <!-- Bars -->
+   227→                        <div class="ml-10 flex-1 flex items-end gap-1 h-full pb-6">
+   228→                            <!-- Day 1 -->
+   229→                            <div class="flex-1 flex flex-col items-center gap-1">
+   230→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-emerald-500/60 to-emerald-500/20 chart-bar" style="height: 60%"></div>
+   231→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-cyan-500/60 to-cyan-500/20 chart-bar" style="height: 45%"></div>
+   232→                                <span class="text-[9px] text-slate-500 mt-1">Sen</span>
+   233→                            </div>
+   234→                            <!-- Day 2 -->
+   235→                            <div class="flex-1 flex flex-col items-center gap-1">
+   236→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-emerald-500/60 to-emerald-500/20 chart-bar" style="height: 65%"></div>
+   237→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-cyan-500/60 to-cyan-500/20 chart-bar" style="height: 50%"></div>
+   238→                                <span class="text-[9px] text-slate-500 mt-1">Sel</span>
+   239→                            </div>
+   240→                            <!-- Day 3 -->
+   241→                            <div class="flex-1 flex flex-col items-center gap-1">
+   242→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-emerald-500/60 to-emerald-500/20 chart-bar" style="height: 58%"></div>
+   243→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-cyan-500/60 to-cyan-500/20 chart-bar" style="height: 55%"></div>
+   244→                                <span class="text-[9px] text-slate-500 mt-1">Rab</span>
+   245→                            </div>
+   246→                            <!-- Day 4 -->
+   247→                            <div class="flex-1 flex flex-col items-center gap-1">
+   248→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-emerald-500/60 to-emerald-500/20 chart-bar" style="height: 72%"></div>
+   249→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-cyan-500/60 to-cyan-500/20 chart-bar" style="height: 48%"></div>
+   250→                                <span class="text-[9px] text-slate-500 mt-1">Kam</span>
+   251→                            </div>
+   252→                            <!-- Day 5 -->
+   253→                            <div class="flex-1 flex flex-col items-center gap-1">
+   254→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-emerald-500/60 to-emerald-500/20 chart-bar" style="height: 80%"></div>
+   255→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-cyan-500/60 to-cyan-500/20 chart-bar" style="height: 52%"></div>
+   256→                                <span class="text-[9px] text-slate-500 mt-1">Jum</span>
+   257→                            </div>
+   258→                            <!-- Day 6 -->
+   259→                            <div class="flex-1 flex flex-col items-center gap-1">
+   260→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-emerald-500/60 to-emerald-500/20 chart-bar" style="height: 75%"></div>
+   261→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-cyan-500/60 to-cyan-500/20 chart-bar" style="height: 60%"></div>
+   262→                                <span class="text-[9px] text-slate-500 mt-1">Sab</span>
+   263→                            </div>
+   264→                            <!-- Day 7 -->
+   265→                            <div class="flex-1 flex flex-col items-center gap-1">
+   266→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-emerald-500/80 to-emerald-500/30 chart-bar" style="height: 85%"></div>
+   267→                                <div class="w-full rounded-t-sm bg-gradient-to-t from-cyan-500/80 to-cyan-500/30 chart-bar" style="height: 62%"></div>
+   268→                                <span class="text-[9px] text-emerald-400 mt-1 font-medium">Min</span>
+   269→                            </div>
+   270→                        </div>
+   271→                    </div>
+   272→                    <!-- Legend -->
+   273→                    <div class="flex items-center gap-6 mt-4 ml-10">
+   274→                        <div class="flex items-center gap-2">
+   275→                            <div class="w-3 h-3 rounded-sm bg-emerald-500/60"></div>
+   276→                            <span class="text-xs text-slate-400">Pinang</span>
+   277→                        </div>
+   278→                        <div class="flex items-center gap-2">
+   279→                            <div class="w-3 h-3 rounded-sm bg-cyan-500/60"></div>
+   280→                            <span class="text-xs text-slate-400">Kakao</span>
+   281→                        </div>
+   282→                    </div>
+   283→                </div>
+   284→
+   285→                <!-- Quick Actions -->
+   286→                <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5">
+   287→                    <h3 class="text-base font-semibold text-white mb-4">Aksi Cepat</h3>
+   288→                    <div class="space-y-2.5">
+   289→                        <a href="commodities.html" class="flex items-center gap-3 p-3 bg-navy-900/50 border border-slate-700/30 rounded-lg hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all group">
+   290→                            <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+   291→                                <svg class="w-4.5 h-4.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+   292→                            </div>
+   293→                            <div>
+   294→                                <p class="text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">Tambah Listing</p>
+   295→                                <p class="text-[10px] text-slate-500">Pasang komoditas baru</p>
+   296→                            </div>
+   297→                        </a>
+   298→                        <a href="buy-requests.html" class="flex items-center gap-3 p-3 bg-navy-900/50 border border-slate-700/30 rounded-lg hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all group">
+   299→                            <div class="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+   300→                                <svg class="w-4.5 h-4.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+   301→                            </div>
+   302→                            <div>
+   303→                                <p class="text-sm font-medium text-white group-hover:text-cyan-400 transition-colors">Buat Permintaan Beli</p>
+   304→                                <p class="text-[10px] text-slate-500">Cari komoditas yang dibutuhkan</p>
+   305→                            </div>
+   306→                        </a>
+   307→                        <a href="profile.html" class="flex items-center gap-3 p-3 bg-navy-900/50 border border-slate-700/30 rounded-lg hover:border-amber-500/30 hover:bg-amber-500/5 transition-all group">
+   308→                            <div class="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
+   309→                                <svg class="w-4.5 h-4.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+   310→                            </div>
+   311→                            <div>
+   312→                                <p class="text-sm font-medium text-white group-hover:text-amber-400 transition-colors">Edit Profil</p>
+   313→                                <p class="text-[10px] text-slate-500">Update informasi perusahaan</p>
+   314→                            </div>
+   315→                        </a>
+   316→                        <a href="#" class="flex items-center gap-3 p-3 bg-navy-900/50 border border-slate-700/30 rounded-lg hover:border-violet-500/30 hover:bg-violet-500/5 transition-all group">
+   317→                            <div class="w-9 h-9 rounded-lg bg-violet-500/10 flex items-center justify-center">
+   318→                                <svg class="w-4.5 h-4.5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+   319→                            </div>
+   320→                            <div>
+   321→                                <p class="text-sm font-medium text-white group-hover:text-violet-400 transition-colors">Laporan Transaksi</p>
+   322→                                <p class="text-[10px] text-slate-500">Unduh laporan bulanan</p>
+   323→                            </div>
+   324→                        </a>
+   325→                    </div>
+   326→                </div>
+   327→            </div>
+   328→
+   329→            <!-- Recent Activity Table -->
+   330→            <div class="bg-navy-800 border border-slate-700/50 rounded-xl p-5">
+   331→                <div class="flex items-center justify-between mb-5">
+   332→                    <div>
+   333→                        <h3 class="text-base font-semibold text-white">Aktivitas Terkini</h3>
+   334→                        <p class="text-xs text-slate-400 mt-0.5">Transaksi dan permintaan terbaru</p>
+   335→                    </div>
+   336→                    <a href="#" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium">Lihat Semua →</a>
+   337→                </div>
+   338→                <div class="overflow-x-auto">
+   339→                    <table class="w-full min-w-[700px]">
+   340→                        <thead>
+   341→                            <tr class="border-b border-slate-700/50">
+   342→                                <th class="text-left text-[10px] text-slate-500 uppercase tracking-wider font-semibold pb-3 pr-4">Tipe</th>
+   343→                                <th class="text-left text-[10px] text-slate-500 uppercase tracking-wider font-semibold pb-3 pr-4">Komoditas</th>
+   344→                                <th class="text-left text-[10px] text-slate-500 uppercase tracking-wider font-semibold pb-3 pr-4">Volume</th>
+   345→                                <th class="text-left text-[10px] text-slate-500 uppercase tracking-wider font-semibold pb-3 pr-4">Harga</th>
+   346→                                <th class="text-left text-[10px] text-slate-500 uppercase tracking-wider font-semibold pb-3 pr-4">Mitra</th>
+   347→                                <th class="text-left text-[10px] text-slate-500 uppercase tracking-wider font-semibold pb-3 pr-4">Status</th>
+   348→                                <th class="text-right text-[10px] text-slate-500 uppercase tracking-wider font-semibold pb-3">Tanggal</th>
+   349→                            </tr>
+   350→                        </thead>
+   351→                        <tbody class="divide-y divide-slate-700/30">
+   352→                            <tr class="hover:bg-slate-800/30 transition-colors">
+   353→                                <td class="py-3.5 pr-4">
+   354→                                    <span class="inline-flex items-center px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-400 text-[10px] font-medium">Penjualan</span>
+   355→                                </td>
+   356→                                <td class="py-3.5 pr-4 text-sm text-white font-medium">Pinang Premium Grade A</td>
+   357→                                <td class="py-3.5 pr-4 text-sm text-slate-300">2.000 kg</td>
+   358→                                <td class="py-3.5 pr-4 text-sm text-emerald-400 font-medium">Rp 85.000/kg</td>
+   359→                                <td class="py-3.5 pr-4 text-sm text-slate-300">PT Global Trading</td>
+   360→                                <td class="py-3.5 pr-4">
+   361→                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/15 rounded-full text-emerald-400 text-[10px] font-medium">
+   362→                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+   363→                                        Selesai
+   364→                                    </span>
+   365→                                </td>
+   366→                                <td class="py-3.5 text-sm text-slate-400 text-right">4 Mar 2025</td>
+   367→                            </tr>
+   368→                            <tr class="hover:bg-slate-800/30 transition-colors">
+   369→                                <td class="py-3.5 pr-4">
+   370→                                    <span class="inline-flex items-center px-2 py-0.5 bg-cyan-500/10 border border-cyan-500/20 rounded text-cyan-400 text-[10px] font-medium">Pembelian</span>
+   371→                                </td>
+   372→                                <td class="py-3.5 pr-4 text-sm text-white font-medium">Kopi Robusta Toraja</td>
+   373→                                <td class="py-3.5 pr-4 text-sm text-slate-300">500 kg</td>
+   374→                                <td class="py-3.5 pr-4 text-sm text-cyan-400 font-medium">Rp 95.000/kg</td>
+   375→                                <td class="py-3.5 pr-4 text-sm text-slate-300">Koperasi Toraja Coffee</td>
+   376→                                <td class="py-3.5 pr-4">
+   377→                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/15 rounded-full text-amber-400 text-[10px] font-medium">
+   378→                                        <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+   379→                                        Pengiriman
+   380→                                    </span>
+   381→                                </td>
+   382→                                <td class="py-3.5 text-sm text-slate-400 text-right">2 Mar 2025</td>
+   383→                            </tr>
+   384→                            <tr class="hover:bg-slate-800/30 transition-colors">
+   385→                                <td class="py-3.5 pr-4">
+   386→                                    <span class="inline-flex items-center px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-400 text-[10px] font-medium">Penjualan</span>
+   387→                                </td>
+   388→                                <td class="py-3.5 pr-4 text-sm text-white font-medium">Pinang Super Nampu</td>
+   389→                                <td class="py-3.5 pr-4 text-sm text-slate-300">1.500 kg</td>
+   390→                                <td class="py-3.5 pr-4 text-sm text-emerald-400 font-medium">Rp 92.000/kg</td>
+   391→                                <td class="py-3.5 pr-4 text-sm text-slate-300">PT Pinang Jawa</td>
+   392→                                <td class="py-3.5 pr-4">
+   393→                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/15 rounded-full text-amber-400 text-[10px] font-medium">
+   394→                                        <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+   395→                                        Negosiasi
+   396→                                    </span>
+   397→                                </td>
+   398→                                <td class="py-3.5 text-sm text-slate-400 text-right">1 Mar 2025</td>
+   399→                            </tr>
+   400→                            <tr class="hover:bg-slate-800/30 transition-colors">
+   401→                                <td class="py-3.5 pr-4">
+   402→                                    <span class="inline-flex items-center px-2 py-0.5 bg-violet-500/10 border border-violet-500/20 rounded text-violet-400 text-[10px] font-medium">Permintaan</span>
+   403→                                </td>
+   404→                                <td class="py-3.5 pr-4 text-sm text-white font-medium">Kelapa Tua</td>
+   405→                                <td class="py-3.5 pr-4 text-sm text-slate-300">5.000 kg</td>
+   406→                                <td class="py-3.5 pr-4 text-sm text-violet-400 font-medium">Rp 12.000/kg</td>
+   407→                                <td class="py-3.5 pr-4 text-sm text-slate-300">CV Kelapa Sejahtera</td>
+   408→                                <td class="py-3.5 pr-4">
+   409→                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/15 rounded-full text-emerald-400 text-[10px] font-medium">
+   410→                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+   411→                                        Aktif
+   412→                                    </span>
+   413→                                </td>
+   414→                                <td class="py-3.5 text-sm text-slate-400 text-right">28 Feb 2025</td>
+   415→                            </tr>
+   416→                            <tr class="hover:bg-slate-800/30 transition-colors">
+   417→                                <td class="py-3.5 pr-4">
+   418→                                    <span class="inline-flex items-center px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-400 text-[10px] font-medium">Penjualan</span>
+   419→                                </td>
+   420→                                <td class="py-3.5 pr-4 text-sm text-white font-medium">Pinang Premium Grade A</td>
+   421→                                <td class="py-3.5 pr-4 text-sm text-slate-300">3.000 kg</td>
+   422→                                <td class="py-3.5 pr-4 text-sm text-emerald-400 font-medium">Rp 88.000/kg</td>
+   423→                                <td class="py-3.5 pr-4 text-sm text-slate-300">PT Nusantara Export</td>
+   424→                                <td class="py-3.5 pr-4">
+   425→                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-500/15 rounded-full text-slate-400 text-[10px] font-medium">
+   426→                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+   427→                                        Selesai
+   428→                                    </span>
+   429→                                </td>
+   430→                                <td class="py-3.5 text-sm text-slate-400 text-right">25 Feb 2025</td>
+   431→                            </tr>
+   432→                        </tbody>
+   433→                    </table>
+   434→                </div>
+   435→            </div>
+   436→        </main>
+   437→    </div>
+   438→
+   439→    <!-- WhatsApp Float Button -->
+   440→    <a href="https://wa.me/6281234567890" target="_blank" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 hover:shadow-emerald-500/50 hover:scale-110 transition-all" aria-label="Chat WhatsApp">
+   441→        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+   442→    </a>
+   443→
+   444→    <script type="module" src="./assets/js/modules/dashboard/index.js"></script>
+   445→
+   446→    <!-- NCE Mobile App Support -->
+   447→    <div id="mobile-drawer-container"></div>
+   448→    <script type="module" src="./assets/js/modules/mobile/index.js"></script>
+   449→
+   450→    <!-- PWA Registration -->
+   451→    <script type="module" src="./assets/js/modules/pwa/index.js"></script>
+   452→</body>
+   453→</html>

@@ -1,0 +1,819 @@
+     1→/**
+     2→ * Nusantara Commodity Exchange (NCE) - Charts Component
+     3→ * Pure SVG chart components (no external libraries)
+     4→ * Dark theme with emerald/cyan accents
+     5→ */
+     6→
+     7→// ── State ──────────────────────────────────────────────────────────────────
+     8→const chartInstances = new Map();
+     9→
+    10→// ── Inject Styles ──────────────────────────────────────────────────────────
+    11→let chartStylesInjected = false;
+    12→
+    13→function injectChartStyles() {
+    14→  if (chartStylesInjected) return;
+    15→  chartStylesInjected = true;
+    16→
+    17→  const style = document.createElement('style');
+    18→  style.id = 'nce-charts-styles';
+    19→  style.textContent = `
+    20→    .nce-chart-container {
+    21→      background: linear-gradient(135deg, #111827 0%, #0F172A 100%);
+    22→      border: 1px solid rgba(16, 185, 129, 0.08);
+    23→      border-radius: 16px;
+    24→      padding: 24px;
+    25→      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    26→      position: relative;
+    27→    }
+    28→
+    29→    .nce-chart-header {
+    30→      display: flex;
+    31→      align-items: center;
+    32→      justify-content: space-between;
+    33→      margin-bottom: 20px;
+    34→    }
+    35→
+    36→    .nce-chart-title {
+    37→      font-size: 16px;
+    38→      font-weight: 600;
+    39→      color: #F1F5F9;
+    40→      margin: 0;
+    41→    }
+    42→
+    43→    .nce-chart-periods {
+    44→      display: flex;
+    45→      gap: 4px;
+    46→      background: rgba(0, 0, 0, 0.3);
+    47→      border-radius: 8px;
+    48→      padding: 3px;
+    49→    }
+    50→
+    51→    .nce-chart-period-btn {
+    52→      padding: 6px 14px;
+    53→      background: transparent;
+    54→      border: none;
+    55→      color: #64748B;
+    56→      font-size: 12px;
+    57→      font-weight: 600;
+    58→      border-radius: 6px;
+    59→      cursor: pointer;
+    60→      transition: all 0.2s ease;
+    61→      font-family: inherit;
+    62→    }
+    63→
+    64→    .nce-chart-period-btn:hover {
+    65→      color: #CBD5E1;
+    66→    }
+    67→
+    68→    .nce-chart-period-btn.active {
+    69→      background: rgba(16, 185, 129, 0.15);
+    70→      color: #10B981;
+    71→    }
+    72→
+    73→    .nce-chart-svg {
+    74→      width: 100%;
+    75→      overflow: visible;
+    76→    }
+    77→
+    78→    .nce-chart-tooltip {
+    79→      position: absolute;
+    80→      background: #1E293B;
+    81→      border: 1px solid rgba(16, 185, 129, 0.2);
+    82→      border-radius: 10px;
+    83→      padding: 10px 14px;
+    84→      pointer-events: none;
+    85→      opacity: 0;
+    86→      transition: opacity 0.15s ease;
+    87→      z-index: 10;
+    88→      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    89→    }
+    90→
+    91→    .nce-chart-tooltip.visible {
+    92→      opacity: 1;
+    93→    }
+    94→
+    95→    .nce-chart-tooltip-date {
+    96→      font-size: 11px;
+    97→      color: #64748B;
+    98→      margin-bottom: 4px;
+    99→    }
+   100→
+   101→    .nce-chart-tooltip-value {
+   102→      font-size: 14px;
+   103→      font-weight: 600;
+   104→      color: #10B981;
+   105→    }
+   106→
+   107→    .nce-chart-grid-line {
+   108→      stroke: rgba(255, 255, 255, 0.04);
+   109→      stroke-width: 1;
+   110→    }
+   111→
+   112→    .nce-chart-axis-label {
+   113→      fill: #4B5563;
+   114→      font-size: 11px;
+   115→      font-family: 'Inter', -apple-system, sans-serif;
+   116→    }
+   117→
+   118→    .nce-chart-bar {
+   119→      transition: opacity 0.15s ease;
+   120→      cursor: pointer;
+   121→    }
+   122→
+   123→    .nce-chart-bar:hover {
+   124→      opacity: 0.85;
+   125→    }
+   126→
+   127→    .nce-chart-legend {
+   128→      display: flex;
+   129→      flex-wrap: wrap;
+   130→      gap: 16px;
+   131→      margin-top: 16px;
+   132→      justify-content: center;
+   133→    }
+   134→
+   135→    .nce-chart-legend-item {
+   136→      display: flex;
+   137→      align-items: center;
+   138→      gap: 6px;
+   139→      font-size: 13px;
+   140→      color: #94A3B8;
+   141→    }
+   142→
+   143→    .nce-chart-legend-dot {
+   144→      width: 10px;
+   145→      height: 10px;
+   146→      border-radius: 50%;
+   147→      flex-shrink: 0;
+   148→    }
+   149→
+   150→    .nce-donut-center-text {
+   151→      font-size: 24px;
+   152→      font-weight: 700;
+   153→      fill: #F1F5F9;
+   154→      font-family: 'Inter', -apple-system, sans-serif;
+   155→    }
+   156→
+   157→    .nce-donut-center-label {
+   158→      font-size: 12px;
+   159→      fill: #64748B;
+   160→      font-family: 'Inter', -apple-system, sans-serif;
+   161→    }
+   162→
+   163→    @keyframes nceDrawLine {
+   164→      from { stroke-dashoffset: var(--nce-line-length); }
+   165→      to { stroke-dashoffset: 0; }
+   166→    }
+   167→
+   168→    @keyframes nceGrowBar {
+   169→      from { transform: scaleY(0); }
+   170→      to { transform: scaleY(1); }
+   171→    }
+   172→
+   173→    @keyframes nceDrawArc {
+   174→      from { stroke-dashoffset: var(--nce-arc-length); }
+   175→      to { stroke-dashoffset: var(--nce-arc-offset); }
+   176→    }
+   177→
+   178→    @keyframes nceFadeIn {
+   179→      from { opacity: 0; transform: translateY(4px); }
+   180→      to { opacity: 1; transform: translateY(0); }
+   181→    }
+   182→  `;
+   183→  document.head.appendChild(style);
+   184→}
+   185→
+   186→// ── Helpers ────────────────────────────────────────────────────────────────
+   187→
+   188→function formatIDR(amount) {
+   189→  if (amount == null || isNaN(amount)) return 'Rp 0';
+   190→  const formatted = Math.abs(amount).toLocaleString('id-ID');
+   191→  return amount < 0 ? `-Rp ${formatted}` : `Rp ${formatted}`;
+   192→}
+   193→
+   194→function formatCompactNumber(num) {
+   195→  if (num == null || isNaN(num)) return '0';
+   196→  if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'M';
+   197→  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'Jt';
+   198→  if (num >= 1000) return (num / 1000).toFixed(1) + 'Rb';
+   199→  return num.toString();
+   200→}
+   201→
+   202→function formatDate(dateStr, period) {
+   203→  const d = new Date(dateStr);
+   204→  if (isNaN(d.getTime())) return dateStr;
+   205→  if (period === '1W' || period === '1M') {
+   206→    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+   207→  }
+   208→  return d.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
+   209→}
+   210→
+   211→function generateUniqueId() {
+   212→  return 'nce-chart-' + Math.random().toString(36).substring(2, 9);
+   213→}
+   214→
+   215→/**
+   216→ * Compute nice tick values for an axis
+   217→ */
+   218→function niceScale(minVal, maxVal, maxTicks = 5) {
+   219→  const range = maxVal - minVal;
+   220→  if (range === 0) return { min: minVal - 1, max: maxVal + 1, ticks: [minVal - 1, minVal, maxVal + 1] };
+   221→
+   222→  const roughStep = range / maxTicks;
+   223→  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+   224→  const residual = roughStep / magnitude;
+   225→
+   226→  let niceStep;
+   227→  if (residual <= 1.5) niceStep = 1 * magnitude;
+   228→  else if (residual <= 3) niceStep = 2 * magnitude;
+   229→  else if (residual <= 7) niceStep = 5 * magnitude;
+   230→  else niceStep = 10 * magnitude;
+   231→
+   232→  const niceMin = Math.floor(minVal / niceStep) * niceStep;
+   233→  const niceMax = Math.ceil(maxVal / niceStep) * niceStep;
+   234→
+   235→  const ticks = [];
+   236→  for (let v = niceMin; v <= niceMax + niceStep * 0.5; v += niceStep) {
+   237→    ticks.push(Math.round(v * 1000) / 1000);
+   238→  }
+   239→
+   240→  return { min: niceMin, max: niceMax, ticks };
+   241→}
+   242→
+   243→// ── Price Chart (Line Chart) ───────────────────────────────────────────────
+   244→export function renderPriceChart(containerId, data, period = '1M') {
+   245→  injectChartStyles();
+   246→
+   247→  const container = document.getElementById(containerId);
+   248→  if (!container) {
+   249→    console.error(`Chart container #${containerId} not found`);
+   250→    return;
+   251→  }
+   252→
+   253→  container.classList.add('nce-chart-container');
+   254→
+   255→  const chartId = generateUniqueId();
+   256→
+   257→  // Default data if empty
+   258→  if (!data || data.length === 0) {
+   259→    data = _generateDefaultPriceData(period);
+   260→  }
+   261→
+   262→  // Chart dimensions
+   263→  const margin = { top: 20, right: 20, bottom: 40, left: 70 };
+   264→  const width = container.clientWidth - 48; // subtract padding
+   265→  const height = 300;
+   266→  const innerWidth = width - margin.left - margin.right;
+   267→  const innerHeight = height - margin.top - margin.bottom;
+   268→
+   269→  // Scale data
+   270→  const prices = data.map(d => d.price);
+   271→  const minPrice = Math.min(...prices);
+   272→  const maxPrice = Math.max(...prices);
+   273→  const scale = niceScale(minPrice * 0.98, maxPrice * 1.02, 5);
+   274→
+   275→  const xScale = (i) => (i / (data.length - 1)) * innerWidth;
+   276→  const yScale = (v) => innerHeight - ((v - scale.min) / (scale.max - scale.min)) * innerHeight;
+   277→
+   278→  // Build path data
+   279→  const linePoints = data.map((d, i) => `${xScale(i)},${yScale(d.price)}`);
+   280→  const linePath = `M${linePoints.join(' L')}`;
+   281→
+   282→  // Build area path (for gradient fill)
+   283→  const areaPath = `${linePath} L${xScale(data.length - 1)},${innerHeight} L${xScale(0)},${innerHeight} Z`;
+   284→
+   285→  // Compute line length for animation
+   286→  let lineLength = 0;
+   287→  for (let i = 1; i < data.length; i++) {
+   288→    const dx = xScale(i) - xScale(i - 1);
+   289→    const dy = yScale(data[i].price) - yScale(data[i - 1].price);
+   290→    lineLength += Math.sqrt(dx * dx + dy * dy);
+   291→  }
+   292→
+   293→  // Grid lines
+   294→  const gridLines = scale.ticks.map(v => {
+   295→    const y = yScale(v) + margin.top;
+   296→    return `<line x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}" class="nce-chart-grid-line"/>`;
+   297→  }).join('');
+   298→
+   299→  // Y-axis labels
+   300→  const yLabels = scale.ticks.map(v => {
+   301→    const y = yScale(v) + margin.top;
+   302→    return `<text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" class="nce-chart-axis-label">${formatCompactNumber(v)}</text>`;
+   303→  }).join('');
+   304→
+   305→  // X-axis labels (show subset)
+   306→  const maxLabels = Math.min(data.length, Math.floor(innerWidth / 60));
+   307→  const labelStep = Math.max(1, Math.floor(data.length / maxLabels));
+   308→  const xLabels = [];
+   309→  for (let i = 0; i < data.length; i += labelStep) {
+   310→    const x = xScale(i) + margin.left;
+   311→    const y = height - margin.bottom + 20;
+   312→    xLabels.push(`<text x="${x}" y="${y}" text-anchor="middle" class="nce-chart-axis-label">${formatDate(data[i].date, period)}</text>`);
+   313→  }
+   314→
+   315→  // Gradient definition
+   316→  const gradId = `${chartId}-grad`;
+   317→
+   318→  // Tooltip HTML
+   319→  const tooltipId = `${chartId}-tooltip`;
+   320→
+   321→  // Period buttons
+   322→  const periods = ['1W', '1M', '3M', '1Y'];
+   323→
+   324→  const html = `
+   325→    <div class="nce-chart-header">
+   326→      <h3 class="nce-chart-title">Price Chart</h3>
+   327→      <div class="nce-chart-periods">
+   328→        ${periods.map(p => `
+   329→          <button class="nce-chart-period-btn${p === period ? ' active' : ''}" data-period="${p}" data-chart-id="${chartId}">${p}</button>
+   330→        `).join('')}
+   331→      </div>
+   332→    </div>
+   333→    <div style="position:relative;">
+   334→      <svg class="nce-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
+   335→        <defs>
+   336→          <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+   337→            <stop offset="0%" stop-color="#10B981" stop-opacity="0.3"/>
+   338→            <stop offset="100%" stop-color="#06B6D4" stop-opacity="0.02"/>
+   339→          </linearGradient>
+   340→        </defs>
+   341→
+   342→        <g transform="translate(${margin.left}, ${margin.top})">
+   343→          <!-- Grid -->
+   344→          ${gridLines}
+   345→
+   346→          <!-- Area fill -->
+   347→          <path d="${areaPath}" fill="url(#${gradId})" opacity="0">
+   348→            <animate attributeName="opacity" from="0" to="1" dur="0.8s" fill="freeze" begin="0.3s"/>
+   349→          </path>
+   350→
+   351→          <!-- Line -->
+   352→          <path d="${linePath}" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+   353→                style="--nce-line-length: ${lineLength};" stroke-dasharray="${lineLength}" stroke-dashoffset="${lineLength}">
+   354→            <animate attributeName="stroke-dashoffset" from="${lineLength}" to="0" dur="1.2s" fill="freeze" calcMode="spline" keySplines="0.4 0 0.2 1"/>
+   355→          </path>
+   356→
+   357→          <!-- Data points (only show on hover target areas) -->
+   358→          ${data.map((d, i) => `
+   359→            <circle cx="${xScale(i)}" cy="${yScale(d.price)}" r="0" fill="#10B981" stroke="#111827" stroke-width="2"
+   360→                    class="nce-chart-dot" data-index="${i}" style="transition: r 0.15s ease;"/>
+   361→            <rect x="${xScale(i) - (innerWidth / data.length) / 2}" y="0" width="${innerWidth / data.length}" height="${innerHeight}"
+   362→                  fill="transparent" data-index="${i}" class="nce-chart-hover-area"/>
+   363→          `).join('')}
+   364→        </g>
+   365→
+   366→        <!-- Y-axis labels -->
+   367→        ${yLabels}
+   368→
+   369→        <!-- X-axis labels -->
+   370→        ${xLabels.join('')}
+   371→      </svg>
+   372→
+   373→      <div class="nce-chart-tooltip" id="${tooltipId}">
+   374→        <div class="nce-chart-tooltip-date" id="${tooltipId}-date"></div>
+   375→        <div class="nce-chart-tooltip-value" id="${tooltipId}-value"></div>
+   376→      </div>
+   377→    </div>
+   378→  `;
+   379→
+   380→  container.innerHTML = html;
+   381→
+   382→  // ── Interactivity ──────────────────────────────────────────────────────
+   383→  const svg = container.querySelector('svg');
+   384→  const tooltip = document.getElementById(tooltipId);
+   385→  const tooltipDate = document.getElementById(`${tooltipId}-date`);
+   386→  const tooltipValue = document.getElementById(`${tooltipId}-value`);
+   387→  const dots = container.querySelectorAll('.nce-chart-dot');
+   388→  const hoverAreas = container.querySelectorAll('.nce-chart-hover-area');
+   389→
+   390→  hoverAreas.forEach(area => {
+   391→    area.addEventListener('mouseenter', (e) => {
+   392→      const idx = parseInt(area.getAttribute('data-index'));
+   393→      const dot = container.querySelector(`.nce-chart-dot[data-index="${idx}"]`);
+   394→      if (dot) dot.setAttribute('r', '5');
+   395→
+   396→      const d = data[idx];
+   397→      if (d) {
+   398→        tooltipDate.textContent = new Date(d.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+   399→        tooltipValue.textContent = formatIDR(d.price);
+   400→        tooltip.classList.add('visible');
+   401→
+   402→        // Position tooltip
+   403→        const svgRect = svg.getBoundingClientRect();
+   404→        const pointX = xScale(idx) + margin.left;
+   405→        const pointY = yScale(d.price) + margin.top;
+   406→        const tooltipRect = tooltip.getBoundingClientRect();
+   407→        const containerRect = container.getBoundingClientRect();
+   408→
+   409→        let left = pointX - tooltipRect.width / 2;
+   410→        let top = pointY - tooltipRect.height - 12;
+   411→
+   412→        // Keep tooltip inside container
+   413→        if (left < 0) left = 4;
+   414→        if (left + tooltipRect.width > width) left = width - tooltipRect.width - 4;
+   415→        if (top < 0) top = pointY + 16;
+   416→
+   417→        tooltip.style.left = `${left}px`;
+   418→        tooltip.style.top = `${top}px`;
+   419→      }
+   420→    });
+   421→
+   422→    area.addEventListener('mouseleave', () => {
+   423→      const idx = parseInt(area.getAttribute('data-index'));
+   424→      const dot = container.querySelector(`.nce-chart-dot[data-index="${idx}"]`);
+   425→      if (dot) dot.setAttribute('r', '0');
+   426→      tooltip.classList.remove('visible');
+   427→    });
+   428→  });
+   429→
+   430→  // Period toggle buttons
+   431→  const periodBtns = container.querySelectorAll('.nce-chart-period-btn');
+   432→  periodBtns.forEach(btn => {
+   433→    btn.addEventListener('click', () => {
+   434→      const newPeriod = btn.getAttribute('data-period');
+   435→      periodBtns.forEach(b => b.classList.remove('active'));
+   436→      btn.classList.add('active');
+   437→      // Re-render with new period data
+   438→      const newData = _generateDefaultPriceData(newPeriod);
+   439→      renderPriceChart(containerId, newData, newPeriod);
+   440→    });
+   441→  });
+   442→
+   443→  // Store instance
+   444→  chartInstances.set(chartId, { type: 'price', containerId, data, period });
+   445→}
+   446→
+   447→// ── Volume Chart (Bar Chart) ───────────────────────────────────────────────
+   448→export function renderVolumeChart(containerId, data) {
+   449→  injectChartStyles();
+   450→
+   451→  const container = document.getElementById(containerId);
+   452→  if (!container) {
+   453→    console.error(`Chart container #${containerId} not found`);
+   454→    return;
+   455→  }
+   456→
+   457→  container.classList.add('nce-chart-container');
+   458→
+   459→  const chartId = generateUniqueId();
+   460→
+   461→  if (!data || data.length === 0) {
+   462→    data = [
+   463→      { label: 'Jan', value: 1200 },
+   464→      { label: 'Feb', value: 1800 },
+   465→      { label: 'Mar', value: 1400 },
+   466→      { label: 'Apr', value: 2100 },
+   467→      { label: 'May', value: 1700 },
+   468→      { label: 'Jun', value: 2400 }
+   469→    ];
+   470→  }
+   471→
+   472→  const margin = { top: 20, right: 20, bottom: 50, left: 60 };
+   473→  const width = container.clientWidth - 48;
+   474→  const height = 280;
+   475→  const innerWidth = width - margin.left - margin.right;
+   476→  const innerHeight = height - margin.top - margin.bottom;
+   477→
+   478→  const values = data.map(d => d.value);
+   479→  const scale = niceScale(0, Math.max(...values), 5);
+   480→
+   481→  const barWidth = Math.min(48, (innerWidth / data.length) * 0.6);
+   482→  const barGap = (innerWidth / data.length);
+   483→
+   484→  const yScale = (v) => innerHeight - ((v - scale.min) / (scale.max - scale.min)) * innerHeight;
+   485→
+   486→  // Grid lines
+   487→  const gridLines = scale.ticks.map(v => {
+   488→    const y = yScale(v) + margin.top;
+   489→    return `<line x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}" class="nce-chart-grid-line"/>`;
+   490→  }).join('');
+   491→
+   492→  // Y-axis labels
+   493→  const yLabels = scale.ticks.map(v => {
+   494→    const y = yScale(v) + margin.top;
+   495→    return `<text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" class="nce-chart-axis-label">${formatCompactNumber(v)}</text>`;
+   496→  }).join('');
+   497→
+   498→  // Bars
+   499→  const bars = data.map((d, i) => {
+   500→    const x = margin.left + barGap * i + (barGap - barWidth) / 2;
+   501→    const barHeight = innerHeight - yScale(d.value);
+   502→    const y = yScale(d.value) + margin.top;
+   503→
+   504→    return `
+   505→      <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="4" ry="4"
+   506→            fill="url(#${chartId}-bar-grad)" class="nce-chart-bar" data-index="${i}"
+   507→            style="transform-origin: ${x + barWidth / 2}px ${innerHeight + margin.top}px; animation: nceGrowBar 0.6s cubic-bezier(0.4, 0, 0.2, 1) ${i * 0.05}s both;"/>
+   508→      <text x="${x + barWidth / 2}" y="${height - margin.bottom + 20}" text-anchor="middle" class="nce-chart-axis-label">${d.label}</text>
+   509→    `;
+   510→  }).join('');
+   511→
+   512→  const tooltipId = `${chartId}-tooltip`;
+   513→
+   514→  const html = `
+   515→    <div class="nce-chart-header">
+   516→      <h3 class="nce-chart-title">Volume</h3>
+   517→    </div>
+   518→    <div style="position:relative;">
+   519→      <svg class="nce-chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
+   520→        <defs>
+   521→          <linearGradient id="${chartId}-bar-grad" x1="0" y1="0" x2="0" y2="1">
+   522→            <stop offset="0%" stop-color="#10B981"/>
+   523→            <stop offset="100%" stop-color="#059669"/>
+   524→          </linearGradient>
+   525→        </defs>
+   526→
+   527→        ${gridLines}
+   528→        ${yLabels}
+   529→        ${bars}
+   530→      </svg>
+   531→
+   532→      <div class="nce-chart-tooltip" id="${tooltipId}">
+   533→        <div class="nce-chart-tooltip-date" id="${tooltipId}-label"></div>
+   534→        <div class="nce-chart-tooltip-value" id="${tooltipId}-value"></div>
+   535→      </div>
+   536→    </div>
+   537→  `;
+   538→
+   539→  container.innerHTML = html;
+   540→
+   541→  // Bar hover
+   542→  const barElements = container.querySelectorAll('.nce-chart-bar');
+   543→  const tooltip = document.getElementById(tooltipId);
+   544→  const tooltipLabel = document.getElementById(`${tooltipId}-label`);
+   545→  const tooltipValue = document.getElementById(`${tooltipId}-value`);
+   546→
+   547→  barElements.forEach(bar => {
+   548→    bar.addEventListener('mouseenter', (e) => {
+   549→      const idx = parseInt(bar.getAttribute('data-index'));
+   550→      const d = data[idx];
+   551→      if (d) {
+   552→        tooltipLabel.textContent = d.label;
+   553→        tooltipValue.textContent = formatCompactNumber(d.value);
+   554→        tooltip.classList.add('visible');
+   555→
+   556→        const rect = bar.getBoundingClientRect();
+   557→        const containerRect = container.getBoundingClientRect();
+   558→        tooltip.style.left = `${rect.left - containerRect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+   559→        tooltip.style.top = `${rect.top - containerRect.top - tooltip.offsetHeight - 8}px`;
+   560→      }
+   561→    });
+   562→
+   563→    bar.addEventListener('mouseleave', () => {
+   564→      tooltip.classList.remove('visible');
+   565→    });
+   566→  });
+   567→
+   568→  chartInstances.set(chartId, { type: 'volume', containerId, data });
+   569→}
+   570→
+   571→// ── Pie Chart (Donut) ──────────────────────────────────────────────────────
+   572→export function renderPieChart(containerId, data) {
+   573→  injectChartStyles();
+   574→
+   575→  const container = document.getElementById(containerId);
+   576→  if (!container) {
+   577→    console.error(`Chart container #${containerId} not found`);
+   578→    return;
+   579→  }
+   580→
+   581→  container.classList.add('nce-chart-container');
+   582→
+   583→  const chartId = generateUniqueId();
+   584→
+   585→  if (!data || data.length === 0) {
+   586→    data = [
+   587→      { label: 'Sawit', value: 35, color: '#10B981' },
+   588→      { label: 'Karet', value: 25, color: '#06B6D4' },
+   589→      { label: 'Kopi', value: 20, color: '#8B5CF6' },
+   590→      { label: 'Tembakau', value: 12, color: '#F59E0B' },
+   591→      { label: 'Lainnya', value: 8, color: '#6B7280' }
+   592→    ];
+   593→  }
+   594→
+   595→  const total = data.reduce((sum, d) => sum + d.value, 0);
+   596→
+   597→  const size = Math.min(container.clientWidth - 48, 300);
+   598→  const cx = size / 2;
+   599→  const cy = size / 2;
+   600→  const outerR = size / 2 - 20;
+   601→  const innerR = outerR * 0.6;
+   602→  const svgHeight = size + 40; // extra space for legend below
+   603→
+   604→  // Calculate arcs
+   605→  let currentAngle = -Math.PI / 2; // start from top
+   606→  const arcs = data.map((d, i) => {
+   607→    const angle = (d.value / total) * 2 * Math.PI;
+   608→    const startAngle = currentAngle;
+   609→    const endAngle = currentAngle + angle;
+   610→    currentAngle = endAngle;
+   611→
+   612→    const x1Outer = cx + outerR * Math.cos(startAngle);
+   613→    const y1Outer = cy + outerR * Math.sin(startAngle);
+   614→    const x2Outer = cx + outerR * Math.cos(endAngle);
+   615→    const y2Outer = cy + outerR * Math.sin(endAngle);
+   616→    const x1Inner = cx + innerR * Math.cos(endAngle);
+   617→    const y1Inner = cy + innerR * Math.sin(endAngle);
+   618→    const x2Inner = cx + innerR * Math.cos(startAngle);
+   619→    const y2Inner = cy + innerR * Math.sin(startAngle);
+   620→
+   621→    const largeArc = angle > Math.PI ? 1 : 0;
+   622→
+   623→    const path = [
+   624→      `M ${x1Outer} ${y1Outer}`,
+   625→      `A ${outerR} ${outerR} 0 ${largeArc} 1 ${x2Outer} ${y2Outer}`,
+   626→      `L ${x1Inner} ${y1Inner}`,
+   627→      `A ${innerR} ${innerR} 0 ${largeArc} 0 ${x2Inner} ${y2Inner}`,
+   628→      'Z'
+   629→    ].join(' ');
+   630→
+   631→    // Arc length for animation
+   632→    const arcLength = angle * outerR;
+   633→    const arcOffset = 0; // fully drawn state
+   634→
+   635→    return {
+   636→      path,
+   637→      color: d.color,
+   638→      arcLength,
+   639→      arcOffset,
+   640→      startAngle,
+   641→      endAngle,
+   642→      label: d.label,
+   643→      value: d.value,
+   644→      percentage: ((d.value / total) * 100).toFixed(1)
+   645→    };
+   646→  });
+   647→
+   648→  const arcsHTML = arcs.map((arc, i) => `
+   649→    <path d="${arc.path}" fill="${arc.color}" opacity="0.9"
+   650→          style="--nce-arc-length: ${arc.arcLength}; --nce-arc-offset: ${arc.arcOffset}; stroke: #111827; stroke-width: 2;"
+   651→          data-index="${i}" class="nce-chart-bar">
+   652→      <animate attributeName="opacity" from="0" to="0.9" dur="0.5s" fill="freeze" begin="${i * 0.1}s"/>
+   653→    </path>
+   654→  `).join('');
+   655→
+   656→  const html = `
+   657→    <div class="nce-chart-header">
+   658→      <h3 class="nce-chart-title">Distribution</h3>
+   659→    </div>
+   660→    <svg class="nce-chart-svg" viewBox="0 0 ${size} ${svgHeight}" preserveAspectRatio="xMidYMid meet">
+   661→      ${arcsHTML}
+   662→
+   663→      <!-- Center text -->
+   664→      <text x="${cx}" y="${cy - 6}" text-anchor="middle" class="nce-donut-center-text">${formatCompactNumber(total)}</text>
+   665→      <text x="${cx}" y="${cy + 14}" text-anchor="middle" class="nce-donut-center-label">Total</text>
+   666→    </svg>
+   667→
+   668→    <div class="nce-chart-legend">
+   669→      ${data.map(d => `
+   670→        <div class="nce-chart-legend-item">
+   671→          <span class="nce-chart-legend-dot" style="background:${d.color};"></span>
+   672→          ${d.label} (${((d.value / total) * 100).toFixed(1)}%)
+   673→        </div>
+   674→      `).join('')}
+   675→    </div>
+   676→  `;
+   677→
+   678→  container.innerHTML = html;
+   679→
+   680→  // Hover effect on arcs
+   681→  const arcPaths = container.querySelectorAll('.nce-chart-bar');
+   682→  arcPaths.forEach(arcPath => {
+   683→    arcPath.addEventListener('mouseenter', () => {
+   684→      arcPath.setAttribute('opacity', '1');
+   685→      arcPath.style.filter = 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.3))';
+   686→    });
+   687→    arcPath.addEventListener('mouseleave', () => {
+   688→      arcPath.setAttribute('opacity', '0.9');
+   689→      arcPath.style.filter = 'none';
+   690→    });
+   691→  });
+   692→
+   693→  chartInstances.set(chartId, { type: 'pie', containerId, data });
+   694→}
+   695→
+   696→// ── Mini Chart (Sparkline) ─────────────────────────────────────────────────
+   697→export function renderMiniChart(containerId, data, color = '#10B981') {
+   698→  injectChartStyles();
+   699→
+   700→  const container = document.getElementById(containerId);
+   701→  if (!container) {
+   702→    console.error(`Chart container #${containerId} not found`);
+   703→    return;
+   704→  }
+   705→
+   706→  if (!data || data.length === 0) {
+   707→    data = [30, 45, 28, 55, 40, 65, 50, 70, 60, 80];
+   708→  }
+   709→
+   710→  const width = 120;
+   711→  const height = 40;
+   712→  const padding = 2;
+   713→
+   714→  const minVal = Math.min(...data);
+   715→  const maxVal = Math.max(...data);
+   716→  const range = maxVal - minVal || 1;
+   717→
+   718→  const xStep = (width - padding * 2) / (data.length - 1);
+   719→
+   720→  const points = data.map((v, i) => {
+   721→    const x = padding + i * xStep;
+   722→    const y = height - padding - ((v - minVal) / range) * (height - padding * 2);
+   723→    return `${x},${y}`;
+   724→  });
+   725→
+   726→  const linePath = `M${points.join(' L')}`;
+   727→
+   728→  // Area path
+   729→  const areaPath = `${linePath} L${padding + (data.length - 1) * xStep},${height} L${padding},${height} Z`;
+   730→
+   731→  // Compute line length for animation
+   732→  let lineLength = 0;
+   733→  for (let i = 1; i < data.length; i++) {
+   734→    const x1 = padding + (i - 1) * xStep;
+   735→    const y1 = height - padding - ((data[i - 1] - minVal) / range) * (height - padding * 2);
+   736→    const x2 = padding + i * xStep;
+   737→    const y2 = height - padding - ((data[i] - minVal) / range) * (height - padding * 2);
+   738→    lineLength += Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+   739→  }
+   740→
+   741→  const gradId = generateUniqueId();
+   742→
+   743→  container.innerHTML = `
+   744→    <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" style="display:block;overflow:visible;">
+   745→      <defs>
+   746→        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+   747→          <stop offset="0%" stop-color="${color}" stop-opacity="0.2"/>
+   748→          <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+   749→        </linearGradient>
+   750→      </defs>
+   751→      <path d="${areaPath}" fill="url(#${gradId})">
+   752→        <animate attributeName="opacity" from="0" to="1" dur="0.5s" fill="freeze" begin="0.2s"/>
+   753→      </path>
+   754→      <path d="${linePath}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+   755→            stroke-dasharray="${lineLength}" stroke-dashoffset="${lineLength}">
+   756→        <animate attributeName="stroke-dashoffset" from="${lineLength}" to="0" dur="0.8s" fill="freeze" calcMode="spline" keySplines="0.4 0 0.2 1"/>
+   757→      </path>
+   758→    </svg>
+   759→  `;
+   760→}
+   761→
+   762→// ── Default Data Generators ────────────────────────────────────────────────
+   763→function _generateDefaultPriceData(period) {
+   764→  const now = new Date();
+   765→  let days;
+   766→
+   767→  switch (period) {
+   768→    case '1W': days = 7; break;
+   769→    case '1M': days = 30; break;
+   770→    case '3M': days = 90; break;
+   771→    case '1Y': days = 365; break;
+   772→    default: days = 30;
+   773→  }
+   774→
+   775→  const data = [];
+   776→  let price = 15000 + Math.random() * 5000;
+   777→  const step = Math.max(1, Math.floor(days / 60));
+   778→
+   779→  for (let i = days; i >= 0; i -= step) {
+   780→    const date = new Date(now);
+   781→    date.setDate(date.getDate() - i);
+   782→    price += (Math.random() - 0.48) * 800;
+   783→    price = Math.max(8000, price);
+   784→    data.push({
+   785→      date: date.toISOString().split('T')[0],
+   786→      price: Math.round(price)
+   787→    });
+   788→  }
+   789→
+   790→  return data;
+   791→}
+   792→
+   793→// ── Resize Handler ─────────────────────────────────────────────────────────
+   794→export function resizeCharts() {
+   795→  chartInstances.forEach((instance, id) => {
+   796→    const container = document.getElementById(instance.containerId);
+   797→    if (!container) return;
+   798→
+   799→    switch (instance.type) {
+   800→      case 'price':
+   801→        renderPriceChart(instance.containerId, instance.data, instance.period);
+   802→        break;
+   803→      case 'volume':
+   804→        renderVolumeChart(instance.containerId, instance.data);
+   805→        break;
+   806→      case 'pie':
+   807→        renderPieChart(instance.containerId, instance.data);
+   808→        break;
+   809→    }
+   810→  });
+   811→}
+   812→
+   813→// Auto-resize on window resize with debounce
+   814→let resizeTimeout;
+   815→window.addEventListener('resize', () => {
+   816→  clearTimeout(resizeTimeout);
+   817→  resizeTimeout = setTimeout(resizeCharts, 250);
+   818→});
+   819→
